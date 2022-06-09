@@ -1,0 +1,31 @@
+"""BaseCRUD extension and instance for Pipeline model."""
+from typing import List
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models import Pipeline
+
+from ._base import BaseCRUD
+
+
+class PipelinesCRUD(BaseCRUD[Pipeline]):
+    """Base CRUD extension for Pipeline model."""
+
+    def get_entities(self, session: Session) -> List[Pipeline]:
+        """Override get_entities to return only pipelines."""
+        return session.scalars(
+            select(Pipeline).where(Pipeline.pipeline_id.is_not(None))
+        ).all()
+
+    @staticmethod
+    def get_entities_for_team(session: Session, team_id: int) -> List[Pipeline]:
+        """Get all pipelines for a given team."""
+        return session.scalars(
+            select(Pipeline)
+            .where(Pipeline.team_id == team_id)
+            .where(Pipeline.pipeline_id.is_not(None))
+        ).all()
+
+
+pipelines_crud = PipelinesCRUD(Pipeline)

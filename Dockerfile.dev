@@ -1,0 +1,18 @@
+FROM python:slim
+
+WORKDIR /app
+
+RUN apt-get -y update && \
+    apt-get -y install \
+    gcc \
+    libpq-dev
+
+COPY requirements.txt .
+
+RUN pip install --upgrade pip
+
+RUN pip install --no-deps -r requirements.txt
+
+COPY . .
+
+ENTRYPOINT ["./entrypoint.sh"]

@@ -1,0 +1,32 @@
+"""Application entrypoint."""
+from flask import Flask, Response
+
+from app import config
+from app.database import Database
+from app.middleware import set_csp, set_user
+from app.spec import generate_spec
+from app.views import router
+
+
+def create_app():
+    """Application factory."""
+    app = Flask(__name__)
+    app.config.from_object(config)
+
+    if config.SSO_ENABLED:
+
+        @app.before_request
+        def authentication_middleware():
+            """Use Authentication Middleware."""
+            set_user()
+
+    @app.after_request
+    def csp_middleware(response: Response) -> Response:
+        """Use CSP Middleware."""
+        return set_csp(response)
+
+    app.register_blueprint(router)
+    generate_spec(app)
+    Database.establish_connection()
+
+    return app

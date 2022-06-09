@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "holocron-api"
+version = "0.1.0"
+description = ""
+authors = ["Mark Howard <mark.howard.7@us.af.mil>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+alembic = "^1.7.7"
+Flask = "^2.1.1"
+gunicorn = "^20.1.0"
+psycopg2 = "^2.9.3"
+SQLAlchemy = "^1.4.35"
+marshmallow = "^3.15.0"
+marshmallow-sqlalchemy = "^0.28.0"
+flasgger = "^0.9.5"
+apispec = "^5.1.1"
+apispec-webframeworks = "^0.5.2"
+PyJWT = "^2.3.0"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+isort = "^5.10.1"
+mypy = "^0.942"
+pydocstyle = "^6.1.1"
+pytest = "^7.1.1"
+pytest-cov = "^3.0.0"
+toml = "^0.10.2"
+pylint = "^2.13.9"
+
+[tool.pydocstyle]
+match-dir = "^(?!alembic).*"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+exclude = ["^alembic"]
+
+[[tool.mypy.overrides]]
+module = ["sqlalchemy.*", "apispec_webframeworks.flask", "flasgger"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+omit = ["tests/*"]
+branch = true
+
+[tool.coverage.report]
+skip_empty = true
+show_missing = true
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = ["R0903", "R0801"]
+max-line-length = 88
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

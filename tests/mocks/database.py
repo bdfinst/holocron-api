@@ -1,0 +1,65 @@
+"""Database mocks."""
+from unittest.mock import MagicMock
+
+
+class MockQuery:
+    """Mock class to represent a query."""
+
+    def __init__(self, statement):
+        """Initialize with a statement."""
+        self.statement = statement
+
+    def where(self, condition):
+        """Add a condition to the statement."""
+        self.statement += f" WHERE {condition}"
+        return self
+
+    def all(self):
+        """Return an array of MagicMocks with the statements."""
+        mock = MagicMock()
+        mock.statement = self.statement
+        return [mock]
+
+    def first(self):
+        """Return statement."""
+        mock = MagicMock()
+        mock.statement = self.statement
+        return mock
+
+    def join(self, target_model, condition):
+        """Mock for sqlalchemy join function."""
+        self.statement += " " + f"JOIN {target_model.__tablename__} ON {condition}"
+        return self
+
+
+def mock_select(model):
+    """Mock for sqlalchemy select function."""
+    return MockQuery(f"SELECT * FROM {model.__tablename__}")
+
+
+def mock_delete(model):
+    """Mock for sqlalchemy delete function."""
+    return MockQuery(f"DELETE FROM {model.__tablename__}")
+
+
+class MockDatabase:
+    """Mock class to represent the database session."""
+
+    scalars = MagicMock(side_effect=lambda x: x)
+    execute = MagicMock(side_effect=lambda x: x)
+    add = MagicMock()
+    commit = MagicMock()
+    refresh = MagicMock()
+    close = MagicMock()
+
+    def reset(self):
+        """Reset the mocks."""
+        self.scalars.reset()
+        self.execute.reset()
+        self.add.reset()
+        self.commit.reset()
+        self.refresh.reset()
+        self.close.reset()
+
+
+session = MockDatabase()

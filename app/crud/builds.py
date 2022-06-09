@@ -1,0 +1,12 @@
+"""BaseCRUD extension and instance for Build model."""
+from app.models import Build
+from app.models.pipeline import Pipeline
+
+from ._base import BaseMetricCRUD
+
+
+class BuildCRUD(BaseMetricCRUD[Build]):
+    """Base CRUD extension for Build model."""
+
+
+builds_crud = BuildCRUD(Build, Pipeline)
