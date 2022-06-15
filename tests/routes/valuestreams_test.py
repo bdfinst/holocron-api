@@ -1,4 +1,4 @@
-"""Valuestream view tests."""
+"""Valuestream route tests."""
 
 
 def test_list_valuestreams(client, mock_crud):

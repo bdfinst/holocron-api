@@ -38,18 +38,18 @@ def mock_session(monkeypatch):
 def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(app.middleware.auth, "users_crud", crud)
-    monkeypatch.setattr(app.views.branches, "branches_crud", crud)
-    monkeypatch.setattr(app.views.builds, "builds_crud", crud)
-    monkeypatch.setattr(app.views.commits, "commits_crud", crud)
-    monkeypatch.setattr(app.views.git_requests, "git_requests_crud", crud)
-    monkeypatch.setattr(app.views.organizations, "organizations_crud", crud)
-    monkeypatch.setattr(app.views.pipelines, "pipelines_crud", crud)
-    monkeypatch.setattr(app.views.repositories, "repositories_crud", crud)
-    monkeypatch.setattr(app.views.ticket_boards, "ticket_boards_crud", crud)
-    monkeypatch.setattr(app.views.tickets, "tickets_crud", crud)
-    monkeypatch.setattr(app.views.teams, "teams_crud", crud)
-    monkeypatch.setattr(app.views.users, "users_crud", crud)
-    monkeypatch.setattr(app.views.valuestreams, "valuestreams_crud", crud)
+    monkeypatch.setattr(app.routes.branches, "branches_crud", crud)
+    monkeypatch.setattr(app.routes.builds, "builds_crud", crud)
+    monkeypatch.setattr(app.routes.commits, "commits_crud", crud)
+    monkeypatch.setattr(app.routes.git_requests, "git_requests_crud", crud)
+    monkeypatch.setattr(app.routes.organizations, "organizations_crud", crud)
+    monkeypatch.setattr(app.routes.pipelines, "pipelines_crud", crud)
+    monkeypatch.setattr(app.routes.repositories, "repositories_crud", crud)
+    monkeypatch.setattr(app.routes.ticket_boards, "ticket_boards_crud", crud)
+    monkeypatch.setattr(app.routes.tickets, "tickets_crud", crud)
+    monkeypatch.setattr(app.routes.teams, "teams_crud", crud)
+    monkeypatch.setattr(app.routes.users, "users_crud", crud)
+    monkeypatch.setattr(app.routes.valuestreams, "valuestreams_crud", crud)
     return crud
 
 

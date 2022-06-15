@@ -1,4 +1,4 @@
-"""Branch view tests."""
+"""Branch route tests."""
 
 
 def test_list_branches_for_team(client, mock_crud):

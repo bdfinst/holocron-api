@@ -4,8 +4,8 @@ from flask import Flask, Response
 from app import config
 from app.database import Database
 from app.middleware import set_csp, set_user
+from app.routes import router
 from app.spec import generate_spec
-from app.views import router
 
 
 def create_app():

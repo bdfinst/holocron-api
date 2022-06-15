@@ -1,4 +1,4 @@
-"""Team view tests."""
+"""Team route tests."""
 
 
 def test_list_teams(client, mock_crud):

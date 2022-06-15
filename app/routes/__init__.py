@@ -1,4 +1,4 @@
-"""Views."""
+"""Routes."""
 from flask import Blueprint
 
 from .branches import router as branch_router

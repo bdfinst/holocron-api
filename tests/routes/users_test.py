@@ -1,4 +1,4 @@
-"""User view tests."""
+"""User route tests."""
 
 
 def test_list_users(client, mock_crud):
