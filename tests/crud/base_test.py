@@ -63,8 +63,6 @@ def test_delete_entity(mock_session):
 class CRUDClass(BaseMetricCRUD[ValidModel]):
     """Mock Metric CRUD class for mock model."""
 
-    pass
-
 
 def test_init_repository():
     """Test __init__ method with repository target."""

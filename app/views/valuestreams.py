@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 
 from app.crud import valuestreams_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import ValuestreamSchema
 
 router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
@@ -62,7 +63,10 @@ def create_valuestream():
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_valuestream = valuestreams_crud.create_entity(session, data)
+        try:
+            raw_valuestream = valuestreams_crud.create_entity(session, data)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_valuestream)
     return jsonify(result), 201
 
@@ -126,7 +130,10 @@ def update_valuestream(id_: int):
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_valuestream = valuestreams_crud.update_entity(session, data, id_)
+        try:
+            raw_valuestream = valuestreams_crud.update_entity(session, data, id_)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_valuestream)
     return jsonify(result), 200
 

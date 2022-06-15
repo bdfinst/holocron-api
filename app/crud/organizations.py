@@ -1,8 +1,11 @@
 """BaseCRUD extension and instance for Organization model."""
+import logging
 from typing import Any, Dict
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import Organization
 
 from ._base import BaseCRUD
@@ -16,9 +19,15 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         """Insert organization in database."""
         new_organization = Organization(name=json.get("name"))
 
-        session.add(new_organization)
-        session.commit()
-        session.refresh(new_organization)
+        try:
+            session.add(new_organization)
+            session.commit()
+            session.refresh(new_organization)
+        except IntegrityError as err:
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return new_organization
 
@@ -29,9 +38,15 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         organization = self.get_entity(session, id_)
         organization.name = json.get("name")
 
-        session.add(organization)
-        session.commit()
-        session.refresh(organization)
+        try:
+            session.add(organization)
+            session.commit()
+            session.refresh(organization)
+        except IntegrityError as err:
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return organization
 

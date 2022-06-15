@@ -4,6 +4,7 @@ from typing import Generic, List, Type, TypeVar
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import CollectorTarget, ModelBase, Pipeline, Repository, TicketBoard
 
 T = TypeVar("T", bound=ModelBase)
@@ -22,7 +23,12 @@ class BaseCRUD(Generic[T]):
 
     def get_entity(self, session: Session, id_: int) -> T:
         """Get entity by id."""
-        return session.scalars(select(self.model).where(self.model.id == id_)).first()
+        result = session.scalars(select(self.model).where(self.model.id == id_)).first()
+        if result is None:
+            raise HolocronIntegrityError(
+                f"{self.model.__name__} id", f"Invalid id: {id_}"
+            )
+        return result
 
     def delete_entity(self, session: Session, id_: int):
         """Delete entity by id."""
