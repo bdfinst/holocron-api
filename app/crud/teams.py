@@ -1,8 +1,11 @@
 """BaseCRUD extension and instance for Team model."""
+import logging
 from typing import Any, Dict
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import Team
 
 from ._base import BaseCRUD
@@ -31,9 +34,17 @@ class TeamsCRUD(BaseCRUD[Team]):
             for target_id in json.get("collector_target_ids", [])
         ]
 
-        session.add(new_team)
-        session.commit()
-        session.refresh(new_team)
+        try:
+            session.add(new_team)
+            session.commit()
+            session.refresh(new_team)
+        except IntegrityError as err:
+            if "psycopg2.errors.ForeignKeyViolation" in str(err):
+                raise HolocronIntegrityError("valuestream_id", "not found") from err
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return new_team
 
@@ -53,9 +64,17 @@ class TeamsCRUD(BaseCRUD[Team]):
             for target_id in json.get("collector_target_ids", [])
         ]
 
-        session.add(team)
-        session.commit()
-        session.refresh(team)
+        try:
+            session.add(team)
+            session.commit()
+            session.refresh(team)
+        except IntegrityError as err:
+            if "psycopg2.errors.ForeignKeyViolation" in str(err):
+                raise HolocronIntegrityError("valuestream_id", "not found") from err
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return team
 

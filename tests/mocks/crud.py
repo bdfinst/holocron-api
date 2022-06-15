@@ -1,4 +1,5 @@
 """Mock for all CRUD modules."""
+from app.exceptions import HolocronIntegrityError
 
 
 class MockCRUD:
@@ -18,10 +19,14 @@ class MockCRUD:
 
     def create_entity(self, session, json):
         """Mock create_entity method."""
+        if (err := json.get("name")) == "error":
+            raise HolocronIntegrityError(err, err)
         return json
 
     def update_entity(self, session, json, id):
         """Mock update_entity method."""
+        if (err := json.get("name")) == "error":
+            raise HolocronIntegrityError(err, err)
         json.update({"id": id})
         return json
 

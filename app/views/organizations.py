@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 
 from app.crud import organizations_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import OrganizationSchema
 
 router = Blueprint("organizations", __name__, url_prefix="/organizations")
@@ -64,7 +65,10 @@ def create_organization():
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_organization = organizations_crud.create_entity(session, data)
+        try:
+            raw_organization = organizations_crud.create_entity(session, data)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_organization)
     return jsonify(result), 201
 
@@ -128,7 +132,10 @@ def update_organization(id_: int):
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_organization = organizations_crud.update_entity(session, data, id_)
+        try:
+            raw_organization = organizations_crud.update_entity(session, data, id_)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_organization)
     return jsonify(result), 200
 

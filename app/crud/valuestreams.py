@@ -1,8 +1,11 @@
 """BaseCRUD extension and instance for Valuestream model."""
+import logging
 from typing import Any, Dict
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import Valuestream
 
 from ._base import BaseCRUD
@@ -19,9 +22,17 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
             organization_id=json.get("organization_id"),
         )
 
-        session.add(new_valuestream)
-        session.commit()
-        session.refresh(new_valuestream)
+        try:
+            session.add(new_valuestream)
+            session.commit()
+            session.refresh(new_valuestream)
+        except IntegrityError as err:
+            if "psycopg2.errors.ForeignKeyViolation" in str(err):
+                raise HolocronIntegrityError("organization_id", "not found") from err
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return new_valuestream
 
@@ -33,9 +44,17 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
         valuestream.name = json.get("name")
         valuestream.organization_id = json.get("organization_id")
 
-        session.add(valuestream)
-        session.commit()
-        session.refresh(valuestream)
+        try:
+            session.add(valuestream)
+            session.commit()
+            session.refresh(valuestream)
+        except IntegrityError as err:
+            if "psycopg2.errors.ForeignKeyViolation" in str(err):
+                raise HolocronIntegrityError("organization_id", "not found") from err
+            if "psycopg2.errors.UniqueViolation" in str(err):
+                raise HolocronIntegrityError("name", "already in use") from err
+            logging.error(str(err))
+            raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
         return valuestream
 

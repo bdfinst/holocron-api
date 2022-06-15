@@ -54,12 +54,12 @@ class MockDatabase:
 
     def reset(self):
         """Reset the mocks."""
-        self.scalars.reset()
-        self.execute.reset()
-        self.add.reset()
-        self.commit.reset()
-        self.refresh.reset()
-        self.close.reset()
+        self.scalars = MagicMock(side_effect=lambda x: x)
+        self.execute = MagicMock(side_effect=lambda x: x)
+        self.add = MagicMock()
+        self.commit = MagicMock()
+        self.refresh = MagicMock()
+        self.close = MagicMock()
 
 
 session = MockDatabase()

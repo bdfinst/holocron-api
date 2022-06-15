@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 
 from app.crud import teams_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import TeamSchema
 
 router = Blueprint("teams", __name__, url_prefix="/teams")
@@ -62,7 +63,10 @@ def create_team():
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_team = teams_crud.create_entity(session, data)
+        try:
+            raw_team = teams_crud.create_entity(session, data)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_team)
     return jsonify(result), 201
 
@@ -126,7 +130,10 @@ def update_team(id_: int):
     except ValidationError as err:
         return err.messages, 400
     with generate_session() as session:
-        raw_team = teams_crud.update_entity(session, data, id_)
+        try:
+            raw_team = teams_crud.update_entity(session, data, id_)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
         result = schema.dump(raw_team)
     return jsonify(result), 200
 
