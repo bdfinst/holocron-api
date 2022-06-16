@@ -12,13 +12,23 @@ def test_list_organizations(client, mock_crud):
 
 
 def test_get_organization(client, mock_crud):
-    """Teset GET /api/v1/teams/:id endpoint."""
+    """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
     resp = client.get("/api/v1/organizations/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
+
+
+def test_get_organization_404(client, mock_crud):
+    """Test GET /api/v1/teams/:id endpoint."""
+    expected = "Resource not found"
+
+    resp = client.get("/api/v1/organizations/-1")
+
+    assert resp.text == expected
+    assert resp.status_code == 404
 
 
 def test_create_organization(client, mock_crud):

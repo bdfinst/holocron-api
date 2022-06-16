@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import branches_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import BranchSchema
 
 router = Blueprint("branches", __name__, url_prefix="/branches")
@@ -34,9 +35,16 @@ def list_branches_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schemas/Branch'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_branches = branches_crud.get_entities_for_team(session, id_)
+        try:
+            raw_branches = branches_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         branches = [schema.dump(branch) for branch in raw_branches]
     result = {"result": branches}
     return jsonify(result), 200
@@ -61,8 +69,15 @@ def get_branch(id_: int):
           content:
             application/json:
               schema: BranchSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_branch = branches_crud.get_entity(session, id_)
+        try:
+            raw_branch = branches_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_branch)
     return jsonify(result), 200

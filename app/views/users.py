@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import users_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import UserSchema
 
 router = Blueprint("users", __name__, url_prefix="/users")
@@ -54,8 +55,15 @@ def get_user(id_: int):
           content:
             application/json:
               schema: UserSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_user = users_crud.get_entity(session, id_)
+        try:
+            raw_user = users_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_user)
     return jsonify(result), 200

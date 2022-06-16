@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import builds_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import BuildSchema
 
 router = Blueprint("builds", __name__, url_prefix="/builds")
@@ -33,9 +34,16 @@ def list_builds_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schema/Build'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_builds = builds_crud.get_entities_for_team(session, id_)
+        try:
+            raw_builds = builds_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         build_models = [schema.dump(build) for build in raw_builds]
     result = {"result": build_models}
     return jsonify(result), 200
@@ -60,8 +68,15 @@ def get_build(id_):
           content:
             application/json:
               schema: BuildSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_build = builds_crud.get_entity(session, id_)
+        try:
+            raw_build = builds_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_build)
     return jsonify(result), 200
