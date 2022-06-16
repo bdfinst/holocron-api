@@ -17,9 +17,10 @@ def list_ticket_boards():
 
     ---
     get:
-      description: Get ticket_boards
+      description: Get ticket boards
       responses:
         200:
+          description: Get ticket boards
           content:
             application/json:
               schema:
@@ -42,16 +43,17 @@ def list_ticket_boards_for_team(id_: int):
 
     ---
     get:
-      description: Get ticket_boards belonging to a team
+      description: Get ticket boards belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get ticket_boards for
       responses:
         200:
+          description: Get ticket boards belonging to a team
           content:
             application/json:
               schema:
@@ -61,9 +63,7 @@ def list_ticket_boards_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/TicketBoard'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -81,23 +81,22 @@ def get_ticket_board(id_: int):
 
     ---
     get:
-      description: Get single ticket_board by id
+      description: Get single ticket board by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the ticket_board
       responses:
         200:
+          description: Get single ticket board by id
           content:
             application/json:
               schema: TicketBoardSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Ticket board not found
     """
     with generate_session() as session:
         try:

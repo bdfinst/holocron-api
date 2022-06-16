@@ -21,6 +21,7 @@ def list_organizations():
       description: List organizations
       responses:
         200:
+          description: List organizations
           content:
             application/json:
               schema:
@@ -52,10 +53,12 @@ def create_organization():
             schema: OrganizationSchema
       responses:
         201:
+          description: The organization was successfully created
           content:
             application/json:
               schema: OrganizationSchema
         400:
+          description: Failure due to an invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -82,20 +85,19 @@ def get_organization(id_: int):
       description: Get organization
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the organization
       responses:
         200:
+          description: Get organization
           content:
             application/json:
               schema: OrganizationSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Organization not found
     """
     with generate_session() as session:
         try:
@@ -115,7 +117,7 @@ def update_organization(id_: int):
       description: Update organization
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
@@ -126,10 +128,12 @@ def update_organization(id_: int):
             schema: OrganizationSchema
       responses:
         200:
+          description: The organization was successfully updated
           content:
             application/json:
               schema: OrganizationSchema
         400:
+          description: Failure due to an invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -156,7 +160,7 @@ def delete_organization(id_: int):
       description: Delete organization
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true

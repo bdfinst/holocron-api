@@ -20,13 +20,14 @@ def list_git_requests_for_team(id_: int):
       description: Get git requests belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get git requests for
       responses:
         200:
+          description: Get git requests belonging to a team
           content:
             application/json:
               schema:
@@ -36,9 +37,7 @@ def list_git_requests_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/GitRequest'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -59,20 +58,19 @@ def get_git_request(id_: int):
       description: Get single git request by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the git request
       responses:
         200:
+          description: Get single git request by id
           content:
             application/json:
               schema: GitRequestSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Git request not found
     """
     with generate_session() as session:
         try:

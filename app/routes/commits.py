@@ -20,13 +20,14 @@ def list_commits_for_team(id_: int):
       description: Get commits belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get commits for
       responses:
         200:
+          description: Get commits belonging to a team
           content:
             application/json:
               schema:
@@ -36,9 +37,7 @@ def list_commits_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/Commit'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -59,20 +58,19 @@ def get_commit(id_: int):
       description: Get single commit by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the commit
       responses:
         200:
+          description: Get single commit by id
           content:
             application/json:
               schema: CommitSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Commit not found
     """
     with generate_session() as session:
         try:

@@ -4,9 +4,9 @@ alembic==1.7.7; python_version >= "3.6" \
 apispec-webframeworks==0.5.2; python_version >= "3.6" \
     --hash=sha256:0db35b267914b3f8c562aca0261957dbcb4176f255eacc22520277010818dcf3 \
     --hash=sha256:482c563abbcc2a261439476cb3f1a7c7284cc997c322c574d48c111643e9c04e
-apispec==5.2.1; python_version >= "3.7" \
-    --hash=sha256:b6bd81e8b80d025608c375897ed7f84c2d2e9cef459e58d0991fe8cf8fb23fb4 \
-    --hash=sha256:cf754c439a56df12f0149fc5690a422774e9ac3395fb6798882c17fbc3a29d2d
+apispec==5.2.2; python_version >= "3.7" \
+    --hash=sha256:f5f0d6b452c3e4a0e0922dce8815fac89dc4dbc758acef21fb9e01584d6602a5 \
+    --hash=sha256:6ea6542e1ebffe9fd95ba01ef3f51351eac6c200a974562c7473059b9cd20aa7
 attrs==21.4.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7" \
     --hash=sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4 \
     --hash=sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd
