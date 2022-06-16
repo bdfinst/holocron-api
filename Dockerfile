@@ -1,12 +1,7 @@
-FROM python:slim
+FROM registry.il2.dso.mil/platform-one/devops/pipeline-templates/test-oci/python39:3.9.10-pbmd-3174
 
-WORKDIR /app
+WORKDIR /home/python
 
-RUN apt-get -y update && \
-    apt-get -y install \
-    gcc \
-    psql
-
-COPY . .
+COPY --chown=python:python . .
 
 ENTRYPOINT ["./entrypoint.sh"]
