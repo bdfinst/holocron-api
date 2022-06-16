@@ -19,3 +19,13 @@ def test_get_user(client, mock_crud):
 
     assert resp.json == expected
     assert resp.status_code == 200
+
+
+def test_get_user_404(client, mock_crud):
+    """Test GET /api/v1/users/:id endpoint."""
+    expected = "Resource not found"
+
+    resp = client.get("/api/v1/users/-1")
+
+    assert resp.text == expected
+    assert resp.status_code == 404

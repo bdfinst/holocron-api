@@ -11,10 +11,14 @@ class MockCRUD:
 
     def get_entities_for_team(self, session, id):
         """Mock get_entities_for_team method."""
+        if id == "-1":
+            raise HolocronIntegrityError("err", "err")
         return []
 
     def get_entity(self, session, id):
         """Mock get_entity method."""
+        if id == "-1":
+            raise HolocronIntegrityError("err", "err")
         return {"id": id}
 
     def create_entity(self, session, json):

@@ -21,6 +21,16 @@ def test_get_team(client, mock_crud):
     assert resp.status_code == 200
 
 
+def test_get_team_404(client, mock_crud):
+    """Test GET /api/v1/teams/:id endpoint."""
+    expected = "Resource not found"
+
+    resp = client.get("/api/v1/teams/-1")
+
+    assert resp.text == expected
+    assert resp.status_code == 404
+
+
 def test_create_team(client, mock_crud):
     """Test POST /api/v1/teams endpoint."""
     json = {"name": "test", "valuestreamId": 1, "teamSize": 1}

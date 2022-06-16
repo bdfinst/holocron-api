@@ -92,9 +92,16 @@ def get_organization(id_: int):
           content:
             application/json:
               schema: OrganizationSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_organization = organizations_crud.get_entity(session, id_)
+        try:
+            raw_organization = organizations_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_organization)
     return jsonify(result), 200
 

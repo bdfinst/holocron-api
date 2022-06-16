@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import pipelines_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import PipelineSchema
 
 router = Blueprint("pipelines", __name__, url_prefix="/pipelines")
@@ -59,9 +60,16 @@ def list_pipelines_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schemas/Pipeline'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_pipelines = pipelines_crud.get_entities_for_team(session, id_)
+        try:
+            raw_pipelines = pipelines_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
     result = {"result": pipelines}
     return jsonify(result), 200
@@ -86,8 +94,15 @@ def get_pipeline(id_: int):
           content:
             application/json:
               schema: PipelineSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_pipeline = pipelines_crud.get_entity(session, id_)
+        try:
+            raw_pipeline = pipelines_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_pipeline)
     return jsonify(result), 200

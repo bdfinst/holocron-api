@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import commits_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import CommitSchema
 
 router = Blueprint("commits", __name__, url_prefix="/commits")
@@ -34,9 +35,16 @@ def list_commits_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schemas/Commit'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_commits = commits_crud.get_entities_for_team(session, id_)
+        try:
+            raw_commits = commits_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         commits = [schema.dump(commit) for commit in raw_commits]
     result = {"result": commits}
     return jsonify(result), 200
@@ -61,8 +69,15 @@ def get_commit(id_: int):
           content:
             application/json:
               schema: CommitSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_commit = commits_crud.get_entity(session, id_)
+        try:
+            raw_commit = commits_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_commit)
     return jsonify(result), 200

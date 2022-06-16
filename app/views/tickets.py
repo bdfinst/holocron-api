@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import tickets_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import TicketSchema
 
 router = Blueprint("tickets", __name__, url_prefix="/tickets")
@@ -34,9 +35,16 @@ def list_tickets_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schemas/Ticket'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_tickets = tickets_crud.get_entities_for_team(session, id_)
+        try:
+            raw_tickets = tickets_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         tickets = [schema.dump(ticket) for ticket in raw_tickets]
     result = {"result": tickets}
     return jsonify(result), 200
@@ -61,8 +69,15 @@ def get_ticket(id_: int):
           content:
             application/json:
               schema: TicketSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_ticket = tickets_crud.get_entity(session, id_)
+        try:
+            raw_ticket = tickets_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_ticket)
     return jsonify(result), 200

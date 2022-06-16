@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.crud import git_requests_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import GitRequestSchema
 
 router = Blueprint("gitrequests", __name__, url_prefix="/gitrequests")
@@ -34,9 +35,16 @@ def list_git_requests_for_team(id_: int):
                     type: array
                     items:
                       $ref: '#/components/schemas/GitRequest'
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_git_requests = git_requests_crud.get_entities_for_team(session, id_)
+        try:
+            raw_git_requests = git_requests_crud.get_entities_for_team(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         git_requests = [schema.dump(commit) for commit in raw_git_requests]
     result = {"result": git_requests}
     return jsonify(result), 200
@@ -61,8 +69,15 @@ def get_git_request(id_: int):
           content:
             application/json:
               schema: GitRequestSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_git_request = git_requests_crud.get_entity(session, id_)
+        try:
+            raw_git_request = git_requests_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_git_request)
     return jsonify(result), 200

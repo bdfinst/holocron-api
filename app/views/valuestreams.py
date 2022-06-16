@@ -90,9 +90,16 @@ def get_valuestream(id_: int):
           content:
             application/json:
               schema: ValuestreamSchema
+        404:
+          content:
+            text/plain:
+              schema: string
     """
     with generate_session() as session:
-        raw_valuestream = valuestreams_crud.get_entity(session, id_)
+        try:
+            raw_valuestream = valuestreams_crud.get_entity(session, id_)
+        except HolocronIntegrityError:
+            return "Resource not found", 404
         result = schema.dump(raw_valuestream)
     return jsonify(result), 200
 
