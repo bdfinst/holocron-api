@@ -19,13 +19,14 @@ def list_builds_for_team(id_: int):
       description: Get builds belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get builds for
       responses:
         200:
+          description: Get builds belonging to a team
           content:
             application/json:
               schema:
@@ -33,11 +34,9 @@ def list_builds_for_team(id_: int):
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schema/Build'
+                      $ref: '#/components/schemas/Build'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -55,23 +54,22 @@ def get_build(id_):
 
     ---
     get:
-      description: Get single build by id.
+      description: Get single build by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the build
       responses:
         200:
+          description: Get single build by id
           content:
             application/json:
               schema: BuildSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Build not found
     """
     with generate_session() as session:
         try:

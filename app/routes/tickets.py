@@ -20,13 +20,14 @@ def list_tickets_for_team(id_: int):
       description: Get tickets belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get tickets for
       responses:
         200:
+          description: Get tickets belonging to a team
           content:
             application/json:
               schema:
@@ -36,9 +37,7 @@ def list_tickets_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/Ticket'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -59,20 +58,19 @@ def get_ticket(id_: int):
       description: Get single ticket by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the ticket
       responses:
         200:
+          description: Get single ticket by id
           content:
             application/json:
               schema: TicketSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Ticket not found
     """
     with generate_session() as session:
         try:

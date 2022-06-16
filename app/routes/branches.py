@@ -20,13 +20,14 @@ def list_branches_for_team(id_: int):
       description: Get branches belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get branches for
       responses:
         200:
+          description: Get branches belonging to a team
           content:
             application/json:
               schema:
@@ -36,9 +37,7 @@ def list_branches_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/Branch'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -59,20 +58,19 @@ def get_branch(id_: int):
       description: Get single branch by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the branch
       responses:
         200:
+          description: Get single branch by id
           content:
             application/json:
               schema: BranchSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Branch not found
     """
     with generate_session() as session:
         try:

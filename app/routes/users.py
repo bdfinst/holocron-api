@@ -20,6 +20,7 @@ def list_users():
       description: List users
       responses:
         200:
+          description: List users
           content:
             application/json:
               schema:
@@ -45,20 +46,19 @@ def get_user(id_: int):
       description: Get user
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the user
       responses:
         200:
+          description: Get user
           content:
             application/json:
               schema: UserSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: User not found
     """
     with generate_session() as session:
         try:

@@ -20,6 +20,7 @@ def list_repositories():
       description: Get repositories
       responses:
         200:
+          description: Get repositories
           content:
             application/json:
               schema:
@@ -45,13 +46,14 @@ def list_repositories_for_team(id_: int):
       description: Get repositories belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get repositories for
       responses:
         200:
+          description: Get repositories belonging to a team
           content:
             application/json:
               schema:
@@ -61,9 +63,7 @@ def list_repositories_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/Repository'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -84,20 +84,19 @@ def get_repository(id_: int):
       description: Get single repository by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the repository
       responses:
         200:
+          description: Get single repository by id
           content:
             application/json:
               schema: RepositorySchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Repository not found
     """
     with generate_session() as session:
         try:

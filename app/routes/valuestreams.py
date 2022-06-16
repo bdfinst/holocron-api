@@ -21,6 +21,7 @@ def list_valuestreams():
       description: List valuestreams
       responses:
         200:
+          description: List valuestreams
           content:
             application/json:
               schema:
@@ -50,10 +51,12 @@ def create_valuestream():
             schema: ValuestreamSchema
       responses:
         201:
+          description: The valuestream was successfully created
           content:
             application/json:
               schema: ValuestreamSchema
         400:
+          description: Failure due to invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -80,20 +83,19 @@ def get_valuestream(id_: int):
       description: Get valuestream
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the valuestream
       responses:
         200:
+          description: Get valuestream
           content:
             application/json:
               schema: ValuestreamSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Valuestream not found
     """
     with generate_session() as session:
         try:
@@ -113,7 +115,7 @@ def update_valuestream(id_: int):
       description: Update valuestream
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
@@ -124,10 +126,12 @@ def update_valuestream(id_: int):
             schema: ValuestreamSchema
       responses:
         200:
+          description: The valuestream was successfully updated
           content:
             application/json:
               schema: ValuestreamSchema
         400:
+          description: Failure due to an invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -154,7 +158,7 @@ def delete_valuestream(id_: int):
       description: Delete valuestream
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true

@@ -6,16 +6,6 @@ from apispec_webframeworks.flask import FlaskPlugin
 from flasgger import APISpec, Swagger
 from flask import Flask
 
-spec = APISpec(
-    title="Holocron",
-    version="1.0.0",
-    openapi_version="3.0.2",
-    plugins=[
-        FlaskPlugin(),
-        MarshmallowPlugin(),
-    ],
-)
-
 
 def override_collector_target_spec(
     template: Dict[str, Any], key: str, schema: str
@@ -27,12 +17,29 @@ def override_collector_target_spec(
     return template
 
 
-def generate_spec(app: Flask):
+def generate_spec(app: Flask) -> APISpec:
     """Generate and serve the API spec."""
+    spec = APISpec(
+        title="Holocron",
+        version="1.0.0",
+        openapi_version=app.config["SWAGGER"]["openapi"],
+        plugins=[
+            FlaskPlugin(),
+            MarshmallowPlugin(),
+        ],
+    )
+
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
+            if rule.endpoint == "static":
+                continue
             spec.path(view=app.view_functions[rule.endpoint])
 
+    return spec
+
+
+def serve_spec(app: Flask, spec: APISpec):
+    """Serve the API spec."""
     template = spec.to_flasgger(app)
     template = override_collector_target_spec(template, "pipelines", "Pipeline")
     template = override_collector_target_spec(template, "repositories", "Repository")

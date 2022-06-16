@@ -20,6 +20,7 @@ def list_pipelines():
       description: Get pipelines
       responses:
         200:
+          description: Get pipelines
           content:
             application/json:
               schema:
@@ -45,13 +46,14 @@ def list_pipelines_for_team(id_: int):
       description: Get pipelines belonging to a team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team to get pipelines for
       responses:
         200:
+          description: Get pipelines belonging to a team
           content:
             application/json:
               schema:
@@ -61,9 +63,7 @@ def list_pipelines_for_team(id_: int):
                     items:
                       $ref: '#/components/schemas/Pipeline'
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -84,20 +84,19 @@ def get_pipeline(id_: int):
       description: Get single pipeline by id
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the pipeline
       responses:
         200:
+          description: Get single pipeline by id
           content:
             application/json:
               schema: PipelineSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Pipeline not found
     """
     with generate_session() as session:
         try:

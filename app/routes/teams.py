@@ -21,6 +21,7 @@ def list_teams():
       description: List teams
       responses:
         200:
+          description: List teams
           content:
             application/json:
               schema:
@@ -50,10 +51,12 @@ def create_team():
             schema: NewTeamSchema
       responses:
         201:
+          description: The team was successfully created
           content:
             application/json:
               schema: ExistingTeamSchema
         400:
+          description: Failure due to an invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -80,20 +83,19 @@ def get_team(id_: int):
       description: Get team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
           description: ID of the team
       responses:
         200:
+          description: Get team
           content:
             application/json:
               schema: ExistingTeamSchema
         404:
-          content:
-            text/plain:
-              schema: string
+          description: Team not found
     """
     with generate_session() as session:
         try:
@@ -113,7 +115,7 @@ def update_team(id_: int):
       description: Update team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
@@ -124,10 +126,12 @@ def update_team(id_: int):
             schema: NewTeamSchema
       responses:
         200:
+          description: The team was successfully updated
           content:
             application/json:
               schema: ExistingTeamSchema
         400:
+          description: Failure due to an invalid request
           content:
             application/json:
               schema: ValidationErrorSchema
@@ -154,7 +158,7 @@ def delete_team(id_: int):
       description: Delete team
       parameters:
         - in: path
-          name: id
+          name: id_
           schema:
             type: integer
           required: true
