@@ -1,4 +1,4 @@
-"""Organization view tests."""
+"""Organization route tests."""
 
 
 def test_list_organizations(client, mock_crud):

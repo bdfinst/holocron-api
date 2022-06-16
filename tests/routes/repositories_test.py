@@ -1,4 +1,4 @@
-"""Repository view tests."""
+"""Repository route tests."""
 
 
 def test_list_repositories(client, mock_crud):

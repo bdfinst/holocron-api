@@ -1,4 +1,4 @@
-"""Commit routes."""
+"""GitRequest routes."""
 from flask import Blueprint, jsonify
 
 from app.crud import git_requests_crud

@@ -1,4 +1,4 @@
-"""Git Request view tests."""
+"""Git Request route tests."""
 
 
 def test_list_git_requests_for_team(client, mock_crud):

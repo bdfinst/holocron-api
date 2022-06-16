@@ -1,4 +1,4 @@
-"""Commit view tests."""
+"""Commit route tests."""
 
 
 def test_list_commits_for_team(client, mock_crud):

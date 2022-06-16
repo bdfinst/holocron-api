@@ -1,4 +1,4 @@
-"""Pipeline view tests."""
+"""Pipeline route tests."""
 
 
 def test_list_pipelines(client, mock_crud):
