@@ -2,6 +2,7 @@
 from typing import Any, Dict
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import config
@@ -22,7 +23,10 @@ class UserCRUD(BaseCRUD[User]):
         if user is None:
             user = User()
         user.sso_id = token.get("sub")
-        user.username = token.get(config.SSO_USERNAME_KEY)
+        username = token.get(config.SSO_USERNAME_KEY)
+        if not isinstance(username, str):
+            raise Exception("Invalid username in JWT")
+        user.username = username
 
         groups = token.get(config.SSO_GROUPS_KEY)
         if not isinstance(groups, list):
@@ -30,10 +34,22 @@ class UserCRUD(BaseCRUD[User]):
         user.is_org_leadership = config.SSO_LEADERSHIP_GROUP in groups
         user.is_admin = config.SSO_ADMIN_GROUP in groups
 
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-
+        username_num = 0
+        while True:
+            try:
+                session.add(user)
+                session.commit()
+                session.refresh(user)
+                break
+            except IntegrityError as err:
+                if "psycopg2.errors.UniqueViolation" in str(
+                    err
+                ) and "users_username_key" in str(err):
+                    session.rollback()
+                    username_num += 1
+                    user.username = username + str(username_num)
+                else:
+                    raise err
         return user
 
 

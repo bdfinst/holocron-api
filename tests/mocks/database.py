@@ -51,6 +51,7 @@ class MockDatabase:
     commit = MagicMock()
     refresh = MagicMock()
     close = MagicMock()
+    rollback = MagicMock()
 
     def reset(self):
         """Reset the mocks."""
