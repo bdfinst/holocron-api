@@ -5,6 +5,7 @@ from .commit import CommitSchema
 from .git_request import GitRequestSchema
 from .messages import ValidationErrorSchema
 from .organization import OrganizationSchema
+from .pay_rate import PayRateSchema
 from .pipelines import PipelineSchema
 from .repository import RepositorySchema
 from .team import ExistingTeamSchema, NewTeamSchema, TeamSchema

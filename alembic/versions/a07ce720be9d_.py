@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 63df6f997f10
+Revision ID: a07ce720be9d
 Revises: 
-Create Date: 2022-06-07 14:19:25.263149
+Create Date: 2022-06-21 19:52:46.019715
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "63df6f997f10"
+revision = "a07ce720be9d"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,21 @@ def upgrade():
         sa.Column("name", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
+    )
+    op.create_table(
+        "pay_rates",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("rate", sa.Integer(), nullable=False),
+        sa.Column("persona", sa.String(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("persona"),
     )
     op.create_table(
         "users",
@@ -351,6 +366,7 @@ def downgrade():
     op.drop_index(op.f("ix_valuestreams_organization_id"), table_name="valuestreams")
     op.drop_table("valuestreams")
     op.drop_table("users")
+    op.drop_table("pay_rates")
     op.drop_table("organizations")
     op.drop_table("collectors")
     # ### end Alembic commands ###
