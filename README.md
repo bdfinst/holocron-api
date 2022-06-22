@@ -217,7 +217,7 @@ def list_my_models():
 
     ---
     get:
-      description: List my models.
+      description: List my models
       parameters:
         - in: query
           name: name
@@ -227,6 +227,7 @@ def list_my_models():
           description: Name of the my_model
       responses:
         200:
+          description: List my models
           content:
             application/json:
               schema:
@@ -253,7 +254,7 @@ def get_my_model(id):
 
     ---
     get:
-      description: Get my_model by id.
+      description: Get my_model by id
       parameters:
         - in: path
           name: id
@@ -263,6 +264,7 @@ def get_my_model(id):
           description: ID of the my_model
       responses:
         200:
+          description: Get my_model by id
           content:
             application/json:
               schema: MyModelSchema

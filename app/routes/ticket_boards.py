@@ -37,8 +37,8 @@ def list_ticket_boards():
     return jsonify(result), 200
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_ticket_boards_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_ticket_boards_for_team(team_id: int):
     """Get ticket_boards for a given team id.
 
     ---
@@ -46,7 +46,7 @@ def list_ticket_boards_for_team(id_: int):
       description: Get ticket boards belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -67,7 +67,9 @@ def list_ticket_boards_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_ticket_boards = ticket_boards_crud.get_entities_for_team(session, id_)
+            raw_ticket_boards = ticket_boards_crud.get_entities_for_team(
+                session, team_id
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         ticket_boards = [schema.dump(board) for board in raw_ticket_boards]
@@ -75,8 +77,8 @@ def list_ticket_boards_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_ticket_board(id_: int):
+@router.route("/<board_id>", methods=["GET"])
+def get_ticket_board(board_id: int):
     """Get ticket_board by id.
 
     ---
@@ -84,7 +86,7 @@ def get_ticket_board(id_: int):
       description: Get single ticket board by id
       parameters:
         - in: path
-          name: id_
+          name: board_id
           schema:
             type: integer
           required: true
@@ -100,7 +102,7 @@ def get_ticket_board(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_ticket_board = ticket_boards_crud.get_entity(session, id_)
+            raw_ticket_board = ticket_boards_crud.get_entity(session, board_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_ticket_board)

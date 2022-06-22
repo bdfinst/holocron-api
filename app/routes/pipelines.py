@@ -37,8 +37,8 @@ def list_pipelines():
     return jsonify(result), 200
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_pipelines_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_pipelines_for_team(team_id: int):
     """Get pipelines for a given team id.
 
     ---
@@ -46,7 +46,7 @@ def list_pipelines_for_team(id_: int):
       description: Get pipelines belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -67,7 +67,7 @@ def list_pipelines_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_pipelines = pipelines_crud.get_entities_for_team(session, id_)
+            raw_pipelines = pipelines_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
@@ -75,8 +75,8 @@ def list_pipelines_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_pipeline(id_: int):
+@router.route("/<pipeline_id>", methods=["GET"])
+def get_pipeline(pipeline_id: int):
     """Get pipeline by id.
 
     ---
@@ -84,7 +84,7 @@ def get_pipeline(id_: int):
       description: Get single pipeline by id
       parameters:
         - in: path
-          name: id_
+          name: pipeline_id
           schema:
             type: integer
           required: true
@@ -100,7 +100,7 @@ def get_pipeline(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_pipeline = pipelines_crud.get_entity(session, id_)
+            raw_pipeline = pipelines_crud.get_entity(session, pipeline_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_pipeline)

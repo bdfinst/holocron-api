@@ -18,7 +18,7 @@ def override_collector_target_spec(
 
 
 def generate_spec(app: Flask) -> APISpec:
-    """Generate and serve the API spec."""
+    """Generate the API spec."""
     spec = APISpec(
         title="Holocron",
         version="1.0.0",

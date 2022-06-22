@@ -1,4 +1,4 @@
-"""CI/CD pipeline model."""
+"""Build pipeline model."""
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import relationship
 

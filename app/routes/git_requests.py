@@ -11,8 +11,8 @@ router = Blueprint("gitrequests", __name__, url_prefix="/gitrequests")
 schema = GitRequestSchema()
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_git_requests_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_git_requests_for_team(team_id: int):
     """Get git requests for a given team id.
 
     ---
@@ -20,7 +20,7 @@ def list_git_requests_for_team(id_: int):
       description: Get git requests belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -41,7 +41,7 @@ def list_git_requests_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_git_requests = git_requests_crud.get_entities_for_team(session, id_)
+            raw_git_requests = git_requests_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         git_requests = [schema.dump(commit) for commit in raw_git_requests]
@@ -49,8 +49,8 @@ def list_git_requests_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_git_request(id_: int):
+@router.route("/<git_request_id>", methods=["GET"])
+def get_git_request(git_request_id: int):
     """Get git request by id.
 
     ---
@@ -58,7 +58,7 @@ def get_git_request(id_: int):
       description: Get single git request by id
       parameters:
         - in: path
-          name: id_
+          name: git_request_id
           schema:
             type: integer
           required: true
@@ -74,7 +74,7 @@ def get_git_request(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_git_request = git_requests_crud.get_entity(session, id_)
+            raw_git_request = git_requests_crud.get_entity(session, git_request_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_git_request)

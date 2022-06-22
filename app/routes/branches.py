@@ -11,8 +11,8 @@ router = Blueprint("branches", __name__, url_prefix="/branches")
 schema = BranchSchema()
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_branches_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_branches_for_team(team_id: int):
     """Get branches for a given team id.
 
     ---
@@ -20,7 +20,7 @@ def list_branches_for_team(id_: int):
       description: Get branches belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -41,7 +41,7 @@ def list_branches_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_branches = branches_crud.get_entities_for_team(session, id_)
+            raw_branches = branches_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         branches = [schema.dump(branch) for branch in raw_branches]
@@ -49,8 +49,8 @@ def list_branches_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_branch(id_: int):
+@router.route("/<branch_id>", methods=["GET"])
+def get_branch(branch_id: int):
     """Get branch by id.
 
     ---
@@ -58,7 +58,7 @@ def get_branch(id_: int):
       description: Get single branch by id
       parameters:
         - in: path
-          name: id_
+          name: branch_id
           schema:
             type: integer
           required: true
@@ -74,7 +74,7 @@ def get_branch(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_branch = branches_crud.get_entity(session, id_)
+            raw_branch = branches_crud.get_entity(session, branch_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_branch)
