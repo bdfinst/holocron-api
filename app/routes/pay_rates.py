@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 
 from app.crud import pay_rates_crud
 from app.database import generate_session
+from app.middleware import requires_leadership
 from app.schemas import PayRateSchema
 
 router = Blueprint("payrates", __name__, url_prefix="/payrates")
@@ -12,6 +13,7 @@ schema = PayRateSchema()
 
 
 @router.route("", methods=["GET"])
+@requires_leadership
 def list_pay_rates():
     """List pay rates route."""
     with generate_session() as session:
@@ -22,6 +24,7 @@ def list_pay_rates():
 
 
 @router.route("", methods=["POST"])
+@requires_leadership
 def upsert_pay_rate():
     """Upsert pay rate route."""
     try:
