@@ -15,7 +15,23 @@ schema = PayRateSchema()
 @router.route("", methods=["GET"])
 @requires_leadership
 def list_pay_rates():
-    """List pay rates route."""
+    """List pay rates route.
+
+    ---
+    get:
+      description: Get pay rates
+      responses:
+        200:
+          description: Get pay rates
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PayRate'
+    """
     with generate_session() as session:
         raw_pay_rates = pay_rates_crud.get_entities(session)
         pay_rates = [schema.dump(pay_rate) for pay_rate in raw_pay_rates]
@@ -26,7 +42,27 @@ def list_pay_rates():
 @router.route("", methods=["POST"])
 @requires_leadership
 def upsert_pay_rate():
-    """Upsert pay rate route."""
+    """Upsert pay rate route.
+
+    ---
+    post:
+      description: Create or update a pay rate
+      requestBody:
+        content:
+          application/json:
+            schema: PayRateSchema
+      responses:
+        201:
+          description: The pay rate was successfully set
+          content:
+            application/json:
+              schema: PayRateSchema
+        400:
+          description: Failure due to an invalid request
+          content:
+            application/json:
+              schema: ValidationErrorSchema
+    """
     try:
         data = schema.load(request.json)
     except ValidationError as err:
