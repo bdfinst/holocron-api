@@ -6,11 +6,12 @@ from .builds import router as build_router
 from .commits import router as commit_router
 from .git_requests import router as git_request_router
 from .organizations import router as organization_router
-from .pipelines import router as pipelines_router
+from .pay_rates import router as pay_rate_router
+from .pipelines import router as pipeline_router
 from .repositories import router as repository_router
 from .teams import router as team_router
-from .ticket_boards import router as ticket_boards_router
-from .tickets import router as tickets_router
+from .ticket_boards import router as ticket_board_router
+from .tickets import router as ticket_router
 from .users import router as user_router
 from .valuestreams import router as valuestream_router
 
@@ -20,10 +21,11 @@ router.register_blueprint(build_router)
 router.register_blueprint(commit_router)
 router.register_blueprint(git_request_router)
 router.register_blueprint(organization_router)
-router.register_blueprint(pipelines_router)
+router.register_blueprint(pay_rate_router)
+router.register_blueprint(pipeline_router)
 router.register_blueprint(repository_router)
 router.register_blueprint(team_router)
-router.register_blueprint(ticket_boards_router)
-router.register_blueprint(tickets_router)
+router.register_blueprint(ticket_board_router)
+router.register_blueprint(ticket_router)
 router.register_blueprint(user_router)
 router.register_blueprint(valuestream_router)

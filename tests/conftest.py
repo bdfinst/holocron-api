@@ -25,6 +25,7 @@ def mock_sqlalchemy(session_patch):
 @fixture
 def mock_session(monkeypatch):
     """Patch sqlalchemy and yield mock database session."""
+    monkeypatch.setattr(app.crud.pay_rates, "select", mock_select)
     monkeypatch.setattr(app.crud.pipelines, "select", mock_select)
     monkeypatch.setattr(app.crud.repositories, "select", mock_select)
     monkeypatch.setattr(app.crud.ticket_boards, "select", mock_select)
@@ -43,6 +44,7 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(app.routes.commits, "commits_crud", crud)
     monkeypatch.setattr(app.routes.git_requests, "git_requests_crud", crud)
     monkeypatch.setattr(app.routes.organizations, "organizations_crud", crud)
+    monkeypatch.setattr(app.routes.pay_rates, "pay_rates_crud", crud)
     monkeypatch.setattr(app.routes.pipelines, "pipelines_crud", crud)
     monkeypatch.setattr(app.routes.repositories, "repositories_crud", crud)
     monkeypatch.setattr(app.routes.ticket_boards, "ticket_boards_crud", crud)

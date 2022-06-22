@@ -5,6 +5,7 @@ from .collector_targets import collector_targets_crud
 from .commits import commits_crud
 from .git_requests import git_requests_crud
 from .organizations import organizations_crud
+from .pay_rates import pay_rates_crud
 from .pipelines import pipelines_crud
 from .repositories import repositories_crud
 from .teams import teams_crud

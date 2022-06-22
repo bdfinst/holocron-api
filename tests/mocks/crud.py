@@ -42,5 +42,9 @@ class MockCRUD:
         """Mock upsert_sso_user method."""
         return {"username": token["sub"]}
 
+    def upsert_entity(self, session, json):
+        """Mock upsert_entity method."""
+        return json
+
 
 crud = MockCRUD()
