@@ -11,8 +11,8 @@ router = Blueprint("commits", __name__, url_prefix="/commits")
 schema = CommitSchema()
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_commits_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_commits_for_team(team_id: int):
     """Get commits for a given team id.
 
     ---
@@ -20,7 +20,7 @@ def list_commits_for_team(id_: int):
       description: Get commits belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -41,7 +41,7 @@ def list_commits_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_commits = commits_crud.get_entities_for_team(session, id_)
+            raw_commits = commits_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         commits = [schema.dump(commit) for commit in raw_commits]
@@ -49,8 +49,8 @@ def list_commits_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_commit(id_: int):
+@router.route("/<commit_id>", methods=["GET"])
+def get_commit(commit_id: int):
     """Get commit by id.
 
     ---
@@ -58,7 +58,7 @@ def get_commit(id_: int):
       description: Get single commit by id
       parameters:
         - in: path
-          name: id_
+          name: commit_id
           schema:
             type: integer
           required: true
@@ -74,7 +74,7 @@ def get_commit(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_commit = commits_crud.get_entity(session, id_)
+            raw_commit = commits_crud.get_entity(session, commit_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_commit)

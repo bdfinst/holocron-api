@@ -11,8 +11,8 @@ router = Blueprint("tickets", __name__, url_prefix="/tickets")
 schema = TicketSchema()
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_tickets_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_tickets_for_team(team_id: int):
     """Get tickets for a given team id.
 
     ---
@@ -20,7 +20,7 @@ def list_tickets_for_team(id_: int):
       description: Get tickets belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -41,7 +41,7 @@ def list_tickets_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_tickets = tickets_crud.get_entities_for_team(session, id_)
+            raw_tickets = tickets_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         tickets = [schema.dump(ticket) for ticket in raw_tickets]
@@ -49,8 +49,8 @@ def list_tickets_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_ticket(id_: int):
+@router.route("/<ticket_id>", methods=["GET"])
+def get_ticket(ticket_id: int):
     """Get ticket by id.
 
     ---
@@ -58,7 +58,7 @@ def get_ticket(id_: int):
       description: Get single ticket by id
       parameters:
         - in: path
-          name: id_
+          name: ticket_id
           schema:
             type: integer
           required: true
@@ -74,7 +74,7 @@ def get_ticket(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_ticket = tickets_crud.get_entity(session, id_)
+            raw_ticket = tickets_crud.get_entity(session, ticket_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_ticket)

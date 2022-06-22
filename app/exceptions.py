@@ -4,7 +4,7 @@
 class HolocronIntegrityError(Exception):
     """Error for SQL integrity exceptions."""
 
-    def __init__(self, field, value):
+    def __init__(self, field: str, value: str):
         """Initialize with dict to match marshmallow validation."""
         self.messages = {}
         self.messages[field] = value

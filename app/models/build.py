@@ -1,4 +1,4 @@
-"""Pipeline build model."""
+"""Build instance model."""
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 

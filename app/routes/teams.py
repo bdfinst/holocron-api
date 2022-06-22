@@ -74,8 +74,8 @@ def create_team():
     return jsonify(result), 201
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_team(id_: int):
+@router.route("/<team_id>", methods=["GET"])
+def get_team(team_id: int):
     """Get team by id route.
 
     ---
@@ -83,7 +83,7 @@ def get_team(id_: int):
       description: Get team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -99,15 +99,15 @@ def get_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_team = teams_crud.get_entity(session, id_)
+            raw_team = teams_crud.get_entity(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_team)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["PUT"])
-def update_team(id_: int):
+@router.route("/<team_id>", methods=["PUT"])
+def update_team(team_id: int):
     """Update team route.
 
     ---
@@ -115,7 +115,7 @@ def update_team(id_: int):
       description: Update team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -142,15 +142,15 @@ def update_team(id_: int):
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_team = teams_crud.update_entity(session, data, id_)
+            raw_team = teams_crud.update_entity(session, data, team_id)
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_team)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["DELETE"])
-def delete_team(id_: int):
+@router.route("/<team_id>", methods=["DELETE"])
+def delete_team(team_id: int):
     """Delete team route.
 
     ---
@@ -158,7 +158,7 @@ def delete_team(id_: int):
       description: Delete team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -168,5 +168,5 @@ def delete_team(id_: int):
           description: The team was successfully deleted
     """
     with generate_session() as session:
-        teams_crud.delete_entity(session, id_)
+        teams_crud.delete_entity(session, team_id)
     return "", 204

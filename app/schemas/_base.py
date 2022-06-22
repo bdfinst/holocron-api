@@ -3,7 +3,7 @@ from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import auto_field
 
 
-def camelcase(string) -> str:
+def camelcase(string: str) -> str:
     """Convert snake case to camel case."""
     parts = iter(string.split("_"))
     return next(parts) + "".join(i.title() for i in parts)

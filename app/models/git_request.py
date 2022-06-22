@@ -1,4 +1,4 @@
-"""Merge/pull request model."""
+"""SCM merge/pull request model."""
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 
 from ._base import MetadataBase, ModelBase

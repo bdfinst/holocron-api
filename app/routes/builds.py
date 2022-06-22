@@ -10,8 +10,8 @@ router = Blueprint("builds", __name__, url_prefix="/builds")
 schema = BuildSchema()
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_builds_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_builds_for_team(team_id: int):
     """Get builds for a given team id.
 
     ---
@@ -19,7 +19,7 @@ def list_builds_for_team(id_: int):
       description: Get builds belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -40,7 +40,7 @@ def list_builds_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_builds = builds_crud.get_entities_for_team(session, id_)
+            raw_builds = builds_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         build_models = [schema.dump(build) for build in raw_builds]
@@ -48,8 +48,8 @@ def list_builds_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_build(id_):
+@router.route("/<build_id>", methods=["GET"])
+def get_build(build_id):
     """Get Build by id.
 
     ---
@@ -57,7 +57,7 @@ def get_build(id_):
       description: Get single build by id
       parameters:
         - in: path
-          name: id_
+          name: build_id
           schema:
             type: integer
           required: true
@@ -73,7 +73,7 @@ def get_build(id_):
     """
     with generate_session() as session:
         try:
-            raw_build = builds_crud.get_entity(session, id_)
+            raw_build = builds_crud.get_entity(session, build_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_build)

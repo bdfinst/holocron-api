@@ -74,8 +74,8 @@ def create_valuestream():
     return jsonify(result), 201
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_valuestream(id_: int):
+@router.route("/<valuestream_id>", methods=["GET"])
+def get_valuestream(valuestream_id: int):
     """Get valuestream by id route.
 
     ---
@@ -83,7 +83,7 @@ def get_valuestream(id_: int):
       description: Get valuestream
       parameters:
         - in: path
-          name: id_
+          name: valuestream_id
           schema:
             type: integer
           required: true
@@ -99,15 +99,15 @@ def get_valuestream(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.get_entity(session, id_)
+            raw_valuestream = valuestreams_crud.get_entity(session, valuestream_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_valuestream)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["PUT"])
-def update_valuestream(id_: int):
+@router.route("/<valuestream_id>", methods=["PUT"])
+def update_valuestream(valuestream_id: int):
     """Update valuestream route.
 
     ---
@@ -115,7 +115,7 @@ def update_valuestream(id_: int):
       description: Update valuestream
       parameters:
         - in: path
-          name: id_
+          name: valuestream_id
           schema:
             type: integer
           required: true
@@ -142,15 +142,17 @@ def update_valuestream(id_: int):
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.update_entity(session, data, id_)
+            raw_valuestream = valuestreams_crud.update_entity(
+                session, data, valuestream_id
+            )
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_valuestream)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["DELETE"])
-def delete_valuestream(id_: int):
+@router.route("/<valuestream_id>", methods=["DELETE"])
+def delete_valuestream(valuestream_id: int):
     """Delete valuestream route.
 
     ---
@@ -158,7 +160,7 @@ def delete_valuestream(id_: int):
       description: Delete valuestream
       parameters:
         - in: path
-          name: id_
+          name: valuestream_id
           schema:
             type: integer
           required: true
@@ -168,5 +170,5 @@ def delete_valuestream(id_: int):
           description: The valuestream was successfully deleted
     """
     with generate_session() as session:
-        valuestreams_crud.delete_entity(session, id_)
+        valuestreams_crud.delete_entity(session, valuestream_id)
     return "", 204

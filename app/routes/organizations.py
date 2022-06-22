@@ -76,8 +76,8 @@ def create_organization():
     return jsonify(result), 201
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_organization(id_: int):
+@router.route("/<org_id>", methods=["GET"])
+def get_organization(org_id: int):
     """Get organization by id route.
 
     ---
@@ -85,7 +85,7 @@ def get_organization(id_: int):
       description: Get organization
       parameters:
         - in: path
-          name: id_
+          name: org_id
           schema:
             type: integer
           required: true
@@ -101,15 +101,15 @@ def get_organization(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_organization = organizations_crud.get_entity(session, id_)
+            raw_organization = organizations_crud.get_entity(session, org_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_organization)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["PUT"])
-def update_organization(id_: int):
+@router.route("/<org_id>", methods=["PUT"])
+def update_organization(org_id: int):
     """Update organization route.
 
     ---
@@ -117,7 +117,7 @@ def update_organization(id_: int):
       description: Update organization
       parameters:
         - in: path
-          name: id_
+          name: org_id
           schema:
             type: integer
           required: true
@@ -144,15 +144,15 @@ def update_organization(id_: int):
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_organization = organizations_crud.update_entity(session, data, id_)
+            raw_organization = organizations_crud.update_entity(session, data, org_id)
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_organization)
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["DELETE"])
-def delete_organization(id_: int):
+@router.route("/<org_id>", methods=["DELETE"])
+def delete_organization(org_id: int):
     """Delete organization route.
 
     ---
@@ -160,7 +160,7 @@ def delete_organization(id_: int):
       description: Delete organization
       parameters:
         - in: path
-          name: id_
+          name: org_id
           schema:
             type: integer
           required: true
@@ -170,5 +170,5 @@ def delete_organization(id_: int):
           description: The organization was successfully deleted
     """
     with generate_session() as session:
-        organizations_crud.delete_entity(session, id_)
+        organizations_crud.delete_entity(session, org_id)
     return "", 204

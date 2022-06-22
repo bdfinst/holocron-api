@@ -1,4 +1,4 @@
-"""Git commit model."""
+"""SCM commit model."""
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint
 
 from ._base import MetadataBase, ModelBase

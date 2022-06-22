@@ -37,8 +37,8 @@ def list_users():
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_user(id_: int):
+@router.route("/<user_id>", methods=["GET"])
+def get_user(user_id: int):
     """Get user by id route.
 
     ---
@@ -46,7 +46,7 @@ def get_user(id_: int):
       description: Get user
       parameters:
         - in: path
-          name: id_
+          name: user_id
           schema:
             type: integer
           required: true
@@ -62,7 +62,7 @@ def get_user(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_user = users_crud.get_entity(session, id_)
+            raw_user = users_crud.get_entity(session, user_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_user)

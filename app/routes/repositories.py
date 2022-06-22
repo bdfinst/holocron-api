@@ -37,8 +37,8 @@ def list_repositories():
     return jsonify(result), 200
 
 
-@router.route("/team/<id_>", methods=["GET"])
-def list_repositories_for_team(id_: int):
+@router.route("/team/<team_id>", methods=["GET"])
+def list_repositories_for_team(team_id: int):
     """Get repositories for a given team id.
 
     ---
@@ -46,7 +46,7 @@ def list_repositories_for_team(id_: int):
       description: Get repositories belonging to a team
       parameters:
         - in: path
-          name: id_
+          name: team_id
           schema:
             type: integer
           required: true
@@ -67,7 +67,7 @@ def list_repositories_for_team(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_repositories = repositories_crud.get_entities_for_team(session, id_)
+            raw_repositories = repositories_crud.get_entities_for_team(session, team_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         repositories = [schema.dump(repository) for repository in raw_repositories]
@@ -75,8 +75,8 @@ def list_repositories_for_team(id_: int):
     return jsonify(result), 200
 
 
-@router.route("/<id_>", methods=["GET"])
-def get_repository(id_: int):
+@router.route("/<repo_id>", methods=["GET"])
+def get_repository(repo_id: int):
     """Get repository by id.
 
     ---
@@ -84,7 +84,7 @@ def get_repository(id_: int):
       description: Get single repository by id
       parameters:
         - in: path
-          name: id_
+          name: repo_id
           schema:
             type: integer
           required: true
@@ -100,7 +100,7 @@ def get_repository(id_: int):
     """
     with generate_session() as session:
         try:
-            raw_repository = repositories_crud.get_entity(session, id_)
+            raw_repository = repositories_crud.get_entity(session, repo_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_repository)

@@ -1,4 +1,4 @@
-"""Git branch model."""
+"""SCM branch model."""
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from ._base import MetadataBase, ModelBase
