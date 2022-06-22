@@ -1,8 +1,11 @@
 """Authentication middleware."""
+from typing import Callable
+
 import jwt
 from flask import request
 
-from app.crud import users_crud
+from app.config import SSO_ENABLED
+from app.crud import teams_crud, users_crud
 from app.database import generate_session
 from app.schemas import UserSchema
 
@@ -18,3 +21,46 @@ def set_user():
         current_user = users_crud.upsert_sso_user(session, token)
         current_user = schema.dump(current_user)
     setattr(request, "user", current_user)
+
+
+def requires_admin(func: Callable) -> Callable:
+    """Restrict access for endpoint to admins."""
+
+    def wrapper(*args, **kwargs):
+        user = getattr(request, "user", None)
+        if not SSO_ENABLED or user["isAdmin"]:
+            return func(*args, **kwargs)
+        return "Invalid permissions", 403
+
+    wrapper.__name__ = func.__name__
+    return wrapper
+
+
+def requires_leadership(func: Callable) -> Callable:
+    """Restrict access for endpoint to leadership."""
+
+    def wrapper(*args, **kwargs):
+        user = getattr(request, "user", None)
+        if not SSO_ENABLED or user["isOrgLeadership"]:
+            return func(*args, **kwargs)
+        return "Invalid permissions", 403
+
+    wrapper.__name__ = func.__name__
+    return wrapper
+
+
+def requires_admin_or_member(func: Callable) -> Callable:
+    """Restrict access for endpoint to admins or team members."""
+
+    def wrapper(*args, **kwargs):
+        user = getattr(request, "user", None)
+        if not SSO_ENABLED or user["isAdmin"]:
+            return func(*args, **kwargs)
+        with generate_session() as session:
+            team = teams_crud.get_entity(session, kwargs["team_id"])
+            if user["id"] in team.users:
+                return func(*args, **kwargs)
+        return "Invalid permissions", 403
+
+    wrapper.__name__ = func.__name__
+    return wrapper

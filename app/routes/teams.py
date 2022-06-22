@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 from app.crud import teams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin_or_member
 from app.schemas import TeamSchema
 
 router = Blueprint("teams", __name__, url_prefix="/teams")
@@ -107,6 +108,7 @@ def get_team(team_id: int):
 
 
 @router.route("/<team_id>", methods=["PUT"])
+@requires_admin_or_member
 def update_team(team_id: int):
     """Update team route.
 
@@ -150,6 +152,7 @@ def update_team(team_id: int):
 
 
 @router.route("/<team_id>", methods=["DELETE"])
+@requires_admin_or_member
 def delete_team(team_id: int):
     """Delete team route.
 

@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 from app.crud import valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin
 from app.schemas import ValuestreamSchema
 
 router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
@@ -107,6 +108,7 @@ def get_valuestream(valuestream_id: int):
 
 
 @router.route("/<valuestream_id>", methods=["PUT"])
+@requires_admin
 def update_valuestream(valuestream_id: int):
     """Update valuestream route.
 
@@ -152,6 +154,7 @@ def update_valuestream(valuestream_id: int):
 
 
 @router.route("/<valuestream_id>", methods=["DELETE"])
+@requires_admin
 def delete_valuestream(valuestream_id: int):
     """Delete valuestream route.
 

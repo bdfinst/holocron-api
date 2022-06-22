@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin
 from app.schemas import OrganizationSchema
 
 router = Blueprint("organizations", __name__, url_prefix="/organizations")
@@ -109,6 +110,7 @@ def get_organization(org_id: int):
 
 
 @router.route("/<org_id>", methods=["PUT"])
+@requires_admin
 def update_organization(org_id: int):
     """Update organization route.
 
@@ -152,6 +154,7 @@ def update_organization(org_id: int):
 
 
 @router.route("/<org_id>", methods=["DELETE"])
+@requires_admin
 def delete_organization(org_id: int):
     """Delete organization route.
 
