@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import config
+from app.exceptions import HolocronError
 from app.models import User
 
 from ._base import BaseCRUD
@@ -25,12 +26,12 @@ class UserCRUD(BaseCRUD[User]):
         user.sso_id = token.get("sub")
         username = token.get(config.SSO_USERNAME_KEY)
         if not isinstance(username, str):
-            raise Exception("Invalid username in JWT")
+            raise HolocronError("Invalid username in JWT")
         user.username = username
 
         groups = token.get(config.SSO_GROUPS_KEY)
         if not isinstance(groups, list):
-            raise Exception("Invalid groups in JWT")
+            raise HolocronError("Invalid groups in JWT")
         user.is_org_leadership = config.SSO_LEADERSHIP_GROUP in groups
         user.is_admin = config.SSO_ADMIN_GROUP in groups
 

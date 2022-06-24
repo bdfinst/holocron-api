@@ -12,6 +12,9 @@ from app.schemas import UserSchema
 schema = UserSchema()
 
 
+INVALID_PERMISSIONS = "Invalid permissions"
+
+
 def set_user():
     """Set current user as property of the request."""
     token = jwt.decode(
@@ -30,7 +33,7 @@ def requires_admin(func: Callable) -> Callable:
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isAdmin"]:
             return func(*args, **kwargs)
-        return "Invalid permissions", 403
+        return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
     return wrapper
@@ -43,7 +46,7 @@ def requires_leadership(func: Callable) -> Callable:
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isOrgLeadership"]:
             return func(*args, **kwargs)
-        return "Invalid permissions", 403
+        return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
     return wrapper
@@ -60,7 +63,7 @@ def requires_admin_or_member(func: Callable) -> Callable:
             team = teams_crud.get_entity(session, kwargs["team_id"])
             if user["id"] in team.users:
                 return func(*args, **kwargs)
-        return "Invalid permissions", 403
+        return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
     return wrapper

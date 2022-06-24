@@ -13,14 +13,14 @@ class StreamFormatter(logging.Formatter):
     RED = "\x1b[31;21m"
     BOLD_RED = "\x1b[31;1m"
     RESET = "\x1b[0m"
-    FORMAT = "[%(asctime)s] - [Holocron] - [%(levelname)s] - %(message)s"
+    MSG_FORMAT = "[%(asctime)s] - [Holocron] - [%(levelname)s] - %(message)s"
 
     FORMATS = {
-        logging.DEBUG: GREY + FORMAT + RESET,
-        logging.INFO: GREY + FORMAT + RESET,
-        logging.WARNING: YELLOW + FORMAT + RESET,
-        logging.ERROR: RED + FORMAT + RESET,
-        logging.CRITICAL: BOLD_RED + FORMAT + RESET,
+        logging.DEBUG: GREY + MSG_FORMAT + RESET,
+        logging.INFO: GREY + MSG_FORMAT + RESET,
+        logging.WARNING: YELLOW + MSG_FORMAT + RESET,
+        logging.ERROR: RED + MSG_FORMAT + RESET,
+        logging.CRITICAL: BOLD_RED + MSG_FORMAT + RESET,
     }
 
     def format(self, record: logging.LogRecord) -> str:
