@@ -1,5 +1,6 @@
 """Establish database connection."""
 from contextlib import contextmanager
+from typing import Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -19,7 +20,7 @@ def build_connection_string():
 class Database:
     """Database static class."""
 
-    engine: Engine = None
+    engine: Optional[Engine] = None
 
     @classmethod
     def establish_connection(cls):

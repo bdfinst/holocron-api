@@ -1,6 +1,10 @@
 """Custom exceptions."""
 
 
+class HolocronError(Exception):
+    """Error for generic exceptions."""
+
+
 class HolocronIntegrityError(Exception):
     """Error for SQL integrity exceptions."""
 
