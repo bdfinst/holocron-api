@@ -2,7 +2,7 @@
 name = "holocron-api"
 version = "0.1.0"
 description = ""
-authors = ["Mark Howard <mark.howard.7@us.af.mil>"]
+authors = ["Mark Howard <mark.howard.7@us.af.mil>", "Abhaya Shrestha <abhaya.shrestha@us.kbr.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
