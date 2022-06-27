@@ -1,6 +1,6 @@
 """Schema for TicketBoard model."""
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import TicketBoard
 
@@ -18,3 +18,4 @@ class TicketBoardSchema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
 
     tickets = fields.Nested(TicketSchema, many=True)
+    team_id = auto_field()
