@@ -1,11 +1,14 @@
 """Authentication middleware tests."""
 from unittest.mock import MagicMock
 
+from flask import Response
+
 from app.middleware import (
     auth,
     requires_admin,
     requires_admin_or_member,
     requires_leadership,
+    return_user,
     set_user,
 )
 from app.models import Team
@@ -16,6 +19,16 @@ def test_set_user(mock_request, mock_crud):
     set_user()
 
     assert mock_request.user == {"username": "1"}
+
+
+def test_return_user(mock_request):
+    """Test return_user function."""
+    setattr(mock_request, "user", {"username": "1"})
+    response = Response()
+
+    result = return_user(response)
+
+    assert result.headers["User"] == "{'username': '1'}"
 
 
 def wrapped_test_func(*args, **kwargs):

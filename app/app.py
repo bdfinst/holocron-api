@@ -3,7 +3,7 @@ from flask import Flask, Response
 
 from app import config
 from app.database import Database
-from app.middleware import set_csp, set_user
+from app.middleware import return_user, set_csp, set_user
 from app.routes import router
 from app.spec import generate_spec, serve_spec
 
@@ -19,6 +19,11 @@ def create_app():
         def authentication_middleware():
             """Use Authentication Middleware."""
             set_user()
+
+        @app.after_request
+        def user_response_middleware(response: Response) -> Response:
+            """Use User response Middleware."""
+            return return_user(response)
 
     @app.after_request
     def csp_middleware(response: Response) -> Response:

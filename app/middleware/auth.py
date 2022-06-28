@@ -2,7 +2,7 @@
 from typing import Callable
 
 import jwt
-from flask import request
+from flask import Response, request
 
 from app.config import SSO_ENABLED
 from app.crud import teams_crud, users_crud
@@ -24,6 +24,12 @@ def set_user():
         current_user = users_crud.upsert_sso_user(session, token)
         current_user = schema.dump(current_user)
     setattr(request, "user", current_user)
+
+
+def return_user(response: Response) -> Response:
+    """Add the current user to the response headers."""
+    response.headers["User"] = str(getattr(request, "user", None))
+    return response
 
 
 def requires_admin(func: Callable) -> Callable:
