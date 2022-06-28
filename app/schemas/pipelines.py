@@ -1,6 +1,6 @@
 """Schema for Pipeline model."""
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Pipeline
 
@@ -18,3 +18,4 @@ class PipelineSchema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
 
     builds = fields.Nested(BuildSchema, many=True)
+    team_id = auto_field()

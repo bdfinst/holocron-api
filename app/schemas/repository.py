@@ -1,6 +1,6 @@
 """Schema for Repository model."""
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Repository
 
@@ -22,3 +22,4 @@ class RepositorySchema(SQLAlchemyAutoSchema, SchemaBase):
     branches = fields.Nested(BranchSchema, many=True)
     commits = fields.Nested(CommitSchema, many=True)
     git_requests = fields.Nested(GitRequestSchema, many=True)
+    team_id = auto_field()
