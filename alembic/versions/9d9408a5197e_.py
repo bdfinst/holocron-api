@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a07ce720be9d
+Revision ID: 9d9408a5197e
 Revises: 
-Create Date: 2022-06-21 19:52:46.019715
+Create Date: 2022-06-30 19:27:44.650357
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a07ce720be9d"
+revision = "9d9408a5197e"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -242,6 +242,7 @@ def upgrade():
         sa.Column("repository_id", sa.Integer(), nullable=False),
         sa.Column("sha", sa.String(), nullable=False),
         sa.Column("is_merged", sa.Boolean(), nullable=True),
+        sa.Column("date", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["repository_id"],
             ["collector_targets.id"],

@@ -1,5 +1,13 @@
 """SCM commit model."""
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 
 from ._base import MetadataBase, ModelBase
 from .repository import Repository
@@ -13,5 +21,6 @@ class Commit(MetadataBase, ModelBase):
     repository_id = Column(Integer, ForeignKey(Repository.id), nullable=False)
     sha = Column(String(), nullable=False)
     is_merged = Column(Boolean)
+    date = Column(DateTime(timezone=True), nullable=False)
 
     UniqueConstraint(repository_id, sha)
