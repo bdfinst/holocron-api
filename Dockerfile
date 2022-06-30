@@ -4,4 +4,6 @@ WORKDIR /home/python
 
 COPY --chown=python:python . .
 
+ENV PYTHONPATH=/home/python/.cache/python-packages
+
 ENTRYPOINT ["./entrypoint.sh"]
