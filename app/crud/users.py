@@ -43,14 +43,13 @@ class UserCRUD(BaseCRUD[User]):
                 session.refresh(user)
                 break
             except IntegrityError as err:
-                if "psycopg2.errors.UniqueViolation" in str(
+                if "psycopg2.errors.UniqueViolation" not in str(
                     err
-                ) and "users_username_key" in str(err):
-                    session.rollback()
-                    username_num += 1
-                    user.username = username + str(username_num)
-                else:
+                ) or "users_username_key" not in str(err):
                     raise err
+                session.rollback()
+                username_num += 1
+                user.username = username + str(username_num)
         return user
 
 

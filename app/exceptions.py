@@ -10,6 +10,5 @@ class HolocronIntegrityError(Exception):
 
     def __init__(self, field: str, value: str):
         """Initialize with dict to match marshmallow validation."""
-        self.messages = {}
-        self.messages[field] = value
+        self.messages = {field: value}
         super().__init__(f"{field} - {value}")
