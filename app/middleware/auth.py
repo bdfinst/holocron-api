@@ -18,7 +18,7 @@ INVALID_PERMISSIONS = "Invalid permissions"
 def set_user():
     """Set current user as property of the request."""
     token = jwt.decode(
-        request.headers.get("Authorization"), options={"verify_signature": False}
+        request.headers.get("authorization"), options={"verify_signature": False}
     )
     with generate_session() as session:
         current_user = users_crud.upsert_sso_user(session, token)
