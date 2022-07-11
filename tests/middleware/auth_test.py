@@ -28,7 +28,7 @@ def test_return_user(mock_request):
 
     result = return_user(response)
 
-    assert result.headers["User"] == "{'username': '1'}"
+    assert result.headers["X-User"] == "{'username': '1'}"
 
 
 def wrapped_test_func(*args, **kwargs):
