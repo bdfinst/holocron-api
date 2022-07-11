@@ -8,4 +8,4 @@ ENV PYTHONPATH=/home/python/.cache/python-packages
 
 ENTRYPOINT ["./entrypoint.sh"]
 
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:create_app()"]
+CMD ["python", "-m", "gunicorn", "-b", "0.0.0.0:8080", "app:create_app()"]
