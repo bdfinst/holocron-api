@@ -1,4 +1,5 @@
 """Authentication middleware."""
+import logging
 from typing import Callable
 
 import jwt
@@ -17,6 +18,7 @@ INVALID_PERMISSIONS = "Invalid permissions"
 
 def set_user():
     """Set current user as property of the request."""
+    logging.info(request.headers)
     token = jwt.decode(
         request.headers.get("authorization"), options={"verify_signature": False}
     )
