@@ -28,7 +28,7 @@ def set_user():
 
 def return_user(response: Response) -> Response:
     """Add the current user to the response headers."""
-    response.headers["User"] = str(getattr(request, "user", None))
+    response.headers["X-User"] = str(getattr(request, "user", None))
     return response
 
 
