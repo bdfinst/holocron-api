@@ -7,3 +7,4 @@ from .auth import (
     set_user,
 )
 from .csp import set_csp
+from .log import log_request

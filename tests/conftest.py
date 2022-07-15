@@ -66,6 +66,7 @@ def mock_config(monkeypatch):
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(app.middleware.auth, "request", request)
+    monkeypatch.setattr(app.middleware.log, "request", request)
     return request
 
 

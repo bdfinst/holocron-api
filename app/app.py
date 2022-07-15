@@ -1,9 +1,9 @@
 """Application entrypoint."""
-from flask import Flask, Response
+from flask import Flask
 
 from app import config
 from app.database import Database
-from app.middleware import return_user, set_csp, set_user
+from app.middleware import log_request, return_user, set_csp, set_user
 from app.routes import router
 from app.spec import generate_spec, serve_spec
 
@@ -13,22 +13,12 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(config)
 
+    app.before_request(log_request)
+    app.after_request(set_csp)
+
     if config.SSO_ENABLED:
-
-        @app.before_request
-        def authentication_middleware():
-            """Use Authentication Middleware."""
-            set_user()
-
-        @app.after_request
-        def user_response_middleware(response: Response) -> Response:
-            """Use User response Middleware."""
-            return return_user(response)
-
-    @app.after_request
-    def csp_middleware(response: Response) -> Response:
-        """Use CSP Middleware."""
-        return set_csp(response)
+        app.before_request(set_user)
+        app.after_request(return_user)
 
     app.register_blueprint(router)
     spec = generate_spec(app)
