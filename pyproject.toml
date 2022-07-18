@@ -17,6 +17,7 @@ apispec-webframeworks = "^0.5.2"
 PyJWT = "^2.3.0"
 apispec = "^5.2.2"
 psycopg2-binary = "^2.9.3"
+Flask-Limiter = "^2.5.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
