@@ -7,7 +7,9 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from app.models import Team
 
 from ._base import SchemaBase
-from .collector_target import CollectorTargetSchema
+from .pipelines import PipelineMetricsSchema
+from .repository import RepositoryMetricsSchema
+from .ticket_board import TicketBoardMetricsSchema
 
 
 class TeamSchemaBase(SQLAlchemyAutoSchema, SchemaBase):
@@ -31,9 +33,9 @@ class ExistingTeamSchema(TeamSchemaBase):
         include_relationships = True
         exclude = ("collector_targets",)
 
-    pipelines = fields.Nested(CollectorTargetSchema, many=True)
-    repositories = fields.Nested(CollectorTargetSchema, many=True)
-    ticket_boards = fields.Nested(CollectorTargetSchema, many=True)
+    pipelines = fields.Nested(PipelineMetricsSchema, many=True)
+    repositories = fields.Nested(RepositoryMetricsSchema, many=True)
+    ticket_boards = fields.Nested(TicketBoardMetricsSchema, many=True)
 
 
 class NewTeamSchema(TeamSchemaBase):

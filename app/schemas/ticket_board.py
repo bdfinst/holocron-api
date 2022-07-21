@@ -1,4 +1,6 @@
 """Schema for TicketBoard model."""
+from typing import Tuple
+
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
@@ -16,6 +18,17 @@ class TicketBoardSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = TicketBoard
         include_relationships = True
+        exclude: Tuple[str, ...] = ("tickets",)
+
+    team_id = auto_field()
+
+
+class TicketBoardMetricsSchema(TicketBoardSchema):
+    """Schema for TicketBoard model with metric children."""
+
+    class Meta(TicketBoardSchema.Meta):
+        """Configuration."""
+
+        exclude = ()
 
     tickets = fields.Nested(TicketSchema, many=True)
-    team_id = auto_field()
