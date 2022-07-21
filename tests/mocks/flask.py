@@ -7,6 +7,16 @@ class MockRequest:
     headers = {
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.rTCH8cLoGxAm_xw68z-zXVKi9ie6xJn9tnVWjd_9ftE"
     }
+    remote_addr = "0.0.0.0"
+    path = "/test"
+
+    def reset(self):
+        """Reset the mocks."""
+        self.headers = {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.rTCH8cLoGxAm_xw68z-zXVKi9ie6xJn9tnVWjd_9ftE"
+        }
+        self.remote_addr = "0.0.0.0"
+        self.path = "/test"
 
 
 request = MockRequest()

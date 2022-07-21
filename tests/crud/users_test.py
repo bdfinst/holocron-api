@@ -1,9 +1,11 @@
 """Users CRUD tests."""
 from unittest.mock import MagicMock
 
+from pytest import fixture
 from sqlalchemy.exc import IntegrityError
 
-from app.crud import users_crud
+from app.crud import users, users_crud
+from tests.mocks import config, mock_select
 from tests.utils import first_argument
 
 
@@ -16,7 +18,19 @@ def raise_error(call_tracker=[]):
         )
 
 
-def test_upsert_sso_user(mock_session, mock_config):
+@fixture
+def mock_config(monkeypatch):
+    """Mock configuration."""
+    monkeypatch.setattr(users, "config", config)
+
+
+@fixture
+def mock_sqlalchemy(monkeypatch):
+    """Patch sqlalchemy."""
+    monkeypatch.setattr(users, "select", mock_select)
+
+
+def test_upsert_sso_user(mock_sqlalchemy, mock_session, mock_config):
     """Test upsert_sso_user method."""
     token = {"sub": "1", "username": "test", "groups": ["admin"]}
 
@@ -30,7 +44,7 @@ def test_upsert_sso_user(mock_session, mock_config):
     assert not user.is_org_leadership
 
 
-def test_upsert_sso_user_username_conflict(mock_session, mock_config):
+def test_upsert_sso_user_username_conflict(mock_sqlalchemy, mock_session, mock_config):
     """Test upsert_sso_user method."""
     mock_session.commit = MagicMock(side_effect=raise_error)
     token = {"sub": "1", "username": "test", "groups": ["admin"]}

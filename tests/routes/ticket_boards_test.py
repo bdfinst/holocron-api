@@ -1,4 +1,14 @@
 """TicketBoard route tests."""
+from pytest import fixture
+
+from app.routes import ticket_boards
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(ticket_boards, "ticket_boards_crud", crud)
 
 
 def test_list_ticket_boards(client, mock_crud):

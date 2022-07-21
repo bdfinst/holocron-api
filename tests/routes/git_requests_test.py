@@ -1,4 +1,14 @@
 """Git Request route tests."""
+from pytest import fixture
+
+from app.routes import git_requests
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(git_requests, "git_requests_crud", crud)
 
 
 def test_list_git_requests_for_team(client, mock_crud):

@@ -1,4 +1,14 @@
 """Organization route tests."""
+from pytest import fixture
+
+from app.routes import organizations
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(organizations, "organizations_crud", crud)
 
 
 def test_list_organizations(client, mock_crud):

@@ -1,4 +1,14 @@
 """Pipeline route tests."""
+from pytest import fixture
+
+from app.routes import pipelines
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(pipelines, "pipelines_crud", crud)
 
 
 def test_list_pipelines(client, mock_crud):
