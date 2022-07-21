@@ -20,6 +20,7 @@ class Ticket(MetadataBase, ModelBase):
     sub_tickets = relationship(
         "Ticket", backref=backref("super_ticket", remote_side="Ticket.id")
     )
+    priority = Column(String())
 
     UniqueConstraint(ticket_id, board_id)
 
