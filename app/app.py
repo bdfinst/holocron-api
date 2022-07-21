@@ -3,7 +3,15 @@ from flask import Flask
 
 from app import config
 from app.database import Database
-from app.middleware import limiter, log_request, return_user, set_csp, set_user
+from app.middleware import (
+    circuit_breaker_check,
+    circuit_breaker_validation,
+    limiter,
+    log_request,
+    return_user,
+    set_csp,
+    set_user,
+)
 from app.routes import router
 from app.spec import generate_spec, serve_spec
 
@@ -14,7 +22,9 @@ def create_app():
     app.config.from_object(config)
 
     app.before_request(log_request)
+    app.before_request(circuit_breaker_check)
     app.after_request(set_csp)
+    app.after_request(circuit_breaker_validation)
 
     if config.SSO_ENABLED:
         app.before_request(set_user)
