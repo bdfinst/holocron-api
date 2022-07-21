@@ -6,10 +6,10 @@ from .git_request import GitRequestSchema
 from .messages import ValidationErrorSchema
 from .organization import OrganizationSchema
 from .pay_rate import PayRateSchema
-from .pipelines import PipelineSchema
-from .repository import RepositorySchema
+from .pipelines import PipelineMetricsSchema, PipelineSchema
+from .repository import RepositoryMetricsSchema, RepositorySchema
 from .team import ExistingTeamSchema, NewTeamSchema, TeamSchema
 from .ticket import TicketSchema
-from .ticket_board import TicketBoardSchema
+from .ticket_board import TicketBoardMetricsSchema, TicketBoardSchema
 from .user import UserSchema
 from .valuestream import ValuestreamSchema
