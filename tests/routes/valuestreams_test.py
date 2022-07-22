@@ -1,4 +1,14 @@
 """Valuestream route tests."""
+from pytest import fixture
+
+from app.routes import valuestreams
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(valuestreams, "valuestreams_crud", crud)
 
 
 def test_list_valuestreams(client, mock_crud):

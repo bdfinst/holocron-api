@@ -1,4 +1,14 @@
 """PayRates route tests."""
+from pytest import fixture
+
+from app.routes import pay_rates
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(pay_rates, "pay_rates_crud", crud)
 
 
 def test_list_pay_rates(client, mock_crud):

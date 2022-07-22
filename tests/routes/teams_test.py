@@ -1,4 +1,14 @@
 """Team route tests."""
+from pytest import fixture
+
+from app.routes import teams
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(teams, "teams_crud", crud)
 
 
 def test_list_teams(client, mock_crud):

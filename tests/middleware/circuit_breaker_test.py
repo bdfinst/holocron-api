@@ -3,13 +3,23 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 from flask import Response
+from pytest import fixture
 
 from app.middleware import (
     circuit_breaker,
     circuit_breaker_check,
     circuit_breaker_validation,
 )
+from tests.mocks import request
 from tests.utils import first_argument
+
+
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(circuit_breaker, "request", request)
+    yield request
+    request.reset()
 
 
 def test_circuit_breaker_check_good(mock_request):

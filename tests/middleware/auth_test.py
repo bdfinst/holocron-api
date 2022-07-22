@@ -2,6 +2,7 @@
 from unittest.mock import MagicMock
 
 from flask import Response
+from pytest import fixture
 
 from app.middleware import (
     auth,
@@ -12,10 +13,21 @@ from app.middleware import (
     set_user,
 )
 from app.models import Team
+from tests.mocks import crud, request
 
 
-def test_set_user(mock_request, mock_crud):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    yield request
+    request.reset()
+
+
+def test_set_user(mock_request, monkeypatch):
     """Test set_user function."""
+    monkeypatch.setattr(auth, "users_crud", crud)
+
     set_user()
 
     assert mock_request.user == {"username": "1"}

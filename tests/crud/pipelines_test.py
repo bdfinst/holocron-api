@@ -1,8 +1,17 @@
 """Pipelines CRUD tests."""
-from app.crud import pipelines_crud
+from pytest import fixture
+
+from app.crud import pipelines, pipelines_crud
+from tests.mocks import mock_select
 
 
-def test_get_entities(mock_session):
+@fixture
+def mock_sqlalchemy(monkeypatch):
+    """Patch sqlalchemy."""
+    monkeypatch.setattr(pipelines, "select", mock_select)
+
+
+def test_get_entities(mock_sqlalchemy, mock_session):
     """Test get_entities method."""
     expected = (
         "SELECT * FROM collector_targets "
@@ -14,7 +23,7 @@ def test_get_entities(mock_session):
     assert result[0].statement == expected
 
 
-def test_get_entities_for_team(mock_session):
+def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     """Test get_entities_for_team method."""
     expected = (
         "SELECT * FROM collector_targets "

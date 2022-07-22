@@ -1,14 +1,23 @@
 """Request logging middleware tests."""
 from unittest.mock import MagicMock
 
+from pytest import fixture
+
 from app.middleware import log, log_request
+from tests.mocks import request
 from tests.utils import first_argument
+
+
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(log, "request", request)
+    yield request
+    request.reset()
 
 
 def test_log_request(mock_request, monkeypatch):
     """Test log_request function."""
-    setattr(mock_request, "remote_addr", "0.0.0.0")
-    setattr(mock_request, "path", "/test")
     log_mock = MagicMock()
     monkeypatch.setattr(log.logging, "info", log_mock)
 

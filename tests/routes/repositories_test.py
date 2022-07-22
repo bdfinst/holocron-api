@@ -1,4 +1,14 @@
 """Repository route tests."""
+from pytest import fixture
+
+from app.routes import repositories
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(repositories, "repositories_crud", crud)
 
 
 def test_list_repositories(client, mock_crud):

@@ -1,4 +1,14 @@
 """Commit route tests."""
+from pytest import fixture
+
+from app.routes import commits
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(commits, "commits_crud", crud)
 
 
 def test_list_commits_for_team(client, mock_crud):

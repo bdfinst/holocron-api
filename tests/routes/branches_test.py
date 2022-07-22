@@ -1,4 +1,14 @@
 """Branch route tests."""
+from pytest import fixture
+
+from app.routes import branches
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(branches, "branches_crud", crud)
 
 
 def test_list_branches_for_team(client, mock_crud):
