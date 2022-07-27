@@ -88,7 +88,7 @@ class Thread(MetadataBase, ModelBase):
 
     __tablename__ = "threads"
 
-    forum_id = Column(Integer, ForeignKey(Forum.id), nullable=False)
+    forum_id = Column(Integer, ForeignKey(Forum.id, ondelete="CASCADE"), nullable=False)
     url = Column(String, nullable=False, unique=True)
 ```
 

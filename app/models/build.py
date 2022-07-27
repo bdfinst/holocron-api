@@ -12,7 +12,9 @@ class Build(MetadataBase, ModelBase):
 
     __tablename__ = "builds"
 
-    pipeline_id = Column(Integer, ForeignKey(Pipeline.id), nullable=False)
+    pipeline_id = Column(
+        Integer, ForeignKey(Pipeline.id, ondelete="CASCADE"), nullable=False
+    )
     build_url = Column(String, nullable=False, unique=True)
     build_status = Column(String, nullable=False)
     start_time = Column(DateTime(timezone=True))
@@ -25,7 +27,7 @@ class Job(MetadataBase, ModelBase):
 
     __tablename__ = "jobs"
 
-    build_id = Column(Integer, ForeignKey(Build.id), nullable=False)
+    build_id = Column(Integer, ForeignKey(Build.id, ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
     status = Column(String, nullable=False)
     stage = Column(String, nullable=False)
