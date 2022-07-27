@@ -11,7 +11,9 @@ class Ticket(MetadataBase, ModelBase):
 
     __tablename__ = "tickets"
 
-    board_id = Column(Integer, ForeignKey(TicketBoard.id), nullable=False)
+    board_id = Column(
+        Integer, ForeignKey(TicketBoard.id, ondelete="CASCADE"), nullable=False
+    )
     ticket_id = Column(Integer, nullable=False)
     assignee = Column(String())
     status = Column(String(), nullable=False)
@@ -30,7 +32,9 @@ class StatusHistory(MetadataBase, ModelBase):
 
     __tablename__ = "ticket_status_histories"
 
-    ticket_id = Column(Integer, ForeignKey(Ticket.id), nullable=False)
+    ticket_id = Column(
+        Integer, ForeignKey(Ticket.id, ondelete="CASCADE"), nullable=False
+    )
     ticket = relationship("Ticket", backref=backref("status_history"))
     date = Column(DateTime(), nullable=False)
     status = Column(String(), nullable=False)

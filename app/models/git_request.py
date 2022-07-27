@@ -10,7 +10,9 @@ class GitRequest(MetadataBase, ModelBase):
 
     __tablename__ = "git_requests"
 
-    repository_id = Column(Integer, ForeignKey(Repository.id), nullable=False)
+    repository_id = Column(
+        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    )
     title = Column(String(), nullable=False)
     is_open = Column(Boolean)
     last_updated = Column(DateTime, nullable=False)

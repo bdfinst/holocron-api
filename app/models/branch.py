@@ -10,7 +10,9 @@ class Branch(MetadataBase, ModelBase):
 
     __tablename__ = "branches"
 
-    repository_id = Column(Integer, ForeignKey(Repository.id), nullable=False)
+    repository_id = Column(
+        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    )
     last_updated = Column(DateTime, nullable=False)
     name = Column(String, nullable=False)
     url = Column(String, nullable=False, unique=True)

@@ -18,7 +18,9 @@ class Commit(MetadataBase, ModelBase):
 
     __tablename__ = "commits"
 
-    repository_id = Column(Integer, ForeignKey(Repository.id), nullable=False)
+    repository_id = Column(
+        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    )
     sha = Column(String(), nullable=False)
     is_merged = Column(Boolean)
     date = Column(DateTime(timezone=True), nullable=False)
