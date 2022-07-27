@@ -111,13 +111,7 @@ from .thread import Thread
 ```
 ### Migrations
 
-After creating/updating a model, a new migration file needs to be created. If you created a model, you will need to import it into `alembic/env.py`.
-
-```python
-from app.models import (... Forum, Thread)
-```
-
-Now you can generate a new migration by running the following command from within the dev environment backend container.
+After creating/updating a model, a new migration file needs to be created. You can generate a new migration by running the following command from within the dev environment backend container.
 
 `alembic revision --autogenerate`
 
