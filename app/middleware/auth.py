@@ -1,4 +1,5 @@
 """Authentication middleware."""
+import json
 from typing import Callable
 
 import jwt
@@ -27,7 +28,7 @@ def set_user():
 
 def return_user(response: Response) -> Response:
     """Add the current user to the response headers."""
-    response.headers["X-User"] = str(getattr(request, "user", None))
+    response.headers["X-User"] = json.dumps(getattr(request, "user", None))
     return response
 
 
