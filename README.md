@@ -151,8 +151,10 @@ Now we need a schema for `forum` so create `forum.py`.
 
 ```python
 """Schema for Forum model."""
+from typing import Tuple
+
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Forum
 
@@ -168,42 +170,41 @@ class ForumSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Forum
         include_relationships = True
-    
+        exclude: Tuple[str, ...] = ("threads",)
+
+
+class ForumMetricsSchema(ForumSchema):
+    """Schema for Forum model with metric children."""
+
+    class Meta(ForumSchema.Meta):
+        """Configuration."""
+
+        exclude = ()
+
     threads = fields.Nested(ThreadSchema, many=True)
 ```
+Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
 
-Only real difference here is we have to explicitly tell it to include the `threads` relationship and how to display it by passing the `ThreadSchema` to `fields.Nested`.
-
-Now the `CollectorTargetSchema` also needs to be updated whenever a new type of collector target is created. All it needs is to add it to the imports and the `type_schemas` field.
-
-```python
-    from .forum import ForumSchema
-
-    ...
-
-        type_schemas = {
-            ...
-            "Forum": (ForumSchema, "forum_id"),
-        }
-```
-
-Then, make sure you import your schemas in `app/schemas/__init__.py`
 
 And then a similarly small update to `ExistingTeamSchema` in `team.py`.
 
 ```python
+from .forums import ForumMetricsSchema
+
+...
+
     class ExistingTeamSchema(TeamSchemaBase):
         """Existing team schema."""
 
         ...
 
-        forums = fields.Nested(CollectorTargetSchema, many=True)
+        forums = fields.Nested(ForumMetricsSchema, many=True)
 ```
 
 Now just add the new schemas to `__init__.py` for easy imports.
 
 ```python
-from .forum import ForumSchema
+from .forum import ForumSchema, ForumMetricsSchema
 from .thread import ThreadSchema
 ```
 
@@ -490,35 +491,25 @@ You can see these updates at the /api/v1 endpoint.
 
 ### Tests
 
-Of course the work isn't complete without tests. Our model files don't need any tests as they are just definitions without logic. Similarly our new schema files don't need any tests either, but the update to the logic in `app/schemas/collector_targets.py` does. We want to verify that our new schema will integrate. So we will make these additions to `tests/schemas/collector_target_test.py`:
+Of course the work isn't complete without tests. Our model files don't need any tests as they are just definitions without logic. Similarly our new schema files don't need any tests either.
 
-```python
-# import the model
-from app.models import (... Forum)
-
-
-# in each existing test add the following line
-assert result.get("forumId") is None
-
-# add the following test
-def test_dump_forum():
-    """Test dump using a forum."""
-    target = [Forum(forum_id = 1)]
-
-    [result] = schema.dump(target)
-
-    assert result.get("forumId") == 1
-    # add asserts that the other ids are None
-```
-
-Next, we will want to create tests for our CRUD operations. We only need tests for any newly defined methods as the inherited methods are already covered. Let's create `tests/crud/forums_test.py`.
+So we will start with creating tests for our CRUD operations. We only need tests for any newly defined methods as the inherited methods are already covered. Let's create `tests/crud/forums_test.py`.
 
 ```python
 """Forums CRUD tests."""
-from app.crud import forums_crud
+from pytest import fixture
+
+from app.crud import forums, forums_crud
+from tests.mocks import mock_select
 
 
-def test_get_entities(mock_session):
+@fixture
+def mock_sqlalchemy(monkeypatch):
+    """Patch sqlalchemy."""
+    monkeypatch.setattr(forums, "select", mock_select)
+
+
+def test_get_entities(mock_sqlalchemy, mock_session):
     """Test get_entities method."""
     expected = (
         "SELECT * FROM collector_targets "
@@ -530,7 +521,7 @@ def test_get_entities(mock_session):
     assert result[0].statement == expected
 
 
-def test_get_entities_for_team(mock_session):
+def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     """Test get_entities_for_team method."""
     expected = (
       "SELECT * FROM collector_targets "
@@ -543,24 +534,22 @@ def test_get_entities_for_team(mock_session):
     assert result[0].statement == expected
 ```
 
-Here we use a [pytest fixture](https://docs.pytest.org/en/6.2.x/fixture.html) to use a defined mock for our database session. Using that we can test that the generated SQL statement for the method is what we would expect.
-
-Before this will work, we do need to make one adjustment to the fixture to mock another function. Make the following change to `tests/conftest.py`.
-
-```python
-@fixture
-def mock_session(monkeypatch):
-    """Patch sqlalchemy and yield mock database session."""
-    ...
-    monkeypatch.setattr(app.crud.forums, "select", mock_select)
-```
-
-Now we will also mock the `select` function from sqlalchemy with our `mock_select` object which allows us to capture and view the generated SQL statement.
+Here we use [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html). We define a new fixture to mock our sqlalchemy `select` function using a mock defined under `tests/mocks/database.py`. The mock is set using a built-in fixture called `monkeypatch`. Our later test functions then call this new fixture as well as custom fixture defined in `tests/conftest.py`. Using these, we can test that the generated SQL statement for the method is what we would expect.
 
 Next we need to test our endpoints. Let's create `tests/routes/forums.py`.
 
 ```python
 """Forum route tests."""
+from pytest import fixture
+
+from app.routes import forums
+from tests.mocks import crud
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Patch CRUD."""
+    monkeypatch.setattr(forums, "forums_crud", crud)
 
 
 def test_list_forums(client, mock_crud):
@@ -612,14 +601,6 @@ def test_get_forum_404(client, mock_crud):
     assert resp.status_code == 404
 ```
 
-Here we use a couple more fixtures. `client` is to utilize the test application with http requests. `mock_crud` mocks the `crud` object with a mock. We will need to make a small adjustment to the latter. Once again in `tests/conftest.py`.
-
-```python
-@fixture
-def mock_crud(monkeypatch):
-    """Patch CRUD."""
-    ...
-    monkeypatch.setattr(app.routes.forums, "forums_crud", crud)
-```
+Here we define another fixture to mock our crud object and use another custom fixture from `tests/conftest.py` to supply our test client object.
 
 For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created. And once they are done coverage should be complete.
