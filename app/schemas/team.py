@@ -30,9 +30,10 @@ class ExistingTeamSchema(TeamSchemaBase):
 
         model = Team
         include_relationships = True
-        exclude = ("collector_targets", "pipelines", "repositories", "ticket_boards")
+        exclude = ("pipelines", "repositories", "ticket_boards")
 
     users = fields.Nested(UserSchema, many=True)
+    collector_targets = auto_field()
 
 
 class TeamMetricsSchema(TeamSchemaBase):
