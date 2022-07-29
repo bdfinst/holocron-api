@@ -177,23 +177,34 @@ class ForumMetricsSchema(ForumSchema):
 
     threads = fields.Nested(ThreadSchema, many=True)
 ```
-Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
 
+Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
 
 And then a similarly small update to `ExistingTeamSchema` in `team.py`.
 
 ```python
-from .forums import ForumMetricsSchema
-
-...
-
     class ExistingTeamSchema(TeamSchemaBase):
         """Existing team schema."""
 
         ...
 
-        forums = fields.Nested(ForumMetricsSchema, many=True)
+        forums = fields.Nested(CollectorTargetSchema, many=True)
 ```
+
+The `CollectorTargetSchema` next needs to be told how to handle these `forums`. So we'll make an update to `collector_target.py`.
+
+```python
+from .forum import ForumMetricsSchema
+
+...
+
+type_schemas = {
+    ...,
+    "Forum": (ForumMetricsSchema, "forum_id"),
+}
+```
+
+This class looks at each `CollectorTarget` model and determines which schema to use based on its class name and id field.
 
 Now just add the new schemas to `__init__.py` for easy imports.
 
@@ -481,11 +492,33 @@ def get_forum(forum_id: int):
 
 For brevity, the updates to `threads.py` won't be included, but of course they should also be updated to be included in the OpenAPI docs.
 
-You can see these updates at the /api/v1 endpoint.
+The final change is to ensure the OpenAPI specification understands our generated schemas correctly. Make a small change to `app/spec.py`:
+
+```python
+from app.schemas import (
+    ...,
+    ForumMetricsSchema,
+)
+
+...
+
+def serve_spec(app: Flask, spec: APISpec):
+    """Serve the API spec."""
+    template = spec.to_flasgger(
+        app,
+        definitions=[
+            ...,
+            ForumMetricsSchema,
+        ],
+    )
+    template = override_collector_target_spec(template, "forums", "ForumMetrics")
+```
+
+You can see all these updates at the /api/v1 endpoint.
 
 ### Tests
 
-Of course the work isn't complete without tests. Our model files don't need any tests as they are just definitions without logic. Similarly our new schema files don't need any tests either.
+Of course the work isn't complete without tests. Our model files don't need any tests as they are just definitions without logic. Similarly our new schema files don't need any tests either, although we will want one updated test for our update to the `CollectorTargetSchema`.
 
 So we will start with creating tests for our CRUD operations. We only need tests for any newly defined methods as the inherited methods are already covered. Let's create `tests/crud/forums_test.py`.
 
@@ -597,4 +630,31 @@ def test_get_forum_404(client, mock_crud):
 
 Here we define another fixture to mock our crud object and use another custom fixture from `tests/conftest.py` to supply our test client object.
 
-For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created. And once they are done coverage should be complete.
+For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created.
+
+Finally, we will update our schema tests for `CollectorTargetSchema` at `tests/schemas/collector_target_test.py`.
+
+We will first want to add the following to the existing tests:
+
+```python
+assert result.get("ForumId") is None
+```
+
+Then we will want to add a new test.
+
+```python
+from app.models import ..., Forum
+
+def test_dump_forum():
+    """Test dump using a forum."""
+    target = [Forum(forum_id=1)]
+
+    [result] = schema.dump(target)
+
+    assert result.get("forumId") == 1
+    assert result.get("boardId") is None
+    assert result.get("pipelineId") is None
+    assert result.get("repositoryId") is None
+```
+
+And once all that is done coverage should be complete.
