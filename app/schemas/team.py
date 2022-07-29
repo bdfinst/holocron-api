@@ -8,6 +8,7 @@ from app.models import Team
 
 from ._base import SchemaBase
 from .collector_target import CollectorTargetSchema
+from .user import UserSchema
 
 
 class TeamSchemaBase(SQLAlchemyAutoSchema, SchemaBase):
@@ -31,6 +32,7 @@ class ExistingTeamSchema(TeamSchemaBase):
         include_relationships = True
         exclude = ("collector_targets",)
 
+    users = fields.Nested(UserSchema, many=True)
     pipelines = fields.Nested(CollectorTargetSchema, many=True)
     repositories = fields.Nested(CollectorTargetSchema, many=True)
     ticket_boards = fields.Nested(CollectorTargetSchema, many=True)
