@@ -8,7 +8,7 @@ from .organization import OrganizationSchema
 from .pay_rate import PayRateSchema
 from .pipelines import PipelineMetricsSchema, PipelineSchema
 from .repository import RepositoryMetricsSchema, RepositorySchema
-from .team import ExistingTeamSchema, NewTeamSchema, TeamSchema
+from .team import TeamSchema
 from .ticket import TicketSchema
 from .ticket_board import TicketBoardMetricsSchema, TicketBoardSchema
 from .user import UserSchema

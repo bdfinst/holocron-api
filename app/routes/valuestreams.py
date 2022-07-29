@@ -94,7 +94,7 @@ def get_valuestream(valuestream_id: int):
           description: Get valuestream
           content:
             application/json:
-              schema: ValuestreamSchema
+              schema: ValuestreamMetricsSchema
         404:
           description: Valuestream not found
     """

@@ -180,11 +180,20 @@ class ForumMetricsSchema(ForumSchema):
 
 Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
 
-And then a similarly small update to `ExistingTeamSchema` in `team.py`.
+And then a couple of small updates to `ExistingTeamSchema` in `team.py`.
 
 ```python
     class ExistingTeamSchema(TeamSchemaBase):
         """Existing team schema."""
+
+    ...
+
+    exclude = (..., "forums")
+
+    ...
+
+    class TeamMetricsSchema(TeamSchemaBase):
+        """Team schema with metric objects."""
 
         ...
 

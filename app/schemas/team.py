@@ -30,9 +30,21 @@ class ExistingTeamSchema(TeamSchemaBase):
 
         model = Team
         include_relationships = True
-        exclude = ("collector_targets",)
+        exclude = ("collector_targets", "pipelines", "repositories", "ticket_boards")
 
     users = fields.Nested(UserSchema, many=True)
+
+
+class TeamMetricsSchema(TeamSchemaBase):
+    """Team schema with metric objects."""
+
+    class Meta:
+        """Configuration."""
+
+        model = Team
+        include_relationships = True
+        exclude = ("collector_targets", "users")
+
     pipelines = fields.Nested(CollectorTargetSchema, many=True)
     repositories = fields.Nested(CollectorTargetSchema, many=True)
     ticket_boards = fields.Nested(CollectorTargetSchema, many=True)
