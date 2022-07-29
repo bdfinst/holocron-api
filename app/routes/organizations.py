@@ -96,7 +96,7 @@ def get_organization(org_id: int):
           description: Get organization
           content:
             application/json:
-              schema: OrganizationSchema
+              schema: OrganizationMetricsSchema
         404:
           description: Organization not found
     """

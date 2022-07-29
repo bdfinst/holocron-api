@@ -94,7 +94,7 @@ def get_team(team_id: int):
           description: Get team
           content:
             application/json:
-              schema: ExistingTeamSchema
+              schema: TeamMetricsSchema
         404:
           description: Team not found
     """
