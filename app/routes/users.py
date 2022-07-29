@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify
 from app.crud import users_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin
 from app.schemas import UserSchema
 
 router = Blueprint("users", __name__, url_prefix="/users")
@@ -67,3 +68,27 @@ def get_user(user_id: int):
             return "Resource not found", 404
         result = schema.dump(raw_user)
     return jsonify(result), 200
+
+
+@router.route("/<user_id>", methods=["DELETE"])
+@requires_admin
+def delete_user(user_id: int):
+    """Delete user route.
+
+    ---
+    delete:
+      description: Delete user
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the user
+      responses:
+        204:
+          description: The user was successfully deleted
+    """
+    with generate_session() as session:
+        users_crud.delete_entity(session, user_id)
+    return "", 204
