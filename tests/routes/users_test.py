@@ -39,3 +39,11 @@ def test_get_user_404(client, mock_crud):
 
     assert resp.text == expected
     assert resp.status_code == 404
+
+
+def test_delete_team(client, mock_crud):
+    """Test DELETE /api/v1/users/:id endpoint."""
+    resp = client.delete("/api/v1/users/1")
+
+    assert resp.text == ""
+    assert resp.status_code == 204
