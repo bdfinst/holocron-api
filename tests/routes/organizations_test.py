@@ -2,13 +2,19 @@
 from pytest import fixture
 
 from app.routes import organizations
-from tests.mocks import crud
+from tests.mocks import cache, crud
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(organizations, "organizations_crud", crud)
+
+
+@fixture
+def mock_cache(monkeypatch):
+    """Patch cache."""
+    monkeypatch.setattr(organizations, "organizations_cache", cache)
 
 
 def test_list_organizations(client, mock_crud):
@@ -21,7 +27,7 @@ def test_list_organizations(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_organization(client, mock_crud):
+def test_get_organization(client, mock_cache):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
@@ -31,7 +37,7 @@ def test_get_organization(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_organization_404(client, mock_crud):
+def test_get_organization_404(client, mock_cache):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = "Resource not found"
 

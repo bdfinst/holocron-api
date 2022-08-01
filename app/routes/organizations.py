@@ -5,13 +5,12 @@ from marshmallow import ValidationError
 from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.middleware import requires_admin
-from app.schemas import OrganizationMetricsSchema, OrganizationSchema
+from app.middleware import organizations_cache, requires_admin
+from app.schemas import OrganizationSchema
 
 router = Blueprint("organizations", __name__, url_prefix="/organizations")
 
 schema = OrganizationSchema()
-metric_schema = OrganizationMetricsSchema()
 
 
 @router.route("", methods=["GET"])
@@ -79,7 +78,7 @@ def create_organization():
 
 
 @router.route("/<org_id>", methods=["GET"])
-def get_organization(org_id: int):
+def get_organization(org_id: str):
     """Get organization by id route.
 
     ---
@@ -101,12 +100,10 @@ def get_organization(org_id: int):
         404:
           description: Organization not found
     """
-    with generate_session() as session:
-        try:
-            raw_organization = organizations_crud.get_entity(session, org_id)
-        except HolocronIntegrityError:
-            return "Resource not found", 404
-        result = metric_schema.dump(raw_organization)
+    try:
+        result = organizations_cache.get_entity(int(org_id))
+    except HolocronIntegrityError:
+        return "Resource not found", 404
     return jsonify(result), 200
 
 
