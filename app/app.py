@@ -8,6 +8,7 @@ from app.middleware import (
     circuit_breaker_validation,
     limiter,
     log_request,
+    organizations_cache,
     return_user,
     set_csp,
     set_user,
@@ -35,5 +36,6 @@ def create_app():
     serve_spec(app, spec)
     limiter.init_app(app)
     Database.establish_connection()
+    organizations_cache.start()
 
     return app
