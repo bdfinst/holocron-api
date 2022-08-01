@@ -6,11 +6,12 @@ from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin
-from app.schemas import OrganizationSchema
+from app.schemas import OrganizationMetricsSchema, OrganizationSchema
 
 router = Blueprint("organizations", __name__, url_prefix="/organizations")
 
 schema = OrganizationSchema()
+metric_schema = OrganizationMetricsSchema()
 
 
 @router.route("", methods=["GET"])
@@ -105,7 +106,7 @@ def get_organization(org_id: int):
             raw_organization = organizations_crud.get_entity(session, org_id)
         except HolocronIntegrityError:
             return "Resource not found", 404
-        result = schema.dump(raw_organization)
+        result = metric_schema.dump(raw_organization)
     return jsonify(result), 200
 
 
