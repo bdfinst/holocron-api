@@ -12,7 +12,7 @@ schema = CommitSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_commits_for_team(team_id: int):
+def list_commits_for_team(team_id: str):
     """Get commits for a given team id.
 
     ---
@@ -41,7 +41,7 @@ def list_commits_for_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_commits = commits_crud.get_entities_for_team(session, team_id)
+            raw_commits = commits_crud.get_entities_for_team(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         commits = [schema.dump(commit) for commit in raw_commits]
@@ -50,7 +50,7 @@ def list_commits_for_team(team_id: int):
 
 
 @router.route("/<commit_id>", methods=["GET"])
-def get_commit(commit_id: int):
+def get_commit(commit_id: str):
     """Get commit by id.
 
     ---
@@ -74,7 +74,7 @@ def get_commit(commit_id: int):
     """
     with generate_session() as session:
         try:
-            raw_commit = commits_crud.get_entity(session, commit_id)
+            raw_commit = commits_crud.get_entity(session, int(commit_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_commit)

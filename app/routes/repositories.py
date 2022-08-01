@@ -38,7 +38,7 @@ def list_repositories():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_repositories_for_team(team_id: int):
+def list_repositories_for_team(team_id: str):
     """Get repositories for a given team id.
 
     ---
@@ -67,7 +67,9 @@ def list_repositories_for_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_repositories = repositories_crud.get_entities_for_team(session, team_id)
+            raw_repositories = repositories_crud.get_entities_for_team(
+                session, int(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         repositories = [schema.dump(repository) for repository in raw_repositories]
@@ -76,7 +78,7 @@ def list_repositories_for_team(team_id: int):
 
 
 @router.route("/<repo_id>", methods=["GET"])
-def get_repository(repo_id: int):
+def get_repository(repo_id: str):
     """Get repository by id.
 
     ---
@@ -100,7 +102,7 @@ def get_repository(repo_id: int):
     """
     with generate_session() as session:
         try:
-            raw_repository = repositories_crud.get_entity(session, repo_id)
+            raw_repository = repositories_crud.get_entity(session, int(repo_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_repository)

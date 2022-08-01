@@ -77,7 +77,7 @@ def create_valuestream():
 
 
 @router.route("/<valuestream_id>", methods=["GET"])
-def get_valuestream(valuestream_id: int):
+def get_valuestream(valuestream_id: str):
     """Get valuestream by id route.
 
     ---
@@ -101,7 +101,7 @@ def get_valuestream(valuestream_id: int):
     """
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.get_entity(session, valuestream_id)
+            raw_valuestream = valuestreams_crud.get_entity(session, int(valuestream_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = metric_schema.dump(raw_valuestream)
@@ -110,7 +110,7 @@ def get_valuestream(valuestream_id: int):
 
 @router.route("/<valuestream_id>", methods=["PUT"])
 @requires_admin
-def update_valuestream(valuestream_id: int):
+def update_valuestream(valuestream_id: str):
     """Update valuestream route.
 
     ---
@@ -146,7 +146,7 @@ def update_valuestream(valuestream_id: int):
     with generate_session() as session:
         try:
             raw_valuestream = valuestreams_crud.update_entity(
-                session, data, valuestream_id
+                session, data, int(valuestream_id)
             )
         except HolocronIntegrityError as err:
             return err.messages, 400
@@ -156,7 +156,7 @@ def update_valuestream(valuestream_id: int):
 
 @router.route("/<valuestream_id>", methods=["DELETE"])
 @requires_admin
-def delete_valuestream(valuestream_id: int):
+def delete_valuestream(valuestream_id: str):
     """Delete valuestream route.
 
     ---
@@ -174,5 +174,5 @@ def delete_valuestream(valuestream_id: int):
           description: The valuestream was successfully deleted
     """
     with generate_session() as session:
-        valuestreams_crud.delete_entity(session, valuestream_id)
+        valuestreams_crud.delete_entity(session, int(valuestream_id))
     return "", 204

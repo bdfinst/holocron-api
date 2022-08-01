@@ -335,11 +335,11 @@ def list_forums():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_forums_for_team(team_id: int):
+def list_forums_for_team(team_id: str):
     """Get forums for a given team id."""
     with generate_session() as session:
         try:
-            raw_forums = forums_crud.get_entities_for_team(session, team_id)
+            raw_forums = forums_crud.get_entities_for_team(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         forums = [schema.dump(forum) for forum in raw_forums]
@@ -348,11 +348,11 @@ def list_forums_for_team(team_id: int):
 
 
 @router.route("/<forum_id>", methods=["GET"])
-def get_forum(forum_id: int):
+def get_forum(forum_id: str):
     """Get forum by id."""
     with generate_session() as session:
         try:
-            raw_forum = forums_crud.get_entity(session, repo_id)
+            raw_forum = forums_crud.get_entity(session, int(repo_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_forum)
@@ -377,11 +377,11 @@ schema = ThreadSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_threads_for_team(team_id: int):
+def list_threads_for_team(team_id: str):
     """Get threads for a given team id."""
     with generate_session() as session:
         try:
-            raw_threads = threads_crud.get_entities_for_team(session, team_id)
+            raw_threads = threads_crud.get_entities_for_team(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         threads = [schema.dump(thread) for thread in raw_threads]
@@ -390,11 +390,11 @@ def list_threads_for_team(team_id: int):
 
 
 @router.route("/<thread_id>", methods=["GET"])
-def get_thread(thread_id: int):
+def get_thread(thread_id: str):
     """Get thread by id."""
     with generate_session() as session:
         try:
-            raw_thread = threads_crud.get_entity(session, thread_id)
+            raw_thread = threads_crud.get_entity(session, int(thread_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_thread)
@@ -443,7 +443,7 @@ def list_forums():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_forums_for_team(team_id: int):
+def list_forums_for_team(team_id: str):
     """Get forums for a given team id.
 
     ---
@@ -474,7 +474,7 @@ def list_forums_for_team(team_id: int):
 
 
 @router.route("/<forum_id>", methods=["GET"])
-def get_forum(forum_id: int):
+def get_forum(forum_id: str):
     """Get forum by id.
 
     ---

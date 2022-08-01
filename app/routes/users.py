@@ -39,7 +39,7 @@ def list_users():
 
 
 @router.route("/<user_id>", methods=["GET"])
-def get_user(user_id: int):
+def get_user(user_id: str):
     """Get user by id route.
 
     ---
@@ -63,7 +63,7 @@ def get_user(user_id: int):
     """
     with generate_session() as session:
         try:
-            raw_user = users_crud.get_entity(session, user_id)
+            raw_user = users_crud.get_entity(session, int(user_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_user)
@@ -72,7 +72,7 @@ def get_user(user_id: int):
 
 @router.route("/<user_id>", methods=["DELETE"])
 @requires_admin
-def delete_user(user_id: int):
+def delete_user(user_id: str):
     """Delete user route.
 
     ---
@@ -90,5 +90,5 @@ def delete_user(user_id: int):
           description: The user was successfully deleted
     """
     with generate_session() as session:
-        users_crud.delete_entity(session, user_id)
+        users_crud.delete_entity(session, int(user_id))
     return "", 204
