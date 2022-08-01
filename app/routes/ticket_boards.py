@@ -38,7 +38,7 @@ def list_ticket_boards():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_ticket_boards_for_team(team_id: int):
+def list_ticket_boards_for_team(team_id: str):
     """Get ticket_boards for a given team id.
 
     ---
@@ -68,7 +68,7 @@ def list_ticket_boards_for_team(team_id: int):
     with generate_session() as session:
         try:
             raw_ticket_boards = ticket_boards_crud.get_entities_for_team(
-                session, team_id
+                session, int(team_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
@@ -78,7 +78,7 @@ def list_ticket_boards_for_team(team_id: int):
 
 
 @router.route("/<board_id>", methods=["GET"])
-def get_ticket_board(board_id: int):
+def get_ticket_board(board_id: str):
     """Get ticket_board by id.
 
     ---
@@ -102,7 +102,7 @@ def get_ticket_board(board_id: int):
     """
     with generate_session() as session:
         try:
-            raw_ticket_board = ticket_boards_crud.get_entity(session, board_id)
+            raw_ticket_board = ticket_boards_crud.get_entity(session, int(board_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_ticket_board)

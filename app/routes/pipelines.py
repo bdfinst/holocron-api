@@ -38,7 +38,7 @@ def list_pipelines():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_pipelines_for_team(team_id: int):
+def list_pipelines_for_team(team_id: str):
     """Get pipelines for a given team id.
 
     ---
@@ -67,7 +67,7 @@ def list_pipelines_for_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_pipelines = pipelines_crud.get_entities_for_team(session, team_id)
+            raw_pipelines = pipelines_crud.get_entities_for_team(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
@@ -76,7 +76,7 @@ def list_pipelines_for_team(team_id: int):
 
 
 @router.route("/<pipeline_id>", methods=["GET"])
-def get_pipeline(pipeline_id: int):
+def get_pipeline(pipeline_id: str):
     """Get pipeline by id.
 
     ---
@@ -100,7 +100,7 @@ def get_pipeline(pipeline_id: int):
     """
     with generate_session() as session:
         try:
-            raw_pipeline = pipelines_crud.get_entity(session, pipeline_id)
+            raw_pipeline = pipelines_crud.get_entity(session, int(pipeline_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_pipeline)

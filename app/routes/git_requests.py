@@ -12,7 +12,7 @@ schema = GitRequestSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_git_requests_for_team(team_id: int):
+def list_git_requests_for_team(team_id: str):
     """Get git requests for a given team id.
 
     ---
@@ -41,7 +41,9 @@ def list_git_requests_for_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_git_requests = git_requests_crud.get_entities_for_team(session, team_id)
+            raw_git_requests = git_requests_crud.get_entities_for_team(
+                session, int(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         git_requests = [schema.dump(commit) for commit in raw_git_requests]
@@ -50,7 +52,7 @@ def list_git_requests_for_team(team_id: int):
 
 
 @router.route("/<git_request_id>", methods=["GET"])
-def get_git_request(git_request_id: int):
+def get_git_request(git_request_id: str):
     """Get git request by id.
 
     ---
@@ -74,7 +76,7 @@ def get_git_request(git_request_id: int):
     """
     with generate_session() as session:
         try:
-            raw_git_request = git_requests_crud.get_entity(session, git_request_id)
+            raw_git_request = git_requests_crud.get_entity(session, int(git_request_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_git_request)

@@ -77,7 +77,7 @@ def create_team():
 
 
 @router.route("/<team_id>", methods=["GET"])
-def get_team(team_id: int):
+def get_team(team_id: str):
     """Get team by id route.
 
     ---
@@ -101,7 +101,7 @@ def get_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_team = teams_crud.get_entity(session, team_id)
+            raw_team = teams_crud.get_entity(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = metrics_schema.dump(raw_team)
@@ -110,7 +110,7 @@ def get_team(team_id: int):
 
 @router.route("/<team_id>", methods=["PUT"])
 @requires_admin_or_member
-def update_team(team_id: int):
+def update_team(team_id: str):
     """Update team route.
 
     ---
@@ -145,7 +145,7 @@ def update_team(team_id: int):
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_team = teams_crud.update_entity(session, data, team_id)
+            raw_team = teams_crud.update_entity(session, data, int(team_id))
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_team)
@@ -154,7 +154,7 @@ def update_team(team_id: int):
 
 @router.route("/<team_id>", methods=["DELETE"])
 @requires_admin_or_member
-def delete_team(team_id: int):
+def delete_team(team_id: str):
     """Delete team route.
 
     ---
@@ -172,5 +172,5 @@ def delete_team(team_id: int):
           description: The team was successfully deleted
     """
     with generate_session() as session:
-        teams_crud.delete_entity(session, team_id)
+        teams_crud.delete_entity(session, int(team_id))
     return "", 204

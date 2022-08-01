@@ -109,7 +109,7 @@ def get_organization(org_id: str):
 
 @router.route("/<org_id>", methods=["PUT"])
 @requires_admin
-def update_organization(org_id: int):
+def update_organization(org_id: str):
     """Update organization route.
 
     ---
@@ -144,7 +144,9 @@ def update_organization(org_id: int):
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_organization = organizations_crud.update_entity(session, data, org_id)
+            raw_organization = organizations_crud.update_entity(
+                session, data, int(org_id)
+            )
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_organization)
@@ -153,7 +155,7 @@ def update_organization(org_id: int):
 
 @router.route("/<org_id>", methods=["DELETE"])
 @requires_admin
-def delete_organization(org_id: int):
+def delete_organization(org_id: str):
     """Delete organization route.
 
     ---
@@ -171,5 +173,5 @@ def delete_organization(org_id: int):
           description: The organization was successfully deleted
     """
     with generate_session() as session:
-        organizations_crud.delete_entity(session, org_id)
+        organizations_crud.delete_entity(session, int(org_id))
     return "", 204

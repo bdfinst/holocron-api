@@ -12,7 +12,7 @@ schema = BranchSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_branches_for_team(team_id: int):
+def list_branches_for_team(team_id: str):
     """Get branches for a given team id.
 
     ---
@@ -41,7 +41,7 @@ def list_branches_for_team(team_id: int):
     """
     with generate_session() as session:
         try:
-            raw_branches = branches_crud.get_entities_for_team(session, team_id)
+            raw_branches = branches_crud.get_entities_for_team(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         branches = [schema.dump(branch) for branch in raw_branches]
@@ -50,7 +50,7 @@ def list_branches_for_team(team_id: int):
 
 
 @router.route("/<branch_id>", methods=["GET"])
-def get_branch(branch_id: int):
+def get_branch(branch_id: str):
     """Get branch by id.
 
     ---
@@ -74,7 +74,7 @@ def get_branch(branch_id: int):
     """
     with generate_session() as session:
         try:
-            raw_branch = branches_crud.get_entity(session, branch_id)
+            raw_branch = branches_crud.get_entity(session, int(branch_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_branch)
