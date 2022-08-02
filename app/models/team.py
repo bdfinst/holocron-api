@@ -9,7 +9,7 @@ from .valuestream import Valuestream
 association_table = Table(
     "team_users",
     MetadataBase.metadata,
-    Column("team_id", ForeignKey("teams.id")),
+    Column("team_id", ForeignKey("teams.id", ondelete="CASCADE")),
     Column("user_id", ForeignKey(User.id)),
 )
 

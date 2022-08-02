@@ -12,7 +12,7 @@ class CollectorTarget(MetadataBase, ModelBase):
     __tablename__ = "collector_targets"
 
     collector_id = Column(Integer, ForeignKey(Collector.id), nullable=False)
-    team_id = Column(Integer, ForeignKey(Team.id))
+    team_id = Column(Integer, ForeignKey(Team.id, ondelete="SET NULL"))
     name = Column(String)
     url = Column(String, nullable=False)
     api_url = Column(String)
