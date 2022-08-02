@@ -17,3 +17,5 @@ SWAGGER = {
     "openapi": os.environ.get("OPENAPI_VERSION", "3.0.2"),
     "static_url_path": "/api/flasgger_static",
 }
+
+MAX_CONTENT_LENGTH = 100 * 1000
