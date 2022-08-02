@@ -2,6 +2,149 @@ Python backend for remixed edition of Holocron application. Replaces the Hygieia
 
 Uses SQLAlchemy for ORM, marshmallow for JSON serialization, alembic for migrations, apispec to generate OpenAPI spec, and flasgger to serve the OpenAPI spec.
 
+
+### Model Definitions
+
+In addition to the fields below, all models have the following fields.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|id|integer|Auto-incrementing primary key.|
+|created_at|datetime|When the item was inserted into the database.|
+|updated_at|datetime|The last time the item was updated in the database.|
+
+**organizations** - Top level organization structure for teams and valuestreams.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|name|string|The name of the organization, unique and non-nullable.|
+
+**valuestreams** - Mid level organization structure.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|name|string|The name of the valuestream, non-nullable.*|
+|organization_id|integer|Foreign key to `organizations.id`, non-nullable.*|
+
+\*Combined unique constraint.
+
+**teams** - Lowest level organization structure.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|name|string|The name of the team, non-nullable.*|
+|team_size|integer|The number of members on the team, non-nullable.|
+|valuestream_id|integer|Foreign key to `valuestreams.id`, non-nullable.*|
+
+\*Combined unique constraint.
+
+**users** - Application users.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|sso_id|string|ID assigned by SSO, unique.|
+|username|string|The name/handle of the user, unique.|
+|is_org_leadership|boolean|Flag as to whether the user is part of organization leadership.|
+|is_admin|boolean|Flag as to whether the user is an admin.|
+
+*team_users* - Many-to-many relationship between teams and users.
+
+**collectors** - The collector services self register in the database using this model.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|name|string|Collector name, unique and non-nullable.|
+|target|string|The URL of the resource to collect from.|
+
+**collector_targets** - The top level objects that the collectors collect. Currently this includes repositories, pipelines, and ticket boards.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|collector_id|integer|Foreign key to `collectors.id`, non-nullable.|
+|team_id|integer|Foreign key to `teams.id`.|
+|name|string|The name of the resource collected.|
+|url|string|The URL for the resource collected, non-nullable.|
+|api_url|string| The API URL for the resource collected.|
+|is_deleted|boolean|A flag for soft delete.|
+|board_id|integer|If target is a ticketboard, this will be the ID given by the resource.
+|pipeline_id|integer|If target is a pipeline, this will be the ID given by the resource.|
+|repository_id|integer|If target is a repository, this will be the ID given by the resource.|
+|trunk_branch|string|If target is a repository, this will be the name of the default branch.|
+
+**branches** - Branches collected from a repository collector target.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|last_updated|datetime|When the branch was last updated, non-nullable.|
+|name|string|The name of the branch, non-nullable.|
+|url|string|The URL of the branch, unique and non-nullable.|
+
+**commits** - Commits collected from a repository collector target.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
+|sha|string|The commit hash, non-nullable.*|
+|is_merged|boolean|Flag as to whether the commit was merged or directly committed.|
+|date|datetime|When the commit was made, non-nullable.|
+
+\*Combined unique constraint.
+
+**git_requests** - Merge/pull requests collected from a repository collector target.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|title|string|The title of the request, non-nullable.|
+|is_open|boolean|Flag as to whether the commit is currently open.|
+|last_updated|datetime|When the request was last updated.|
+|url|string|The URL of the request, unique and non-nullable.|
+
+**builds** - Each run of a pipeline collected from a pipeline collector target.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|pipeline_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|build_url|string|The URL of the build, unique and non-nullable.|
+|build_status|string|Whether the build passed or failed overall, non-nullable.|
+|start_time|datetime|When the build was started.|
+|end_time|datetime|When the build finished.|
+
+**jobs** - The individual job of a build.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|build_id|integer|Foreign key to `builds.id`, non-nullable.|
+|name|string|The name of the job, non-nullable.|
+|status|string|Whether the job passed or failed, non-nullable.|
+|stage|string|The name of the stage, non-nullable.|
+|job_id|integer|The ID of the job assigned by the resource, non-nullable.|
+|job_url|string|The URL of the job, unique and non-nullable.|
+
+**tickets** - Work tickets collected from a ticketboard collector target.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|board_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
+|ticket_id|integer|The ID of the ticket assigned by the resource, non-nullable.*|
+|assignee|string|The email of the person assigned the ticket.|
+|status|string|The current status of the ticket, non-nullable.|
+|super_ticket_id|integer|Foreign key to `tickets.id`.|
+|priority|string|The priority assigned to the ticket.|
+
+\*Combined unique constraint.
+
+**ticket_status_histories** - History of status changes for a ticket.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|ticket_id|integer|Foreign key to `tickets.id`, non-nullable.*|
+|date|datetime|When the status was changed.*|
+|status|string|What the status was changed to.|
+.
+\*Combined unique constraint.
+
 ## Getting started
 
 To enable the pre-commit hook run `git config core.hookPath .githooks`.
