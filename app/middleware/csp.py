@@ -19,6 +19,7 @@ STYLE_SRC = (
 )
 FONT_SRC = "font-src 'self' https://fonts.gstatic.com;"
 IMG_SRC = "img-src 'self' data: w3.org/sv/2000;"
+FRAME_OPTIONS = "frame-ancestors 'none';"
 
 CSP = (
     DEFAULT_SRC
@@ -28,6 +29,7 @@ CSP = (
     + STYLE_SRC
     + FONT_SRC
     + IMG_SRC
+    + FRAME_OPTIONS
 )
 
 
@@ -35,4 +37,5 @@ def set_csp(response: Response) -> Response:
     """Set CSP header."""
     response.headers["Content-Security-Policy"] = CSP
     response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
     return response
