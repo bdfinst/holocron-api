@@ -9,7 +9,7 @@ class MockRequest:
     }
     remote_addr = "0.0.0.0"
     path = "/test"
-    json = return_value = '{"key": "value"}'
+    json = '{"key": "value"}'
     mimetype = "application/json"
 
     def reset(self):
