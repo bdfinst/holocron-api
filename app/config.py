@@ -19,3 +19,4 @@ SWAGGER = {
 }
 
 MAX_CONTENT_LENGTH = 100 * 1000
+MODE = os.environ.get("MODE", "production")
