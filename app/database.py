@@ -11,10 +11,10 @@ from app import config
 
 def build_connection_string():
     """Build database connection string."""
-    ssl = "true" if config.MODE == "production" else "false"
+    ssl = "require" if config.MODE == "production" else "prefer"
     return (
         f"postgresql://{config.DB_USER}:{config.DB_PASS}"
-        + f"@{config.DB_HOST}:{config.DB_PORT}/{config.DB_NAME}&ssl={ssl}"
+        + f"@{config.DB_HOST}:{config.DB_PORT}/{config.DB_NAME}?sslmode={ssl}"
     )
 
 

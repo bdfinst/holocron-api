@@ -34,8 +34,10 @@ def build_database_connection_string():
     host = os.environ.get("DB_HOST")
     port = os.environ.get("DB_PORT")
     name = os.environ.get("DB_NAME")
+    mode = os.environ.get("MODE", "production")
+    ssl = "require" if mode == "production" else "prefer"
 
-    return f"{driver}://{user}:{pwd}@{host}:{port}/{name}"
+    return f"{driver}://{user}:{pwd}@{host}:{port}/{name}?sslmode={ssl}"
 
 
 config.set_main_option("sqlalchemy.url", build_database_connection_string())
