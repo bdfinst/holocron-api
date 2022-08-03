@@ -33,6 +33,21 @@ def test_set_user(mock_request, monkeypatch):
     assert mock_request.user == {"username": "1"}
 
 
+def test_strip_returns():
+    """Test strip_returns function."""
+    cases = {
+        "Test%0A": "Test",
+        "Test%0D": "Test",
+        "%0A%0DTest": "Test",
+        "%0A": "",
+        "%%0A0ATest": "Test",
+        "Test": "Test",
+    }
+
+    for string, result in cases.items():
+        assert auth.strip_returns(string) == result
+
+
 def test_return_user(mock_request):
     """Test return_user function."""
     setattr(mock_request, "user", {"username": "1"})

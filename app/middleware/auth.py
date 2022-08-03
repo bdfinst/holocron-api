@@ -26,9 +26,19 @@ def set_user():
     setattr(request, "user", current_user)
 
 
+def strip_returns(string: str) -> str:
+    """Strip out line and carriage returns."""
+    while "%0A" in string or "%0D" in string:
+        string = string.replace("%0A", "")
+        string = string.replace("%0D", "")
+    return string
+
+
 def return_user(response: Response) -> Response:
     """Add the current user to the response headers."""
-    response.headers["X-User"] = json.dumps(getattr(request, "user", None))
+    user_json = json.dumps(getattr(request, "user", None))
+    user_json = strip_returns(user_json)
+    response.headers["X-User"] = user_json
     return response
 
 
