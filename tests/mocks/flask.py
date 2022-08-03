@@ -9,6 +9,8 @@ class MockRequest:
     }
     remote_addr = "0.0.0.0"
     path = "/test"
+    json = return_value = '{"key": "value"}'
+    mimetype = "application/json"
 
     def reset(self):
         """Reset the mocks."""
@@ -17,6 +19,8 @@ class MockRequest:
         }
         self.remote_addr = "0.0.0.0"
         self.path = "/test"
+        self.json = '{"key": "value"}'
+        self.mimetype = "application/json"
 
 
 request = MockRequest()

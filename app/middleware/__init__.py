@@ -11,3 +11,4 @@ from .circuit_breaker import circuit_breaker_check, circuit_breaker_validation
 from .csp import set_csp
 from .limiter import limiter
 from .log import log_request
+from .text_validator import validate_text

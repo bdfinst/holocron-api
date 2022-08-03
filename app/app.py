@@ -12,6 +12,7 @@ from app.middleware import (
     return_user,
     set_csp,
     set_user,
+    validate_text,
 )
 from app.routes import router
 from app.spec import generate_spec, serve_spec
@@ -24,6 +25,7 @@ def create_app():
 
     app.before_request(log_request)
     app.before_request(circuit_breaker_check)
+    app.before_request(validate_text)
     app.after_request(set_csp)
     app.after_request(circuit_breaker_validation)
 
