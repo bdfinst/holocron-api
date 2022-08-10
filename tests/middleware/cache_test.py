@@ -14,7 +14,7 @@ class MockSchema(Schema):
     id = fields.Int()
 
 
-mock_cache = cache.Cache(MockSchema(), crud, 0)  # type: ignore
+mock_cache = cache.Cache(MockSchema(), crud, 0, MagicMock())  # type: ignore
 
 
 def test_start(monkeypatch):
@@ -34,14 +34,6 @@ def test_get_entity():
     result = mock_cache.get_entity(1)
 
     assert result == "test"
-
-
-def test_get_entity_not_found():
-    """Test get_entity method."""
-    result = mock_cache.get_entity(2)
-
-    assert result == {"id": 2}
-    assert result == mock_cache.data[2]
 
 
 def test_get_ids():

@@ -5,7 +5,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from app.models import Organization
 
 from ._base import SchemaBase
-from .valuestream import ValuestreamMetricsSchema, ValuestreamSchema
+from .valuestream import ValuestreamSchema
 
 
 class OrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
@@ -18,9 +18,3 @@ class OrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
 
     valuestreams = fields.Nested(ValuestreamSchema, many=True)
-
-
-class OrganizationMetricsSchema(OrganizationSchema):
-    """Schema for Organization model with metric objects."""
-
-    valuestreams = fields.Nested(ValuestreamMetricsSchema, many=True)

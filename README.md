@@ -308,17 +308,6 @@ class ForumSchema(SQLAlchemyAutoSchema, SchemaBase):
         model = Forum
         include_relationships = True
         exclude: Tuple[str, ...] = ("threads",)
-
-
-class ForumMetricsSchema(ForumSchema):
-    """Schema for Forum model with metric children."""
-
-    class Meta(ForumSchema.Meta):
-        """Configuration."""
-
-        exclude = ()
-
-    threads = fields.Nested(ThreadSchema, many=True)
 ```
 
 Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
@@ -332,36 +321,12 @@ And then a couple of small updates to `ExistingTeamSchema` in `team.py`.
     ...
 
     exclude = (..., "forums")
-
-    ...
-
-    class TeamMetricsSchema(TeamSchemaBase):
-        """Team schema with metric objects."""
-
-        ...
-
-        forums = fields.Nested(CollectorTargetSchema, many=True)
 ```
-
-The `CollectorTargetSchema` next needs to be told how to handle these `forums`. So we'll make an update to `collector_target.py`.
-
-```python
-from .forum import ForumMetricsSchema
-
-...
-
-type_schemas = {
-    ...,
-    "Forum": (ForumMetricsSchema, "forum_id"),
-}
-```
-
-This class looks at each `CollectorTarget` model and determines which schema to use based on its class name and id field.
 
 Now just add the new schemas to `__init__.py` for easy imports.
 
 ```python
-from .forum import ForumSchema, ForumMetricsSchema
+from .forum import ForumSchema
 from .thread import ThreadSchema
 ```
 
@@ -783,30 +748,5 @@ def test_get_forum_404(client, mock_crud):
 Here we define another fixture to mock our crud object and use another custom fixture from `tests/conftest.py` to supply our test client object.
 
 For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created.
-
-Finally, we will update our schema tests for `CollectorTargetSchema` at `tests/schemas/collector_target_test.py`.
-
-We will first want to add the following to the existing tests:
-
-```python
-assert result.get("ForumId") is None
-```
-
-Then we will want to add a new test.
-
-```python
-from app.models import ..., Forum
-
-def test_dump_forum():
-    """Test dump using a forum."""
-    target = [Forum(forum_id=1)]
-
-    [result] = schema.dump(target)
-
-    assert result.get("forumId") == 1
-    assert result.get("boardId") is None
-    assert result.get("pipelineId") is None
-    assert result.get("repositoryId") is None
-```
 
 And once all that is done coverage should be complete.

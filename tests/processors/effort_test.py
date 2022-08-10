@@ -1,0 +1,289 @@
+"""Testing process_effort."""
+from datetime import datetime
+
+from pytest import fixture
+
+from app.models import StatusHistory, Ticket
+from app.processors import effort, utils
+from app.processors.effort import process_effort
+from tests.mocks import MockDateTime, config
+
+DONE_STATUS = "Done"
+TO_DO_STATUS = "To Do"
+IN_PROGRESS_STATUS = "In Progress"
+mock_dt = MockDateTime(datetime(year=2000, month=1, day=23))
+
+
+@fixture
+def mock_config(monkeypatch):
+    """Mock configuration."""
+    monkeypatch.setattr(utils, "config", config)
+    yield config
+    config.reset()
+
+
+def test_process_effort_hours(monkeypatch, mock_config):
+    """Testing process_effort hours case."""
+    monkeypatch.setattr(effort, "datetime", mock_dt)
+
+    mock_config.JIRA_TICKET_TYPE_BUCKETS = {
+        "defect_effort": ["Bug", "Anomaly"],
+        "unplanned": ["Unplanned"],
+        "maintenance": ["Maintenance"],
+        "feature": [],
+    }
+    test_cases = [
+        (
+            """"Should collect one for each category of bucket type""",
+            [
+                Ticket(
+                    board_id=1,
+                    ticket_id=1,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=4),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=5),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+                Ticket(
+                    board_id=1,
+                    ticket_id=2,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Bug",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=2,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=2,
+                            date=datetime(year=2000, month=1, day=4),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=2,
+                            date=datetime(year=2000, month=1, day=5),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+                Ticket(
+                    board_id=1,
+                    ticket_id=3,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Maintenance",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=3,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=3,
+                            date=datetime(year=2000, month=1, day=4),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=3,
+                            date=datetime(year=2000, month=1, day=5),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+                Ticket(
+                    board_id=1,
+                    ticket_id=4,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Unplanned",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=4,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=4,
+                            date=datetime(year=2000, month=1, day=4),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=4,
+                            date=datetime(year=2000, month=1, day=5),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+            ],
+            {
+                "feature": {"2000_01": [1]},
+                "defect_effort": {"2000_01": [1]},
+                "unplanned": {"2000_01": [1]},
+                "maintenance": {"2000_01": [1]},
+            },
+        ),
+        (
+            """Given there is one issue in progress for more than
+        one week, it should spread the effort into different
+        week buckets.""",
+            [
+                Ticket(
+                    board_id=1,
+                    ticket_id=1,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=2),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=18),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+                Ticket(
+                    board_id=1,
+                    ticket_id=2,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=2),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=19),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+            ],
+            {
+                "feature": {
+                    "2000_01": [5, 5],
+                    "2000_02": [5, 5],
+                    "2000_03": [1, 2],
+                },
+                "defect_effort": {},
+                "unplanned": {},
+                "maintenance": {},
+            },
+        ),
+        (
+            """It should calculate effort till current date
+            if the issue is still in progress.""",
+            [
+                Ticket(
+                    board_id=1,
+                    ticket_id=1,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=18),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=19),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                    ],
+                ),
+            ],
+            {
+                "feature": {"2000_03": [3]},
+                "defect_effort": {},
+                "unplanned": {},
+                "maintenance": {},
+            },
+        ),
+        (
+            """Should calculate partial effort""",
+            [
+                Ticket(
+                    board_id=1,
+                    ticket_id=1,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3, hour=8, minute=30),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3, hour=9, minute=30),
+                            status=IN_PROGRESS_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(
+                                year=2000, month=1, day=3, hour=12, minute=30
+                            ),
+                            status=DONE_STATUS,
+                        ),
+                    ],
+                ),
+            ],
+            {
+                "feature": {"2000_01": [0.1]},
+                "defect_effort": {},
+                "unplanned": {},
+                "maintenance": {},
+            },
+        ),
+    ]
+
+    for case in test_cases:
+        _, input_case, expected = case
+        actual = process_effort(input_case)["hours"]
+        assert expected == actual
