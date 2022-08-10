@@ -6,12 +6,11 @@ from app.crud import teams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin_or_member
-from app.schemas import TeamMetricsSchema, TeamSchema
+from app.schemas import TeamSchema
 
 router = Blueprint("teams", __name__, url_prefix="/teams")
 
 schema = TeamSchema()
-metrics_schema = TeamMetricsSchema()
 
 
 @router.route("", methods=["GET"])
@@ -95,7 +94,7 @@ def get_team(team_id: str):
           description: Get team
           content:
             application/json:
-              schema: TeamMetricsSchema
+              schema: ExistingTeamSchema
         404:
           description: Team not found
     """
@@ -104,7 +103,7 @@ def get_team(team_id: str):
             raw_team = teams_crud.get_entity(session, int(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
-        result = metrics_schema.dump(raw_team)
+        result = schema.dump(raw_team)
     return jsonify(result), 200
 
 

@@ -6,12 +6,11 @@ from app.crud import valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin
-from app.schemas import ValuestreamMetricsSchema, ValuestreamSchema
+from app.schemas import ValuestreamSchema
 
 router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
 
 schema = ValuestreamSchema()
-metric_schema = ValuestreamMetricsSchema()
 
 
 @router.route("", methods=["GET"])
@@ -95,7 +94,7 @@ def get_valuestream(valuestream_id: str):
           description: Get valuestream
           content:
             application/json:
-              schema: ValuestreamMetricsSchema
+              schema: ValuestreamSchema
         404:
           description: Valuestream not found
     """
@@ -104,7 +103,7 @@ def get_valuestream(valuestream_id: str):
             raw_valuestream = valuestreams_crud.get_entity(session, int(valuestream_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
-        result = metric_schema.dump(raw_valuestream)
+        result = schema.dump(raw_valuestream)
     return jsonify(result), 200
 
 

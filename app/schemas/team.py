@@ -7,7 +7,6 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from app.models import Team
 
 from ._base import SchemaBase
-from .collector_target import CollectorTargetSchema
 from .user import UserSchema
 
 
@@ -34,21 +33,6 @@ class ExistingTeamSchema(TeamSchemaBase):
 
     users = fields.Nested(UserSchema, many=True)
     collector_targets = auto_field()
-
-
-class TeamMetricsSchema(TeamSchemaBase):
-    """Team schema with metric objects."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Team
-        include_relationships = True
-        exclude = ("collector_targets", "users")
-
-    pipelines = fields.Nested(CollectorTargetSchema, many=True)
-    repositories = fields.Nested(CollectorTargetSchema, many=True)
-    ticket_boards = fields.Nested(CollectorTargetSchema, many=True)
 
 
 class NewTeamSchema(TeamSchemaBase):

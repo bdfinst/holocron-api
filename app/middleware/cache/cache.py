@@ -2,7 +2,7 @@
 import time
 from dataclasses import dataclass, field
 from threading import Thread
-from typing import Dict, Generator
+from typing import Callable, Dict, Generator
 
 from marshmallow import Schema
 
@@ -17,6 +17,7 @@ class Cache:
     schema: Schema
     crud: BaseCRUD
     update_time: int
+    process_func: Callable
     data: Dict[int, str] = field(default_factory=dict)
 
     def _get_ids(self) -> Generator[int, None, None]:
@@ -29,7 +30,8 @@ class Cache:
         """Retrieve the data for the corresponding entity and store the schema dump."""
         with generate_session() as session:
             item = self.crud.get_entity(session, id_)
-            self.data[id_] = self.schema.dump(item)
+            processed_item = self.process_func(item)
+            self.data[id_] = self.schema.dump(processed_item)
             return self.data[id_]
 
     def _update_cache(self):

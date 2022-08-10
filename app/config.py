@@ -1,5 +1,6 @@
 """Application Configuration."""
 import os
+from typing import Dict, List
 
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASS = os.environ.get("DB_PASS", "postgres")
@@ -20,3 +21,34 @@ SWAGGER = {
 
 MAX_CONTENT_LENGTH = 100 * 1000
 MODE = os.environ.get("MODE", "production")
+
+JIRA_TICKET_TYPE_BUCKETS: Dict[str, List[str]] = {
+    "defect_effort": ["Bug", "Anomaly"],
+    "unplanned": ["Unplanned"],
+    "maintenance": ["Maintenance"],
+    "feature": [],
+}
+TICKET_PRIORITIES = {
+    "HIGHEST": "Highest",
+    "HIGH": "High",
+    "MEDIUM": "Medium",
+    "LOW": "Low",
+    "LOWEST": "Lowest",
+}
+JIRA_PRIORITY_MAPPINGS = {
+    TICKET_PRIORITIES["HIGHEST"]: TICKET_PRIORITIES["HIGHEST"],
+    TICKET_PRIORITIES["HIGH"]: TICKET_PRIORITIES["HIGH"],
+    TICKET_PRIORITIES["MEDIUM"]: TICKET_PRIORITIES["MEDIUM"],
+    TICKET_PRIORITIES["LOW"]: TICKET_PRIORITIES["LOW"],
+    TICKET_PRIORITIES["LOWEST"]: TICKET_PRIORITIES["LOWEST"],
+    1: TICKET_PRIORITIES["HIGHEST"],
+    2: TICKET_PRIORITIES["HIGH"],
+    3: TICKET_PRIORITIES["MEDIUM"],
+    4: TICKET_PRIORITIES["LOW"],
+    5: TICKET_PRIORITIES["LOWEST"],
+    "Critical": TICKET_PRIORITIES["HIGHEST"],
+}
+DEFAULT_TICKET_PRIORITY = TICKET_PRIORITIES["LOWEST"]
+MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
+RELEASE_STAGE_NAME = "Deploy"
+STAGE_PASSED_STATUS = "success"
