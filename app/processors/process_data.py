@@ -1,7 +1,15 @@
 """Process metrics data."""
 from typing import Any, Dict, List, NamedTuple
 
-from app.models import Branch, Build, GitRequest, Organization, Team, Valuestream
+from app.models import (
+    Branch,
+    Build,
+    GitRequest,
+    Organization,
+    Team,
+    Ticket,
+    Valuestream,
+)
 
 from .cumulative_flow import process_cumulative_flow
 from .cycle_time_defect import process_cycle_time_defect
@@ -111,9 +119,16 @@ def build_weekly_data(metrics: Metrics) -> Dict[str, Dict[str, Dict[str, List[in
     return weekly_data
 
 
+def sort_status_histories(tickets: List[Ticket]):
+    """Sort ticket status history."""
+    for ticket in tickets:
+        ticket.status_history = sorted(ticket.status_history, key=lambda h: h.date)
+
+
 def process_team(team: Team) -> TeamMetrics:
     """Run processors on one team to build its metrics."""
     tickets = flat_map(team.ticket_boards, lambda board: board.tickets)
+    sort_status_histories(tickets)
     builds = flat_map(team.pipelines, lambda pipeline: pipeline.builds)
     integrations = flat_map(team.repositories, lambda repo: repo.commits)
     branches = flat_map(team.repositories, lambda repo: repo.branches)
