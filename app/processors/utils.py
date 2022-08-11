@@ -10,6 +10,8 @@ from .types import DateValue, WeeklyData
 T1 = TypeVar("T1")
 T2 = TypeVar("T2")
 
+IN_PROGRESS = "In Progress"
+
 
 def flat_map(items: List[T1], func: Callable[[T1], List[T2]]) -> List[T2]:
     """Map and flatten."""
@@ -26,9 +28,9 @@ def values_by_week(data: List[DateValue]) -> WeeklyData:
     for item in data:
         iso_date = item.date.isocalendar()
         week_str = f"{iso_date.week}" if iso_date.week >= 10 else f"0{iso_date.week}"
-        key = f"{iso_date.year}_{week_str}"
+        year_week_str = f"{iso_date.year}_{week_str}"
 
-        values.setdefault(key, []).append(item.value)
+        values.setdefault(year_week_str, []).append(item.value)
 
     return values
 
@@ -76,7 +78,7 @@ def is_epic_or_subtask_ticket(ticket: Ticket) -> bool:
 
 def ticket_was_started(ticket: Ticket) -> bool:
     """Return boolean representing if ticket was started."""
-    return any((history.status == "In Progress" for history in ticket.status_history))
+    return any((history.status == IN_PROGRESS for history in ticket.status_history))
 
 
 def get_first_in_progress_date(ticket: Ticket) -> datetime:
@@ -84,10 +86,10 @@ def get_first_in_progress_date(ticket: Ticket) -> datetime:
     return next(
         history.date
         for history in ticket.status_history
-        if history.status == "In Progress"
+        if history.status == IN_PROGRESS
     )
 
 
 def is_in_progress(ticket: Ticket) -> bool:
     """Return boolean representing if ticket is in progress."""
-    return ticket.status == "In Progress"
+    return ticket.status == IN_PROGRESS
