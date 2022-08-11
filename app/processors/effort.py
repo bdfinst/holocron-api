@@ -7,8 +7,9 @@ Type of ticket determines type of effort.
 Value for time is number of days the ticket was in progress that week.
 Value for money is the time value multiplied by the assignee's pay rate.
 """
+from collections import deque
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Deque, Dict, List, Tuple
 
 from app import config
 from app.models import Ticket
@@ -25,22 +26,31 @@ def calculate_effort(days_spent: float, assignee_count: int) -> float:
 def process_ticket(ticket: Ticket) -> List[DateValue]:
     """Return the list of effort spent on each date the ticket was in progress."""
     default_assignee_count = 1
-    in_progress_dates = []
-    days_spent: List[float] = []
+    last_in_prog_date, last_status_was_in_prog = ticket.status_history[0], False
+    date_queue: Deque[DateValue] = deque([])
 
     for history in ticket.status_history:
         if history.status == "In Progress":
-            in_progress_dates.append(history.date)
-        elif len(in_progress_dates) > len(days_spent):
-            days_spent.append(days_between_dates(in_progress_dates[-1], history.date))
+            last_in_prog_date = history.date
+            last_status_was_in_prog = True
+        elif last_status_was_in_prog:
+            days_spent = days_between_dates(last_in_prog_date, history.date)
+            date_queue.append(
+                DateValue(
+                    last_in_prog_date,
+                    calculate_effort(days_spent, default_assignee_count),
+                )
+            )
+            last_status_was_in_prog = False
 
-    if len(in_progress_dates) > len(days_spent):
-        days_spent.append(days_between_dates(in_progress_dates[-1], datetime.now()))
+    if last_status_was_in_prog:
+        effort = calculate_effort(
+            days_between_dates(last_in_prog_date, datetime.now()),
+            default_assignee_count,
+        )
+        date_queue.append(DateValue(last_in_prog_date, effort))
 
-    return [
-        DateValue(date, calculate_effort(days_spent[index], default_assignee_count))
-        for index, date in enumerate(in_progress_dates)
-    ]
+    return list(date_queue)
 
 
 def get_partial_day(date: datetime) -> float:
