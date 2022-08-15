@@ -1,5 +1,13 @@
 """Holocron collector target model."""
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint, DateTime
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 
 from ._base import MetadataBase, ModelBase
 from .collector import Collector
