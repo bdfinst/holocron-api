@@ -58,18 +58,19 @@ In addition to the fields below, all models have the following fields.
 
 **collector_targets** - The top level objects that the collectors collect. Currently this includes repositories, pipelines, and ticket boards.
 
-|Field|Type|Description|
-|-----|----|-----------|
-|collector_id|integer|Foreign key to `collectors.id`, non-nullable.|
-|team_id|integer|Foreign key to `teams.id`.|
-|name|string|The name of the resource collected.|
-|url|string|The URL for the resource collected, non-nullable.|
-|api_url|string| The API URL for the resource collected.|
-|is_deleted|boolean|A flag for soft delete.|
-|board_id|integer|If target is a ticketboard, this will be the ID given by the resource.
-|pipeline_id|integer|If target is a pipeline, this will be the ID given by the resource.|
-|repository_id|integer|If target is a repository, this will be the ID given by the resource.|
-|trunk_branch|string|If target is a repository, this will be the name of the default branch.|
+| Field          | Type     | Description                                                             |
+|----------------|----------|-------------------------------------------------------------------------|
+| collector_id   | integer  | Foreign key to `collectors.id`, non-nullable.                           |
+| team_id        | integer  | Foreign key to `teams.id`.                                              |
+| name           | string   | The name of the resource collected.                                     |
+| url            | string   | The URL for the resource collected, non-nullable.                       |
+| api_url        | string   | The API URL for the resource collected.                                 |
+| is_deleted     | boolean  | A flag for soft delete.                                                 |
+| board_id       | integer  | If target is a ticketboard, this will be the ID given by the resource.  |
+| pipeline_id    | integer  | If target is a pipeline, this will be the ID given by the resource.     |
+| repository_id  | integer  | If target is a repository, this will be the ID given by the resource.   |
+| trunk_branch   | string   | If target is a repository, this will be the name of the default branch. |
+| last_collected | DateTime | The time the collector target was last collected from its url source.   |
 
 **branches** - Branches collected from a repository collector target.
 
