@@ -33,7 +33,7 @@ def test_process_organization(monkeypatch):
             branches=branches,
             merge_requests=git_requests,
             wip_load_data=1,
-            repos_build_data=[builds[0]],
+            repos_build_data=[builds[1]],
             weekly_data={
                 "2000_01": {
                     "effort_hours": {
