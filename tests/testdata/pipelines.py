@@ -33,18 +33,18 @@ successful_job = [
 builds = [
     Build(
         pipeline_id=1,
-        build_url="https://test-build/asf.com/-/2",
-        build_status="success",
-        start_time=datetime(year=2000, month=1, day=5, minute=30),
-        end_time=datetime(year=2000, month=1, day=5, minute=45),
-        jobs=successful_job,
-    ),
-    Build(
-        pipeline_id=1,
         build_url="https://test-build/asf.com/-/1",
         build_status="success",
         start_time=datetime(year=2000, month=1, day=3, minute=30),
         end_time=datetime(year=2000, month=1, day=3, minute=45),
+        jobs=successful_job,
+    ),
+    Build(
+        pipeline_id=1,
+        build_url="https://test-build/asf.com/-/2",
+        build_status="success",
+        start_time=datetime(year=2000, month=1, day=5, minute=30),
+        end_time=datetime(year=2000, month=1, day=5, minute=45),
         jobs=successful_job,
     ),
 ]

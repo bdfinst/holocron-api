@@ -9,7 +9,7 @@ from .deploy_frequency import process_deploy_frequency
 from .effort import process_effort
 from .integration_frequency import process_integration_frequency
 from .lead_time import process_lead_time
-from .repo_build import process_repo_build
+from .repo_build import get_latest_builds
 from .types import ChartData
 from .utils import flat_map
 from .wip_load import process_wip_load
@@ -123,7 +123,7 @@ def process_team(team: Team) -> TeamMetrics:
     deploy_frequency = process_deploy_frequency(builds)
     effort = process_effort(tickets)
     lead_time = process_lead_time(tickets)
-    repo_builds = process_repo_build(builds)
+    repo_builds = get_latest_builds(team.pipelines)
     cycle_time_defect = process_cycle_time_defect(tickets)
     wip_load = process_wip_load(tickets)
     integration_frequency = process_integration_frequency(integrations)
