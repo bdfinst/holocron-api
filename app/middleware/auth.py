@@ -1,5 +1,6 @@
 """Authentication middleware."""
 import json
+from functools import wraps
 from typing import Callable
 
 import jwt
@@ -45,6 +46,7 @@ def return_user(response: Response) -> Response:
 def requires_admin(func: Callable) -> Callable:
     """Restrict access for endpoint to admins."""
 
+    @wraps(func)
     def wrapper(*args, **kwargs):
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isAdmin"]:
@@ -58,6 +60,7 @@ def requires_admin(func: Callable) -> Callable:
 def requires_leadership(func: Callable) -> Callable:
     """Restrict access for endpoint to leadership."""
 
+    @wraps(func)
     def wrapper(*args, **kwargs):
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isOrgLeadership"]:
@@ -71,6 +74,7 @@ def requires_leadership(func: Callable) -> Callable:
 def requires_admin_or_member(func: Callable) -> Callable:
     """Restrict access for endpoint to admins or team members."""
 
+    @wraps(func)
     def wrapper(*args, **kwargs):
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isAdmin"]:
