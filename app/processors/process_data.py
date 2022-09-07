@@ -113,6 +113,11 @@ def build_weekly_data(metrics: Metrics) -> Dict[str, Dict[str, Dict[str, List[in
 
 def process_team(team: Team) -> TeamMetrics:
     """Run processors on one team to build its metrics."""
+    # scm team repos
+    # features ticket board
+    # build pipeline
+    # next( iterator
+
     tickets = flat_map(team.ticket_boards, lambda board: board.tickets)
     builds = flat_map(team.pipelines, lambda pipeline: pipeline.builds)
     integrations = flat_map(team.repositories, lambda repo: repo.commits)
@@ -149,21 +154,39 @@ def process_team(team: Team) -> TeamMetrics:
         repo_builds,
         weekly_data,
         {},
-        {},
+        {
+            "feature": max(t.last_collected for t in team.ticket_boards),
+            "scm": max(p.last_collected for p in team.repositories),
+            "build": max(p.last_collected for p in team.pipelines),
+        },
     )
 
 
 def process_valuestream(valuestream: Valuestream) -> ValuestreamMetrics:
     """Process valuestream metrics."""
+    team_metrics = [process_team(team) for team in valuestream.teams]
     return ValuestreamMetrics(
-        valuestream.name, [process_team(team) for team in valuestream.teams], {}
+        valuestream.name,
+        team_metrics,
+        {
+            "feature": max(t.last_updated["feature"] for t in team_metrics),
+            "scm": max(t.last_updated["scm"] for t in team_metrics),
+            "build": max(t.last_updated["build"] for t in team_metrics),
+        },
     )
 
 
 def process_organization(organization: Organization) -> OrganizationMetrics:
     """Process organization metrics."""
+    valuestream_metrics = [
+        process_valuestream(valuestream) for valuestream in organization.valuestreams
+    ]
     return OrganizationMetrics(
         organization.name,
-        [process_valuestream(valuestream) for valuestream in organization.valuestreams],
-        {},
+        valuestream_metrics,
+        {
+            "feature": max(t.last_updated["feature"] for t in valuestream_metrics),
+            "scm": max(t.last_updated["scm"] for t in valuestream_metrics),
+            "build": max(t.last_updated["build"] for t in valuestream_metrics),
+        },
     )

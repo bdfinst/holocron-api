@@ -113,17 +113,17 @@ def test_process_organization(monkeypatch):
                 },
             },
             data_quality_issues={},
-            last_updated={},
+            last_updated={"build": datetime(2020, 5, 17),"feature": datetime(2020, 6, 17),"scm": datetime(2020, 7, 17)},
         )
     ]
     expected = OrganizationMetrics(
         name=org.name,
         valuestreams=[
             ValuestreamMetrics(
-                name=vs.name, teams=expected_team_metrics, last_updated={}
+                name=vs.name, teams=expected_team_metrics, last_updated={'build': datetime(2020, 5, 17),'feature': datetime(2020, 6, 17),'scm': datetime(2020, 7, 17)}
             )
         ],
-        last_updated={},
+        last_updated={'build': datetime(2020, 5, 17),'feature': datetime(2020, 6, 17),'scm': datetime(2020, 7, 17)},
     )
 
     actual = process_organization(org)

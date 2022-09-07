@@ -53,5 +53,6 @@ mock_ticket_boards = [
         name="mock_ticket_board",
         url="https://jira.com/board",
         tickets=tickets,
+        last_collected=datetime(2020, 6, 17)
     )
 ]
