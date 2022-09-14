@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from flask import Response
 from pytest import fixture
 
+from app import security
 from app.middleware import (
     auth,
     requires_admin,
@@ -20,6 +21,7 @@ from tests.mocks import crud, request
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(security, "request", request)
     yield request
     request.reset()
 
@@ -65,7 +67,7 @@ def wrapped_test_func(*args, **kwargs):
 
 def test_requires_admin(mock_request, monkeypatch):
     """Test requires_admin decorator."""
-    setattr(mock_request, "user", {"isAdmin": True})
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
 
     result = requires_admin(wrapped_test_func)()
@@ -75,7 +77,7 @@ def test_requires_admin(mock_request, monkeypatch):
 
 def test_requires_admin_403(mock_request, monkeypatch):
     """Test requires_admin decorator."""
-    setattr(mock_request, "user", {"isAdmin": False})
+    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
 
     result = requires_admin(wrapped_test_func)()
@@ -85,7 +87,7 @@ def test_requires_admin_403(mock_request, monkeypatch):
 
 def test_requires_leadership(mock_request, monkeypatch):
     """Test requires_leadership decorator."""
-    setattr(mock_request, "user", {"isOrgLeadership": True})
+    setattr(mock_request, "user", {"isOrgLeadership": True, "id": 1, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
 
     result = requires_leadership(wrapped_test_func)()
@@ -95,7 +97,7 @@ def test_requires_leadership(mock_request, monkeypatch):
 
 def test_requires_leadership_403(mock_request, monkeypatch):
     """Test requires_leadership decorator."""
-    setattr(mock_request, "user", {"isOrgLeadership": False})
+    setattr(mock_request, "user", {"isOrgLeadership": False, "id": 1, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
 
     result = requires_leadership(wrapped_test_func)()
@@ -105,7 +107,7 @@ def test_requires_leadership_403(mock_request, monkeypatch):
 
 def test_requires_admin_or_member_admin(mock_request, monkeypatch):
     """Test requires_admin_or_member decorator."""
-    setattr(mock_request, "user", {"isAdmin": True})
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
 
     result = requires_admin_or_member(wrapped_test_func)()
@@ -115,7 +117,7 @@ def test_requires_admin_or_member_admin(mock_request, monkeypatch):
 
 def test_requires_admin_or_member_member(mock_request, monkeypatch):
     """Test requires_admin_or_member decorator."""
-    setattr(mock_request, "user", {"id": 1, "isAdmin": False})
+    setattr(mock_request, "user", {"id": 1, "isAdmin": False, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
     monkeypatch.setattr(
         auth.teams_crud, "get_entity", MagicMock(return_value=Team(users=[1]))
@@ -128,7 +130,7 @@ def test_requires_admin_or_member_member(mock_request, monkeypatch):
 
 def test_requires_admin_or_member_403(mock_request, monkeypatch):
     """Test requires_admin_or_member decorator."""
-    setattr(mock_request, "user", {"id": 1, "isAdmin": False})
+    setattr(mock_request, "user", {"id": 1, "isAdmin": False, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
     monkeypatch.setattr(
         auth.teams_crud, "get_entity", MagicMock(return_value=Team(users=[]))

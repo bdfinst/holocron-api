@@ -1,7 +1,7 @@
 """Authentication middleware."""
 import json
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable, Dict
 
 import jwt
 from flask import Response, request
@@ -10,6 +10,7 @@ from app.config import SSO_ENABLED
 from app.crud import teams_crud, users_crud
 from app.database import generate_session
 from app.schemas import UserSchema
+from app.security import log_security_event
 
 schema = UserSchema()
 
@@ -43,6 +44,12 @@ def return_user(response: Response) -> Response:
     return response
 
 
+def log_unpriviledge_user_access(user: Dict[str, Any], access_group: str):
+    """Log when lower privledge user access higher level."""
+    msg = f"NON {access_group} USER ACCESS: {user['username']} (id: {user['id']})"
+    log_security_event(msg)
+
+
 def requires_admin(func: Callable) -> Callable:
     """Restrict access for endpoint to admins."""
 
@@ -51,6 +58,7 @@ def requires_admin(func: Callable) -> Callable:
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isAdmin"]:
             return func(*args, **kwargs)
+        log_unpriviledge_user_access(user, "ADMIN")
         return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
@@ -65,6 +73,7 @@ def requires_leadership(func: Callable) -> Callable:
         user = getattr(request, "user", None)
         if not SSO_ENABLED or user["isOrgLeadership"]:
             return func(*args, **kwargs)
+        log_unpriviledge_user_access(user, "LEADERSHIP")
         return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
@@ -83,6 +92,7 @@ def requires_admin_or_member(func: Callable) -> Callable:
             team = teams_crud.get_entity(session, kwargs["team_id"])
             if user["id"] in team.users:
                 return func(*args, **kwargs)
+        log_unpriviledge_user_access(user, "ADMIN OR MEMBER")
         return INVALID_PERMISSIONS, 403
 
     wrapper.__name__ = func.__name__
