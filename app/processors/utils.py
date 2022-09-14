@@ -7,15 +7,15 @@ from app.models import Ticket
 
 from .types import DateValue, WeeklyData
 
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
+T = TypeVar("T")
+V = TypeVar("V")
 
 IN_PROGRESS = "In Progress"
 
 
-def flat_map(items: List[T1], func: Callable[[T1], List[T2]]) -> List[T2]:
+def flat_map(items: List[T], func: Callable[[T], List[V]]) -> List[V]:
     """Map and flatten."""
-    result: List[T2] = []
+    result: List[V] = []
     for item in items:
         result.extend(func(item))
     return result

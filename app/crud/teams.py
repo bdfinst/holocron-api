@@ -12,6 +12,41 @@ from ._base import BaseCRUD
 from .collector_targets import collector_targets_crud
 from .users import users_crud
 
+_USED_MSG = "already in use"
+
+
+def validate_business_logic_create(team: Team):
+    """Validate business logic when creating a team."""
+    validation_checkers = [
+        (
+            any(ct.team_id is not None for ct in team.collector_targets),
+            "collectorTargetIds",
+            _USED_MSG,
+        )
+    ]
+    for checker in validation_checkers:
+        is_invalid, invalid_field, reason_for_invalid = checker
+        if is_invalid:
+            raise HolocronIntegrityError(invalid_field, reason_for_invalid)
+
+
+def validate_business_logic_update(team: Team):
+    """Validate business logic when updating team."""
+    validation_checkers = [
+        (
+            any(
+                ct.team_id is not None and ct.team_id != team.id
+                for ct in team.collector_targets
+            ),
+            "collectorTargetIds",
+            _USED_MSG,
+        )
+    ]
+    for checker in validation_checkers:
+        is_invalid, invalid_field, reason_for_invalid = checker
+        if is_invalid:
+            raise HolocronIntegrityError(invalid_field, reason_for_invalid)
+
 
 class TeamsCRUD(BaseCRUD[Team]):
     """Base CRUD extension for Team model."""
@@ -33,7 +68,7 @@ class TeamsCRUD(BaseCRUD[Team]):
             collector_targets_crud.get_entity(session, target_id)
             for target_id in json.get("collector_target_ids", [])
         ]
-
+        validate_business_logic_create(new_team)
         try:
             session.add(new_team)
             session.commit()
@@ -63,7 +98,7 @@ class TeamsCRUD(BaseCRUD[Team]):
             collector_targets_crud.get_entity(session, target_id)
             for target_id in json.get("collector_target_ids", [])
         ]
-
+        validate_business_logic_update(team)
         try:
             session.add(team)
             session.commit()
@@ -72,7 +107,7 @@ class TeamsCRUD(BaseCRUD[Team]):
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError("valuestream_id", "not found") from err
             if "psycopg2.errors.UniqueViolation" in str(err):
-                raise HolocronIntegrityError("name", "already in use") from err
+                raise HolocronIntegrityError("name", _USED_MSG) from err
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 

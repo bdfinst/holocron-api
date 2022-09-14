@@ -30,7 +30,7 @@ def list_organizations():
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Organization'
+                      $ref: '#/components/schemas/ExistingOrganization'
     """
     with generate_session() as session:
         raw_organizations = organizations_crud.get_entities(session)
@@ -51,13 +51,13 @@ def create_organization():
       requestBody:
         content:
           application/json:
-            schema: OrganizationSchema
+            schema: NewOrganizationSchema
       responses:
         201:
           description: The organization was successfully created
           content:
             application/json:
-              schema: OrganizationSchema
+              schema: ExistingOrganizationSchema
         400:
           description: Failure due to an invalid request
           content:
@@ -96,7 +96,7 @@ def get_organization(org_id: str):
           description: Get organization
           content:
             application/json:
-              schema: OrganizationSchema
+              schema: ExistingOrganizationSchema
         404:
           description: Organization not found
     """
@@ -127,13 +127,13 @@ def update_organization(org_id: str):
       requestBody:
         content:
           application/json:
-            schema: OrganizationSchema
+            schema: NewOrganizationSchema
       responses:
         200:
           description: The organization was successfully updated
           content:
             application/json:
-              schema: OrganizationSchema
+              schema: ExistingOrganizationSchema
         400:
           description: Failure due to an invalid request
           content:
