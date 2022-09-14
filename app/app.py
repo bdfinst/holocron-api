@@ -15,6 +15,7 @@ from app.middleware import (
     validate_text,
 )
 from app.routes import router
+from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
 
 
@@ -22,7 +23,7 @@ def create_app():
     """Application factory."""
     app = Flask(__name__)
     app.config.from_object(config)
-
+    app.register_error_handler(405, on_unexpected_http_methods)
     app.before_request(log_request)
     app.before_request(circuit_breaker_check)
     app.before_request(validate_text)

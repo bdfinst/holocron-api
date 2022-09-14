@@ -34,7 +34,7 @@ def test_requires_admin_example_route(client, mock_crud, mock_request, monkeypat
     ]
     for c in test_cases:
         description, is_admin, expected = c
-        setattr(mock_request, "user", {"isAdmin": is_admin})
+        setattr(mock_request, "user", {"isAdmin": is_admin, "id": 1, "username": "t"})
         resp = client.delete("/api/v1/users/1")
         assert resp.status_code == expected, description
 
@@ -50,7 +50,11 @@ def test_requires_leadership_example_route(
     ]
     for c in test_cases:
         description, is_leadership, expected = c
-        setattr(mock_request, "user", {"isOrgLeadership": is_leadership})
+        setattr(
+            mock_request,
+            "user",
+            {"isOrgLeadership": is_leadership, "id": 1, "username": "t"},
+        )
         resp = client.get("/api/v1/payrates")
         assert resp.status_code == expected, description
 
@@ -72,7 +76,7 @@ def test_requires_admin_or_member_member_example_route(
     ]
     for c in test_cases:
         description, is_admin, team_admins, expected = c
-        setattr(mock_request, "user", {"id": 1, "isAdmin": is_admin})
+        setattr(mock_request, "user", {"id": 1, "isAdmin": is_admin, "username": "t"})
         monkeypatch.setattr(
             auth.teams_crud,
             "get_entity",
