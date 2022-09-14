@@ -4,8 +4,9 @@ from unittest.mock import MagicMock
 from pytest import raises
 from sqlalchemy.exc import IntegrityError
 
-from app.crud import teams_crud
+from app.crud import collector_targets_crud, teams_crud
 from app.exceptions import HolocronIntegrityError
+from app.models import Repository
 from tests.utils import first_argument
 
 json = {
@@ -56,6 +57,35 @@ def test_create_entity_unique_error(mock_session):
 
     with raises(HolocronIntegrityError) as e:
         teams_crud.create_entity(mock_session, json)
+
+    assert expected == str(e.value)
+
+
+def test_create_entity_collector_targets_error(mock_session, monkeypatch):
+    """Test create_entity with collector targets error."""
+    expected = "collectorTargetIds - already in use"
+    mock_team_json = {
+        "name": "test",
+        "team_size": 1,
+        "user_ids": [],
+        "collector_target_ids": [1],
+        "valuestream_id": 1,
+    }
+    monkeypatch.setattr(
+        collector_targets_crud,
+        "get_entity",
+        MagicMock(
+            return_value=Repository(
+                collector_id=1,
+                url="https://test-repo.com",
+                id=1,
+                team_id=42,
+            )
+        ),
+    )
+
+    with raises(HolocronIntegrityError) as e:
+        teams_crud.create_entity(mock_session, mock_team_json)
 
     assert expected == str(e.value)
 
@@ -117,6 +147,35 @@ def test_update_entity_unique_error(mock_session):
 
     with raises(HolocronIntegrityError) as e:
         teams_crud.update_entity(mock_session, json, 1)
+
+    assert expected == str(e.value)
+
+
+def test_update_entity_collector_targets_error(mock_session, monkeypatch):
+    """Test update_entity with collector targets error."""
+    expected = "collectorTargetIds - already in use"
+    mock_team_json = {
+        "name": "test",
+        "team_size": 1,
+        "user_ids": [],
+        "collector_target_ids": [1],
+        "valuestream_id": 1,
+    }
+    monkeypatch.setattr(
+        collector_targets_crud,
+        "get_entity",
+        MagicMock(
+            return_value=Repository(
+                collector_id=1,
+                url="https://test-repo.com",
+                id=1,
+                team_id=42,
+            )
+        ),
+    )
+
+    with raises(HolocronIntegrityError) as e:
+        teams_crud.update_entity(mock_session, mock_team_json, 1)
 
     assert expected == str(e.value)
 

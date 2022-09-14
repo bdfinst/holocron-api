@@ -30,7 +30,7 @@ def list_valuestreams():
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Valuestream'
+                      $ref: '#/components/schemas/ExistingValuestream'
     """
     with generate_session() as session:
         raw_valuestreams = valuestreams_crud.get_entities(session)
@@ -49,13 +49,13 @@ def create_valuestream():
       requestBody:
         content:
           application/json:
-            schema: ValuestreamSchema
+            schema: NewValuestreamSchema
       responses:
         201:
           description: The valuestream was successfully created
           content:
             application/json:
-              schema: ValuestreamSchema
+              schema: ExistingValuestreamSchema
         400:
           description: Failure due to invalid request
           content:
@@ -94,7 +94,7 @@ def get_valuestream(valuestream_id: str):
           description: Get valuestream
           content:
             application/json:
-              schema: ValuestreamSchema
+              schema: ExistingValuestreamSchema
         404:
           description: Valuestream not found
     """
@@ -125,13 +125,13 @@ def update_valuestream(valuestream_id: str):
       requestBody:
         content:
           application/json:
-            schema: ValuestreamSchema
+            schema: NewValuestreamSchema
       responses:
         200:
           description: The valuestream was successfully updated
           content:
             application/json:
-              schema: ValuestreamSchema
+              schema: ExistingValuestreamSchema
         400:
           description: Failure due to an invalid request
           content:

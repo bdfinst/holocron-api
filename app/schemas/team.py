@@ -5,6 +5,7 @@ from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Team
+from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .user import UserSchema
@@ -38,6 +39,7 @@ class ExistingTeamSchema(TeamSchemaBase):
 class NewTeamSchema(TeamSchemaBase):
     """New team schema."""
 
+    name = fields.Str(required=True, validate=input_name_validator)
     user_ids = fields.List(fields.Int())
     collector_target_ids = fields.List(fields.Int())
 
