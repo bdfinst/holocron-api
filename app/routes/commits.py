@@ -5,6 +5,7 @@ from app.crud import commits_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import CommitSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("commits", __name__, url_prefix="/commits")
 
@@ -41,7 +42,9 @@ def list_commits_for_team(team_id: str):
     """
     with generate_session() as session:
         try:
-            raw_commits = commits_crud.get_entities_for_team(session, int(team_id))
+            raw_commits = commits_crud.get_entities_for_team(
+                session, get_sanitized_id(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         commits = [schema.dump(commit) for commit in raw_commits]
@@ -74,7 +77,7 @@ def get_commit(commit_id: str):
     """
     with generate_session() as session:
         try:
-            raw_commit = commits_crud.get_entity(session, int(commit_id))
+            raw_commit = commits_crud.get_entity(session, get_sanitized_id(commit_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_commit)

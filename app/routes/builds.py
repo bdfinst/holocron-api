@@ -5,6 +5,7 @@ from app.crud import builds_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import BuildSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("builds", __name__, url_prefix="/builds")
 schema = BuildSchema()
@@ -40,7 +41,9 @@ def list_builds_for_team(team_id: str):
     """
     with generate_session() as session:
         try:
-            raw_builds = builds_crud.get_entities_for_team(session, int(team_id))
+            raw_builds = builds_crud.get_entities_for_team(
+                session, get_sanitized_id(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         build_models = [schema.dump(build) for build in raw_builds]
@@ -73,7 +76,7 @@ def get_build(build_id: str):
     """
     with generate_session() as session:
         try:
-            raw_build = builds_crud.get_entity(session, int(build_id))
+            raw_build = builds_crud.get_entity(session, get_sanitized_id(build_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_build)

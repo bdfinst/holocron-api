@@ -5,6 +5,7 @@ from app.crud import ticket_boards_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import TicketBoardSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("ticketboards", __name__, url_prefix="/ticketboards")
 
@@ -68,7 +69,7 @@ def list_ticket_boards_for_team(team_id: str):
     with generate_session() as session:
         try:
             raw_ticket_boards = ticket_boards_crud.get_entities_for_team(
-                session, int(team_id)
+                session, get_sanitized_id(team_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
@@ -102,7 +103,9 @@ def get_ticket_board(board_id: str):
     """
     with generate_session() as session:
         try:
-            raw_ticket_board = ticket_boards_crud.get_entity(session, int(board_id))
+            raw_ticket_board = ticket_boards_crud.get_entity(
+                session, get_sanitized_id(board_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_ticket_board)

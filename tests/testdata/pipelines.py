@@ -50,5 +50,10 @@ builds = [
 ]
 
 mock_pipelines = [
-    Pipeline(collector_id=1, url="https://test-pipeline.com", builds=builds,last_collected= datetime(2020, 5, 17))
+    Pipeline(
+        collector_id=1,
+        url="https://test-pipeline.com",
+        builds=builds,
+        last_collected=datetime(2020, 5, 17),
+    )
 ]

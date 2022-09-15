@@ -6,6 +6,7 @@ from app.crud import pay_rates_crud
 from app.database import generate_session
 from app.middleware import requires_leadership
 from app.schemas import PayRateSchema
+from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 
 router = Blueprint("payrates", __name__, url_prefix="/payrates")
 
@@ -66,6 +67,7 @@ def upsert_pay_rate():
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         raw_pay_rate = pay_rates_crud.upsert_entity(session, data)

@@ -427,6 +427,7 @@ from app.crud import forums_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import ForumSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("forums", __name__, url_prefix="/forums")
 
@@ -448,7 +449,8 @@ def list_forums_for_team(team_id: str):
     """Get forums for a given team id."""
     with generate_session() as session:
         try:
-            raw_forums = forums_crud.get_entities_for_team(session, int(team_id))
+            raw_forums = forums_crud.get_entities_for_team(session,\
+                get_sanitized_id(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         forums = [schema.dump(forum) for forum in raw_forums]
@@ -461,7 +463,8 @@ def get_forum(forum_id: str):
     """Get forum by id."""
     with generate_session() as session:
         try:
-            raw_forum = forums_crud.get_entity(session, int(repo_id))
+            raw_forum = forums_crud.get_entity(session,\
+                get_sanitized_id(repo_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_forum)
@@ -479,6 +482,7 @@ from app.crud import threads_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import ThreadSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("threads", __name__, url_prefix="/threads")
 
@@ -490,7 +494,8 @@ def list_threads_for_team(team_id: str):
     """Get threads for a given team id."""
     with generate_session() as session:
         try:
-            raw_threads = threads_crud.get_entities_for_team(session, int(team_id))
+            raw_threads = threads_crud.get_entities_for_team(session,\
+                get_sanitized_id(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         threads = [schema.dump(thread) for thread in raw_threads]
@@ -503,7 +508,8 @@ def get_thread(thread_id: str):
     """Get thread by id."""
     with generate_session() as session:
         try:
-            raw_thread = threads_crud.get_entity(session, int(thread_id))
+            raw_thread = threads_crud.get_entity(session,\
+                get_sanitized_id(thread_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_thread)

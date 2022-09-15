@@ -5,6 +5,7 @@ from app.crud import repositories_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import RepositorySchema
+from app.security import get_sanitized_id
 
 router = Blueprint("repositories", __name__, url_prefix="/repositories")
 
@@ -68,7 +69,7 @@ def list_repositories_for_team(team_id: str):
     with generate_session() as session:
         try:
             raw_repositories = repositories_crud.get_entities_for_team(
-                session, int(team_id)
+                session, get_sanitized_id(team_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
@@ -102,7 +103,9 @@ def get_repository(repo_id: str):
     """
     with generate_session() as session:
         try:
-            raw_repository = repositories_crud.get_entity(session, int(repo_id))
+            raw_repository = repositories_crud.get_entity(
+                session, get_sanitized_id(repo_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_repository)
