@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 from app.exceptions import HolocronIntegrityError
 from app.middleware import organizations_cache
+from app.security import get_sanitized_id
 
 router = Blueprint("metrics", __name__, url_prefix="/metrics")
 
@@ -31,7 +32,7 @@ def get_organization_metrics(org_id: str):
           description: Organization not found
     """
     try:
-        result = organizations_cache.get_entity(int(org_id))
+        result = organizations_cache.get_entity(get_sanitized_id(org_id))
     except HolocronIntegrityError:
         return "Resource not found", 404
     return jsonify(result), 200

@@ -7,6 +7,7 @@ from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin
 from app.schemas import OrganizationSchema
+from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
 router = Blueprint("organizations", __name__, url_prefix="/organizations")
 
@@ -67,6 +68,7 @@ def create_organization():
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
@@ -102,7 +104,7 @@ def get_organization(org_id: str):
     """
     with generate_session() as session:
         try:
-            raw_org = organizations_crud.get_entity(session, int(org_id))
+            raw_org = organizations_crud.get_entity(session, get_sanitized_id(org_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_org)
@@ -143,11 +145,12 @@ def update_organization(org_id: str):
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
             raw_organization = organizations_crud.update_entity(
-                session, data, int(org_id)
+                session, data, get_sanitized_id(org_id)
             )
         except HolocronIntegrityError as err:
             return err.messages, 400
@@ -175,5 +178,5 @@ def delete_organization(org_id: str):
           description: The organization was successfully deleted
     """
     with generate_session() as session:
-        organizations_crud.delete_entity(session, int(org_id))
+        organizations_crud.delete_entity(session, get_sanitized_id(org_id))
     return "", 204

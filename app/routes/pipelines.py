@@ -5,6 +5,7 @@ from app.crud import pipelines_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import PipelineSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("pipelines", __name__, url_prefix="/pipelines")
 
@@ -67,7 +68,9 @@ def list_pipelines_for_team(team_id: str):
     """
     with generate_session() as session:
         try:
-            raw_pipelines = pipelines_crud.get_entities_for_team(session, int(team_id))
+            raw_pipelines = pipelines_crud.get_entities_for_team(
+                session, get_sanitized_id(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
@@ -100,7 +103,9 @@ def get_pipeline(pipeline_id: str):
     """
     with generate_session() as session:
         try:
-            raw_pipeline = pipelines_crud.get_entity(session, int(pipeline_id))
+            raw_pipeline = pipelines_crud.get_entity(
+                session, get_sanitized_id(pipeline_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_pipeline)

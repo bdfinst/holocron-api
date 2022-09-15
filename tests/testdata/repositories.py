@@ -44,6 +44,6 @@ mock_repositories = [
         commits=commits,
         git_requests=git_requests,
         branches=branches,
-        last_collected=datetime(2020, 7, 17)
+        last_collected=datetime(2020, 7, 17),
     )
 ]

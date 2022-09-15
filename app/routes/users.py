@@ -6,6 +6,7 @@ from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin
 from app.schemas import UserSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("users", __name__, url_prefix="/users")
 
@@ -63,7 +64,7 @@ def get_user(user_id: str):
     """
     with generate_session() as session:
         try:
-            raw_user = users_crud.get_entity(session, int(user_id))
+            raw_user = users_crud.get_entity(session, get_sanitized_id(user_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_user)
@@ -90,5 +91,5 @@ def delete_user(user_id: str):
           description: The user was successfully deleted
     """
     with generate_session() as session:
-        users_crud.delete_entity(session, int(user_id))
+        users_crud.delete_entity(session, get_sanitized_id(user_id))
     return "", 204

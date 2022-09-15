@@ -7,6 +7,7 @@ from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin_or_member
 from app.schemas import TeamSchema
+from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
 router = Blueprint("teams", __name__, url_prefix="/teams")
 
@@ -65,6 +66,7 @@ def create_team():
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
@@ -100,7 +102,7 @@ def get_team(team_id: str):
     """
     with generate_session() as session:
         try:
-            raw_team = teams_crud.get_entity(session, int(team_id))
+            raw_team = teams_crud.get_entity(session, get_sanitized_id(team_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_team)
@@ -141,10 +143,13 @@ def update_team(team_id: str):
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_team = teams_crud.update_entity(session, data, int(team_id))
+            raw_team = teams_crud.update_entity(
+                session, data, get_sanitized_id(team_id)
+            )
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_team)
@@ -171,5 +176,5 @@ def delete_team(team_id: str):
           description: The team was successfully deleted
     """
     with generate_session() as session:
-        teams_crud.delete_entity(session, int(team_id))
+        teams_crud.delete_entity(session, get_sanitized_id(team_id))
     return "", 204

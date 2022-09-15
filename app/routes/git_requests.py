@@ -5,6 +5,7 @@ from app.crud import git_requests_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import GitRequestSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("gitrequests", __name__, url_prefix="/gitrequests")
 
@@ -42,7 +43,7 @@ def list_git_requests_for_team(team_id: str):
     with generate_session() as session:
         try:
             raw_git_requests = git_requests_crud.get_entities_for_team(
-                session, int(team_id)
+                session, get_sanitized_id(team_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
@@ -76,7 +77,9 @@ def get_git_request(git_request_id: str):
     """
     with generate_session() as session:
         try:
-            raw_git_request = git_requests_crud.get_entity(session, int(git_request_id))
+            raw_git_request = git_requests_crud.get_entity(
+                session, get_sanitized_id(git_request_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_git_request)

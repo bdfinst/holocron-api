@@ -7,6 +7,7 @@ from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin
 from app.schemas import ValuestreamSchema
+from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
 router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
 
@@ -65,6 +66,7 @@ def create_valuestream():
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
@@ -100,7 +102,9 @@ def get_valuestream(valuestream_id: str):
     """
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.get_entity(session, int(valuestream_id))
+            raw_valuestream = valuestreams_crud.get_entity(
+                session, get_sanitized_id(valuestream_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_valuestream)
@@ -141,11 +145,12 @@ def update_valuestream(valuestream_id: str):
     try:
         data = schema.load(request.json)
     except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
         try:
             raw_valuestream = valuestreams_crud.update_entity(
-                session, data, int(valuestream_id)
+                session, data, get_sanitized_id(valuestream_id)
             )
         except HolocronIntegrityError as err:
             return err.messages, 400
@@ -173,5 +178,5 @@ def delete_valuestream(valuestream_id: str):
           description: The valuestream was successfully deleted
     """
     with generate_session() as session:
-        valuestreams_crud.delete_entity(session, int(valuestream_id))
+        valuestreams_crud.delete_entity(session, get_sanitized_id(valuestream_id))
     return "", 204

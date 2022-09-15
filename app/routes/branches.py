@@ -5,6 +5,7 @@ from app.crud import branches_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.schemas import BranchSchema
+from app.security import get_sanitized_id
 
 router = Blueprint("branches", __name__, url_prefix="/branches")
 
@@ -41,7 +42,9 @@ def list_branches_for_team(team_id: str):
     """
     with generate_session() as session:
         try:
-            raw_branches = branches_crud.get_entities_for_team(session, int(team_id))
+            raw_branches = branches_crud.get_entities_for_team(
+                session, get_sanitized_id(team_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         branches = [schema.dump(branch) for branch in raw_branches]
@@ -74,7 +77,7 @@ def get_branch(branch_id: str):
     """
     with generate_session() as session:
         try:
-            raw_branch = branches_crud.get_entity(session, int(branch_id))
+            raw_branch = branches_crud.get_entity(session, get_sanitized_id(branch_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_branch)
