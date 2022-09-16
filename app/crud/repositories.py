@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import Repository
 
 from ._base import BaseCRUD
+from .teams import teams_crud
 
 
 class RepositoriesCRUD(BaseCRUD[Repository]):
@@ -21,9 +22,10 @@ class RepositoriesCRUD(BaseCRUD[Repository]):
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> List[Repository]:
         """Get all repositories for a given team."""
+        team = teams_crud.get_entity(session, team_id)
         return session.scalars(
             select(Repository)
-            .where(Repository.team_id == team_id)
+            .where(Repository.team_id == team.id)
             .where(Repository.repository_id.is_not(None))
         ).all()
 

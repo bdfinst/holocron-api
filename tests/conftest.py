@@ -20,6 +20,7 @@ def mock_sqlalchemy_base(session_patch):
     """Patch sqlalchemy."""
     session_patch.setattr(app.crud._base, "delete", mock_delete)
     session_patch.setattr(app.crud._base, "select", mock_select)
+    session_patch.setattr(app.crud._base_metric, "select", mock_select)
 
 
 @fixture

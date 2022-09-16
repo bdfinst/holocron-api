@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import TicketBoard
 
 from ._base import BaseCRUD
+from .teams import teams_crud
 
 
 class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
@@ -21,9 +22,10 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> List[TicketBoard]:
         """Get all ticket boards for a given team."""
+        team = teams_crud.get_entity(session, team_id)
         return session.scalars(
             select(TicketBoard)
-            .where(TicketBoard.team_id == team_id)
+            .where(TicketBoard.team_id == team.id)
             .where(TicketBoard.board_id.is_not(None))
         ).all()
 

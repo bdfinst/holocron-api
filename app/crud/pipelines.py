@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import Pipeline
 
 from ._base import BaseCRUD
+from .teams import teams_crud
 
 
 class PipelinesCRUD(BaseCRUD[Pipeline]):
@@ -21,9 +22,10 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> List[Pipeline]:
         """Get all pipelines for a given team."""
+        team = teams_crud.get_entity(session, team_id)
         return session.scalars(
             select(Pipeline)
-            .where(Pipeline.team_id == team_id)
+            .where(Pipeline.team_id == team.id)
             .where(Pipeline.pipeline_id.is_not(None))
         ).all()
 
