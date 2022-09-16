@@ -3,7 +3,11 @@ import logging
 
 from flask import request
 
-# All the possible error message for the app
+# Security Settings that are configurable
+# The default rate limits provided to the rate limiter
+DEFAULT_LIMITS = ["300/day", "50/hour"]
+
+# All the possible error message for the app related to security
 METHOD_NOT_ALLOWED_MSG = "METHOD NOT ALLOWED"
 MALFORMED_REQ_PARAMS_MSG = "MALFORMED_PARAMS IN REQUEST"
 INVALID_CHARS_IN_BODY = "INVALID CHARACTERS DETECTED IN REQUEST BODY"
