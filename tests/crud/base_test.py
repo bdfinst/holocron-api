@@ -1,9 +1,20 @@
 """Tests for base CRUD classes."""
 import pytest
+from pytest import fixture
 
-from app.crud._base import BaseCRUD, BaseMetricCRUD
+from app.crud import _base_metric
+from app.crud._base import BaseCRUD
+from app.crud._base_metric import BaseMetricCRUD
+from app.exceptions import HolocronIntegrityError
 from app.models import MetadataBase, ModelBase, Pipeline, Repository, TicketBoard
+from tests.mocks import crud
 from tests.utils import first_argument
+
+
+@fixture
+def mock_crud(monkeypatch):
+    """Mock CRUDs."""
+    monkeypatch.setattr(_base_metric, "teams_crud", crud)
 
 
 class ValidModel(MetadataBase, ModelBase):
@@ -64,57 +75,28 @@ class CRUDClass(BaseMetricCRUD[ValidModel]):
     """Mock Metric CRUD class for mock model."""
 
 
-def test_init_repository():
-    """Test __init__ method with repository target."""
-    try:
-        instance = CRUDClass(ValidModel, Repository)
-    except Exception as e:
-        assert False, f"Exception raised during initialization: {e}"
-
-    assert instance.id_field == "repository_id"
-
-
-def test_init_pipeline():
-    """Test __init__ method with pipeline target."""
-    try:
-        instance = CRUDClass(ValidModel, Pipeline)
-    except Exception as e:
-        assert False, f"Exception raised during initialization: {e}"
-
-    assert instance.id_field == "pipeline_id"
-
-
-def test_init_ticket_board():
-    """Test __init__ method with ticket board target."""
-    try:
-        instance = CRUDClass(ValidModel, TicketBoard)
-    except Exception as e:
-        assert False, f"Exception raised during initialization: {e}"
-
-    assert instance.id_field == "board_id"
-
-
-def test_init_invalid_target():
-    """Test __init__ method with invalid target."""
-    with pytest.raises(ValueError) as e:
-        CRUDClass(ValidModel, InvalidModel)
-    assert "Target model is not a CollectorTarget type" in str(e.value)
-
-
 def test_init_invalid_model():
     """Test __init__ method with invalid model."""
     with pytest.raises(TypeError) as e:
-        CRUDClass(InvalidModel, Repository)
+        CRUDClass(InvalidModel, Repository, "repository_id")
     assert "has no attribute repository_id" in str(e.value)
 
 
+def test_get_entities_for_team_invalid_team(mock_session, mock_crud):
+    """Test get_entities_for_team method with invalid team."""
+    with pytest.raises(HolocronIntegrityError) as e:
+        instance = CRUDClass(ValidModel, Repository, "repository_id")
+        instance.get_entities_for_team(mock_session, -1)
+    assert "err - err" in str(e.value)
+
+
 def test_get_entities_for_team(mock_session):
-    """Test get_entities_for_team method."""
+    """Test get_entities_for_team method with valid team."""
     expected = (
         "SELECT * FROM models JOIN collector_targets ON collector_targets.id = :id_1 "
         + "WHERE collector_targets.team_id = :team_id_1"
     )
-    instance = CRUDClass(ValidModel, Repository)
+    instance = CRUDClass(ValidModel, Repository, "repository_id")
 
     result = instance.get_entities_for_team(mock_session, 1)
 

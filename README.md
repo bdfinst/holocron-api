@@ -345,7 +345,7 @@ from sqlalchemy.orm import Session
 from app.models import Forum
 
 from ._base import BaseCRUD
-
+from .teams import teams_crud
 
 class ForumsCRUD(BaseCRUD[Forum]):
     """Base CRUD extension for Forum model."""
@@ -359,9 +359,10 @@ class ForumsCRUD(BaseCRUD[Forum]):
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> List[Forum]:
         """Get all forums for a given team."""
+        team = teams_crud.get_entity(team_id)
         return session.scalars(
             select(Forum)
-            .where(Forum.team_id == team_id)
+            .where(Forum.team_id == team.id)
             .where(Forum.forum_id.is_not(None))
         ).all()
 
@@ -384,10 +385,11 @@ class ThreadsCRUD(BaseMetricCRUD[Thread]):
     """Base CRUD extension for Thread model."""
 
 
-threads_crud = ThreadsCRUD(Thread, Forum)
+threads_crud = ThreadsCRUD(Thread, Forum, "form_id")
 ```
 
-Here we inherit `BaseMetricCRUD` which is a class that inherits `BaseCRUD` and also defines a generic method to get all entities for a given team. We don't need any new methods or overrides here so we then just instantiate our class.
+Here we inherit `BaseMetricCRUD` which is a class that inherits `BaseCRUD` and also defines a generic method to get all entities for a given team. We don't need any new methods or overrides here so we then just instantiate our class. Additionally, `Thread` has a foreign key to `Form` named `form_id`
+which we need to pass in the constructor.
 
 We do need to then make a small update to that class to include our new `Forum` model. Add the import and a couple of new lines to the `__init__` method found in `_base.py`.
 
