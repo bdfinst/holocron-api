@@ -6,6 +6,13 @@ from flask import request
 # Security Settings that are configurable
 # The default rate limits provided to the rate limiter
 DEFAULT_LIMITS = ["300/day", "50/hour"]
+# The max input characters the user can use for naming
+# their items (example valuestream, organization, team name)
+# that they create in the database
+MAX_INPUT_CHAR_LEN = 50
+# The regex for all the valid characters the user can use for
+# string user input (example valuestream, organization, team name)
+VALID_NAME_CHARS = "^[a-zA-Z0-9][ a-zA-Z0-9_-]*[a-zA-Z0-9]$"
 
 # All the possible error message for the app related to security
 METHOD_NOT_ALLOWED_MSG = "METHOD NOT ALLOWED"

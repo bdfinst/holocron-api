@@ -1,6 +1,6 @@
 """Application Configuration."""
 import os
-from typing import Any, Dict, List
+from typing import Dict, List
 
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASS = os.environ.get("DB_PASS", "postgres")
@@ -52,7 +52,3 @@ DEFAULT_TICKET_PRIORITY = TICKET_PRIORITIES["LOWEST"]
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
 RELEASE_STAGE_NAME = "Deploy"
 STAGE_PASSED_STATUS = "success"
-SECURITY_SETTINGS: Dict[str, Any] = {
-    "MAX_INPUT_CHAR_LEN": 50,
-    "VALID_NAME_CHARS": "^[a-zA-Z0-9][ a-zA-Z0-9_-]*[a-zA-Z0-9]$",
-}

@@ -1,8 +1,7 @@
 """Input validaton test for route schemas."""
 from pytest import fixture
 
-from app import config
-from app.config import SECURITY_SETTINGS
+from app import config, security
 from app.routes import organizations
 from tests.mocks import crud
 
@@ -11,9 +10,7 @@ from tests.mocks import crud
 def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(organizations, "organizations_crud", crud)
-    mock_settings = SECURITY_SETTINGS.copy()
-    mock_settings["MAX_INPUT_CHAR_LEN"] = 50
-    monkeypatch.setattr(config, "SECURITY_SETTINGS", mock_settings)
+    monkeypatch.setattr(security, "MAX_INPUT_CHAR_LEN", 50)
 
 
 def test_input_validators(client, mock_crud):
