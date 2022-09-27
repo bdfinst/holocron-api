@@ -99,6 +99,11 @@ def create_empty_week_object() -> Dict[str, Dict[str, List[int]]]:
     }
 
 
+def get_latest_time(time_stamps: List[int]) -> int:
+    """Return -1 if team/org/valueStream has no active collector targets."""
+    return max(time_stamps) if len(time_stamps) > 0 else -1
+
+
 def build_weekly_data(metrics: Metrics) -> Dict[str, Dict[str, Dict[str, List[int]]]]:
     """Build the weekly data using the metrics type."""
     weekly_data: Dict[str, Dict[str, Dict[str, List[int]]]] = {}
@@ -144,7 +149,6 @@ def process_team(team: Team) -> TeamMetrics:
             integration_frequency,
         )
     )
-
     return TeamMetrics(
         team.name,
         team.team_size,
@@ -155,29 +159,44 @@ def process_team(team: Team) -> TeamMetrics:
         weekly_data,
         {},
         {
-            "feature": max(t.last_collected for t in team.ticket_boards),
-            "scm": max(p.last_collected for p in team.repositories),
-            "build": max(p.last_collected for p in team.pipelines),
+            "feature": get_latest_time(
+                [board.last_collected for board in team.ticket_boards]
+            ),
+            "scm": get_latest_time([repo.last_collected for repo in team.repositories]),
+            "build": get_latest_time([pipe.last_collected for pipe in team.pipelines]),
         },
     )
 
 
 def process_valuestream(valuestream: Valuestream) -> ValuestreamMetrics:
     """Process valuestream metrics."""
+    if len(valuestream.teams) == 0:
+        return ValuestreamMetrics(
+            valuestream.name, [], {"feature": -1, "scm": -1, "build": -1}
+        )
+
     team_metrics = [process_team(team) for team in valuestream.teams]
+
     return ValuestreamMetrics(
         valuestream.name,
         team_metrics,
         {
-            "feature": max(t.last_updated["feature"] for t in team_metrics),
-            "scm": max(t.last_updated["scm"] for t in team_metrics),
-            "build": max(t.last_updated["build"] for t in team_metrics),
+            "feature": get_latest_time(
+                [t.last_updated["feature"] for t in team_metrics]
+            ),
+            "scm": get_latest_time([t.last_updated["scm"] for t in team_metrics]),
+            "build": get_latest_time([t.last_updated["build"] for t in team_metrics]),
         },
     )
 
 
 def process_organization(organization: Organization) -> OrganizationMetrics:
     """Process organization metrics."""
+    if len(organization.valuestreams) == 0:
+        return OrganizationMetrics(
+            organization.name, [], {"feature": -1, "scm": -1, "build": -1}
+        )
+
     valuestream_metrics = [
         process_valuestream(valuestream) for valuestream in organization.valuestreams
     ]
@@ -185,8 +204,14 @@ def process_organization(organization: Organization) -> OrganizationMetrics:
         organization.name,
         valuestream_metrics,
         {
-            "feature": max(t.last_updated["feature"] for t in valuestream_metrics),
-            "scm": max(t.last_updated["scm"] for t in valuestream_metrics),
-            "build": max(t.last_updated["build"] for t in valuestream_metrics),
+            "feature": get_latest_time(
+                [t.last_updated["feature"] for t in valuestream_metrics]
+            ),
+            "scm": get_latest_time(
+                [t.last_updated["scm"] for t in valuestream_metrics]
+            ),
+            "build": get_latest_time(
+                [t.last_updated["build"] for t in valuestream_metrics]
+            ),
         },
     )

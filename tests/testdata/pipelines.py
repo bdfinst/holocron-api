@@ -54,6 +54,26 @@ mock_pipelines = [
         collector_id=1,
         url="https://test-pipeline.com",
         builds=builds,
-        last_collected=datetime(2020, 5, 17),
+        last_collected=datetime(2020, 5, 17).timestamp(),
     )
+]
+mock_pipelines_last_collected = [
+    Pipeline(
+        collector_id=1,
+        url="https://url1",
+        builds=[],
+        last_collected=datetime(1999, 1, 1).timestamp(),
+    ),
+    Pipeline(
+        collector_id=1,
+        url="https://url2",
+        builds=[],
+        last_collected=datetime(2010, 1, 1).timestamp(),
+    ),
+    Pipeline(
+        collector_id=1,
+        url="https://url3",
+        builds=[],
+        last_collected=datetime(2022, 1, 1).timestamp(),
+    ),
 ]

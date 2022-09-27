@@ -1,6 +1,6 @@
 """Metric schema objects."""
 from marshmallow import Schema
-from marshmallow.fields import DateTime, Dict, Field, List, Nested, Number, String
+from marshmallow.fields import Dict, Field, Int, List, Nested, Number, String
 
 from ._base import camelcase
 from .branch import BranchSchema
@@ -86,7 +86,7 @@ class TeamMetricsSchema(MetricsSchemaBase):
     wip_load_data = Number()
     repos_build_data = Nested(BuildSchema, many=True)
     data_quality_issues = Dict(keys=String(), values=String())
-    last_updated = Dict(keys=String(), values=DateTime())
+    last_updated = Dict(keys=String(), values=Int())
     weekly_data = Dict(keys=String(), values=Nested(WeeklyDataSchema))
 
 
@@ -94,7 +94,7 @@ class ValuestreamMetricsSchema(MetricsSchemaBase):
     """Schema for valuestream metrics."""
 
     name = String()
-    last_updated = Dict(keys=String(), values=DateTime())
+    last_updated = Dict(keys=String(), values=Int())
     teams = Nested(TeamMetricsSchema, many=True)
 
 
@@ -102,5 +102,5 @@ class MetricsSchema(MetricsSchemaBase):
     """Schema for organization metrics."""
 
     name = String()
-    last_updated = Dict(keys=String(), values=DateTime())
+    last_updated = Dict(keys=String(), values=Int())
     valuestreams = Nested(ValuestreamMetricsSchema, many=True)
