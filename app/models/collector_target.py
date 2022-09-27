@@ -1,8 +1,8 @@
 """Holocron collector target model."""
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Column,
-    DateTime,
     ForeignKey,
     Integer,
     String,
@@ -25,6 +25,6 @@ class CollectorTarget(MetadataBase, ModelBase):
     url = Column(String, nullable=False)
     api_url = Column(String)
     is_deleted = Column(Boolean, server_default="False")
-    last_collected = Column(DateTime)
+    last_collected = Column(BigInteger)
 
     UniqueConstraint(collector_id, api_url)

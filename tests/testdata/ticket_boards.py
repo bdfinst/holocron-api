@@ -53,6 +53,29 @@ mock_ticket_boards = [
         name="mock_ticket_board",
         url="https://jira.com/board",
         tickets=tickets,
-        last_collected=datetime(2020, 6, 17),
+        last_collected=datetime(2020, 6, 17).timestamp(),
     )
+]
+mock_ticket_boards_last_collected = [
+    TicketBoard(
+        collector_id=2,
+        name="mock_ticket_board_lastCollected",
+        url="https://jira/1",
+        tickets=[],
+        last_collected=datetime(1999, 2, 2).timestamp(),
+    ),
+    TicketBoard(
+        collector_id=2,
+        name="mock_ticket_board_lastCollected",
+        url="https://jira/2",
+        tickets=[],
+        last_collected=datetime(2022, 2, 2).timestamp(),
+    ),
+    TicketBoard(
+        collector_id=2,
+        name="mock_ticket_board_lastCollected",
+        url="https://jira/2",
+        tickets=[],
+        last_collected=datetime(2010, 2, 2).timestamp(),
+    ),
 ]

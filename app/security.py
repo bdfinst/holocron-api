@@ -1,11 +1,12 @@
 """Security middlewares."""
 import logging
+from typing import Callable, List, Optional, Union
 
 from flask import request
 
 # Security Settings that are configurable
 # The default rate limits provided to the rate limiter
-DEFAULT_LIMITS = ["300/day", "50/hour"]
+DEFAULT_LIMITS: Optional[List[Union[str, Callable[[], str]]]] = ["300/day", "50/hour"]
 # The max input characters the user can use for naming
 # their items (example valuestream, organization, team name)
 # that they create in the database

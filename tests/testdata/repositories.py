@@ -44,6 +44,32 @@ mock_repositories = [
         commits=commits,
         git_requests=git_requests,
         branches=branches,
-        last_collected=datetime(2020, 7, 17),
+        last_collected=datetime(2020, 7, 17).timestamp(),
     )
+]
+mock_repositories_last_collected = [
+    Repository(
+        collector_id=3,
+        url="https://gitlab/1",
+        commits=[],
+        git_requests=[],
+        branches=[],
+        last_collected=datetime(2022, 3, 3).timestamp(),
+    ),
+    Repository(
+        collector_id=3,
+        url="https://gitlab/1",
+        commits=[],
+        git_requests=[],
+        branches=[],
+        last_collected=datetime(2010, 3, 3).timestamp(),
+    ),
+    Repository(
+        collector_id=3,
+        url="https://gitlab/1",
+        commits=[],
+        git_requests=[],
+        branches=[],
+        last_collected=datetime(1990, 3, 3).timestamp(),
+    ),
 ]
