@@ -1,5 +1,5 @@
 """Holocron payrate model."""
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Float, String
 
 from ._base import MetadataBase, ModelBase
 
@@ -9,5 +9,5 @@ class PayRate(MetadataBase, ModelBase):
 
     __tablename__ = "pay_rates"
 
-    rate = Column(Integer, nullable=False)
-    persona = Column(String, unique=True, nullable=False)
+    rate = Column(Float, nullable=False)
+    email = Column(String, unique=True, nullable=False)

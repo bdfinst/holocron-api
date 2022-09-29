@@ -6,7 +6,7 @@ from .git_request import GitRequestSchema
 from .messages import ValidationErrorSchema
 from .metrics import MetricsSchema
 from .organization import OrganizationSchema
-from .pay_rate import PayRateSchema
+from .pay_rate import MultiplePayRateSchema, PayRateSchema
 from .pipelines import PipelineSchema
 from .repository import RepositorySchema
 from .team import TeamSchema
