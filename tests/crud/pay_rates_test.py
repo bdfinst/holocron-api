@@ -14,11 +14,11 @@ def mock_sqlalchemy(monkeypatch):
 
 def test_upsert_entity(mock_sqlalchemy, mock_session):
     """Test upsert_entity method."""
-    data = {"rate": 1, "persona": "bob"}
+    data = {"rate": 1, "email": "bob@somemail.com"}
 
     result = pay_rates_crud.upsert_entity(mock_session, data)
     pay_rate = first_argument(mock_session.add)
 
     assert result == pay_rate
     assert pay_rate.rate == 1
-    assert pay_rate.persona == "bob"
+    assert pay_rate.email == "bob@somemail.com"

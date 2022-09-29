@@ -5,12 +5,13 @@ from marshmallow import ValidationError
 from app.crud import pay_rates_crud
 from app.database import generate_session
 from app.middleware import requires_leadership
-from app.schemas import PayRateSchema
+from app.schemas import MultiplePayRateSchema, PayRateSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 
 router = Blueprint("payrates", __name__, url_prefix="/payrates")
 
 schema = PayRateSchema()
+manySchema = MultiplePayRateSchema()
 
 
 @router.route("", methods=["GET"])
@@ -42,22 +43,27 @@ def list_pay_rates():
 
 @router.route("", methods=["POST"])
 @requires_leadership
-def upsert_pay_rate():
-    """Upsert pay rate route.
+def upsert_pay_rates():
+    """Upsert pay rates route.
 
     ---
     post:
-      description: Create or update a pay rate
+      description: Create or update pay rates
       requestBody:
         content:
           application/json:
-            schema: PayRateSchema
+            schema: MultiplePayRateSchema
       responses:
         201:
-          description: The pay rate was successfully set
+          description: The pay rates successfuly set.
           content:
             application/json:
-              schema: PayRateSchema
+              schema:
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PayRate'
         400:
           description: Failure due to an invalid request
           content:
@@ -65,11 +71,14 @@ def upsert_pay_rate():
               schema: ValidationErrorSchema
     """
     try:
-        data = schema.load(request.json)
+        data = manySchema.load(request.json)
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
-        raw_pay_rate = pay_rates_crud.upsert_entity(session, data)
-        result = schema.dump(raw_pay_rate)
+        rates = data.get("rates")
+        upserted_rates = iter(
+            pay_rates_crud.upsert_entity(session, rate) for rate in rates
+        )
+        result = {"result": [schema.dump(rate) for rate in upserted_rates]}
     return jsonify(result), 201
