@@ -148,7 +148,8 @@ In addition to the fields below, all models have the following fields.
 
 ## Getting started
 
-To enable the pre-commit hook run `git config core.hookPath .githooks`.
+To enable the pre-commit hook run `npm i` which will
+setup husky.
 
 To use this project, you need at least python 3.9 installed. With that, you should be able to use pip to install poetry. Either `pip install poetry` or `pip3 install poetry` as your system requires. [Poetry](https://python-poetry.org/) is our package and virtual environment manager. You can prepare your environment with `poetry install` at which point you can enter it with `poetry shell` or execute commands into it with `poetry run <command>`.
 
@@ -759,3 +760,10 @@ Here we define another fixture to mock our crud object and use another custom fi
 For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created.
 
 And once all that is done coverage should be complete.
+
+# e2e tests
+We are using cypress for our e2e tests. You can
+run cypress in dev mode by first starting your dev
+environment, and running `npm run test:ci`. For e2e
+tests in pipeline, we do not need any of the dependencies, and
+just `package.json` which has the scripts command `npm run test:e2e-ci` which uses pipeline's cypress.
