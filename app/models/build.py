@@ -25,7 +25,7 @@ class Build(MetadataBase, ModelBase):
 class Job(MetadataBase, ModelBase):
     """Model class."""
 
-    __tablename__ = "jobs"
+    __tablename__ = "holocron_jobs"
 
     build_id = Column(Integer, ForeignKey(Build.id, ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
