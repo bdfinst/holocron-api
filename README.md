@@ -258,7 +258,11 @@ from .thread import Thread
 
 After creating/updating a model, a new migration file needs to be created. You can generate a new migration by running the following command from within the dev environment backend container.
 
-`alembic revision --autogenerate`
+`docker compose up &`
+
+and then 
+
+`docker exec holocron_backend alembic revision --autogenerate` 
 
 If consolidating migration files is desired, delete any migration files that you want to merge, clear the database, and then run the command above.
 

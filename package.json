@@ -1,4 +1,11 @@
 {
+  "name": "holocron-api",
+  "version": "1.0.0",
+  "description": "Python backend for remixed edition of Holocron application. Replaces the Hygieia-API and the Holocron-Team-Service services. Uses Flask.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
     "test:e2e": "cross-env cypress run --config-file cypress/config/development.json",
     "test:e2e-ci": "cypress run --browser chrome --config-file cypress/config/pipeline.json",
@@ -8,5 +15,11 @@
     "cross-env": "^7.0.3",
     "cypress": "^9.7.0",
     "husky": "^8.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/holocron/holocron-api.git"
+  },
+  "author": "",
+  "license": "ISC"
 }
