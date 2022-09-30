@@ -1,3 +1,6 @@
 __pycache__
 .coverage
 .vscode
+node_modules
+screenshots
+package-lock.json
