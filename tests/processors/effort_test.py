@@ -166,12 +166,17 @@ def test_process_effort_hours(monkeypatch, mock_config):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=IN_PROGRESS_STATUS,
-                        ),
+                        ), # week 1 has 5 days worth of effort and ends on Jan 7
+                        # week 2 has 5 days worth of effort and starts and ends from
+                        # Jan 10 - Jan 14 business days, so expect to see 5 days
+                        # of effort on week 1, and 5 days on week 2.
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
                             status=DONE_STATUS,
-                        ),
+                        ), # Week 3 is from Jan 17 to Jan 21 business days,
+                        # so expect to see 1 day of effort for this
+                        # status.
                     ],
                 ),
                 Ticket(
@@ -191,7 +196,9 @@ def test_process_effort_hours(monkeypatch, mock_config):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=IN_PROGRESS_STATUS,
-                        ),
+                        ), # week 1 has 5 days worth of effort and ends on Jan 7
+                        # week 2 has 5 days worth of effort and starts and ends from
+                        # Jan 10 - Jan 14
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
@@ -230,14 +237,15 @@ def test_process_effort_hours(monkeypatch, mock_config):
                         ),
                         StatusHistory(
                             ticket_id=1,
-                            date=datetime(year=2000, month=1, day=19),
+                            date=datetime(year=2000, month=1, day=19, hour=12, minute=0, second=0),
                             status=IN_PROGRESS_STATUS,
-                        ),
+                        ), # should be 12 hour progress + 24 hour progress (20th Jan)
+                        # + 24 hour (21st Jan) = 2.5 days
                     ],
                 ),
             ],
             {
-                "feature": {"2000_03": [3]},
+                "feature": {"2000_03": [2.5]},
                 "defect_effort": {},
                 "unplanned": {},
                 "maintenance": {},
@@ -270,7 +278,8 @@ def test_process_effort_hours(monkeypatch, mock_config):
                                 year=2000, month=1, day=3, hour=12, minute=30
                             ),
                             status=DONE_STATUS,
-                        ),
+                        ), # 3 hours worth of effort translates to 3/24 = 0.1 days
+                        # worth of effort.
                     ],
                 ),
             ],
@@ -281,9 +290,57 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 "maintenance": {},
             },
         ),
+        (
+            """Should calculate effort for status
+            that changes progress back to back.""",
+            [
+                Ticket(
+                    board_id=1,
+                    ticket_id=1,
+                    assignee="someone",
+                    status=DONE_STATUS,
+                    ticket_type="Feature",
+                    priority="Highest",
+                    status_history=[
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=3, hour=12, minute=0, second=0),
+                            status=TO_DO_STATUS,
+                        ),
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=4, hour=8, minute=0, second=0),
+                            status=IN_PROGRESS_STATUS,
+                        ), # 2.7 days of effort (24 - 8 = 16 hours of effort
+                        # after issue in progress for the day) for week 1
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=10, hour=12, minute=0, second=0),
+                            status=TO_DO_STATUS,
+                        ), # .5 days of effort here for week 2
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=12, hour=12, minute=0, second=0),
+                            status=IN_PROGRESS_STATUS,
+                        ), # 1.5 days of effort here for week 2
+                        StatusHistory(
+                            ticket_id=1,
+                            date=datetime(year=2000, month=1, day=21, hour=23, minute=59, second=59),
+                            status=DONE_STATUS
+                        ), # 5 days of effort for week 3
+                    ],
+                ),
+            ],
+            {
+                "feature": {"2000_01": [2.7], "2000_02": [2], "2000_03": [5]},
+                "defect_effort": {},
+                "unplanned": {},
+                "maintenance": {},
+            },
+        )
     ]
 
     for case in test_cases:
-        _, input_case, expected = case
+        description, input_case, expected = case
         actual = process_effort(input_case)["hours"]
-        assert expected == actual
+        assert expected == actual, description
