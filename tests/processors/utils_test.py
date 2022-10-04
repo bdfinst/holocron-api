@@ -5,7 +5,12 @@ from pytest import fixture
 
 from app.processors import utils
 from app.processors.types import DateValue
-from app.processors.utils import days_between_dates, flat_map, values_by_week
+from app.processors.utils import (
+    days_between_dates,
+    flat_map,
+    get_fmt_year_week,
+    values_by_week,
+)
 from tests.mocks import config
 
 
@@ -15,6 +20,25 @@ def mock_config(monkeypatch):
     monkeypatch.setattr(utils, "config", config)
     yield config
     config.reset()
+
+
+def test_get_fmt_year_week():
+    """Testing get_fmt_year_week."""
+    test_cases = [
+        (
+            """should add a 0 if single digit week.""",
+            datetime(year=2000, month=1, day=3),
+            "2000_01",
+        ),
+        (
+            """should return double digit week if double digit week.""",
+            datetime(year=2000, month=3, day=6),
+            "2000_10",
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_case, expected = test_case
+        assert get_fmt_year_week(input_case) == expected, description
 
 
 def test_flat_map():

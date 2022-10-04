@@ -21,15 +21,19 @@ def flat_map(items: List[T], func: Callable[[T], List[V]]) -> List[V]:
     return result
 
 
+def get_fmt_year_week(date: datetime) -> str:
+    """Return the formatted <year_number>_<week_number> of date."""
+    iso_date = date.isocalendar()
+    week_str = f"{iso_date.week}" if iso_date.week >= 10 else f"0{iso_date.week}"
+    return f"{iso_date.year}_{week_str}"
+
+
 def values_by_week(data: List[DateValue]) -> WeeklyData:
     """Convert data to format the charts can consume."""
     values: WeeklyData = {}
 
     for item in data:
-        iso_date = item.date.isocalendar()
-        week_str = f"{iso_date.week}" if iso_date.week >= 10 else f"0{iso_date.week}"
-        year_week_str = f"{iso_date.year}_{week_str}"
-
+        year_week_str = get_fmt_year_week(item.date)
         values.setdefault(year_week_str, []).append(item.value)
 
     return values
