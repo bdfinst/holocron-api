@@ -1,7 +1,7 @@
 {
   "video": false,
-  "baseUrl": "https://hygieia.staging.dso.mil",
-  "apiUrl": "https://hygieia.staging.dso.mil/api/v1",
+  "baseUrl": "https://holocron.staging.dso.mil",
+  "apiUrl": "https://holocron.staging.dso.mil/api/v1",
   "chromeWebSecurity": false,
   "pluginsFile": false,
   "mode": "pipeline",
