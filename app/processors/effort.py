@@ -21,7 +21,7 @@ from .utils import IN_PROGRESS
 WeekAndEffortTable = Dict[str, Union[int, float]]
 # the key is the week in the format <year_number>_<week_number>
 # in string, and the value is a list containing the
-# effort spent for each ticket.
+# effort/cost spent for each ticket.
 WeekAndEffortTableForTickets = Dict[str, List[Union[int, float]]]
 
 
@@ -59,18 +59,18 @@ def upsert_week_entry(
 def get_intrvl_effort(
     in_prog_date: datetime, stop_prog_date: datetime, assignee_count: int
 ) -> WeekAndEffortTable:
-    """Return the table containg effort data for two date interval."""
-    week_effort_hash_table: WeekAndEffortTable = {}
-    days_effort = days_between_dates(in_prog_date, stop_prog_date)
-
-    def calculate_effort(days_spent: float, assignee_count: int) -> float:
+    """Return the table containg effort data for two date intervals."""
+    def calculate_effort(days_spent: float) -> float:
         """Return the effort days given days_spent and the number of assignees."""
         return days_spent * assignee_count
+
+    week_effort_hash_table: WeekAndEffortTable = {}
+    days_effort = days_between_dates(in_prog_date, stop_prog_date)
 
     # handling the case that days spent are less than 1
     if days_effort < 1:
         year_week = get_fmt_year_week(in_prog_date)
-        return {year_week: calculate_effort(days_effort, assignee_count)}
+        return {year_week: calculate_effort(days_effort)}
 
     # process effort spent during the day of progress.
     curr_date = in_prog_date.replace(hour=23, minute=59, second=59)
@@ -94,7 +94,7 @@ def get_intrvl_effort(
         # a new week and put effort in there, otherwise it will
         # stick with the old effort entry and sum the effort.
         upsert_week_entry(
-            year_week, calculate_effort(1, assignee_count), week_effort_hash_table
+            year_week, calculate_effort(1), week_effort_hash_table
         )
 
     # at this points days_effort should be less than 1
@@ -104,7 +104,7 @@ def get_intrvl_effort(
     year_week_stop_date = get_fmt_year_week(stop_prog_date)
     upsert_week_entry(
         year_week_stop_date,
-        calculate_effort(days_effort, assignee_count),
+        calculate_effort(days_effort),
         week_effort_hash_table,
     )
     return week_effort_hash_table
