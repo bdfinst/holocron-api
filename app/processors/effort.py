@@ -82,8 +82,9 @@ def get_intrvl_effort(
     # we forwarded time by computing effort during the day of
     # progress.
     days_effort = days_between_dates(curr_date, stop_prog_date)
-    # skip weekdays, and calculate effort with hash of the week
-    while days_effort > 0:
+    # skip weekends, and calculate effort with hash of the week
+    # as long as it is not a partial effort day remaining.
+    while days_effort >= 1:
         curr_date += timedelta(days=1)
         days_effort -= 1
         year_week = get_fmt_year_week(curr_date)
@@ -96,11 +97,10 @@ def get_intrvl_effort(
             year_week, calculate_effort(1, assignee_count), week_effort_hash_table
         )
 
-    # at this points days_effort should be less than 0
+    # at this points days_effort should be less than 1
     # but we gotta take into account that someone could have
     # spent time working on the ticket during the day and
-    # finished it during the day with effort < 1 day (hence abs value).
-    days_effort = abs(days_effort)
+    # finished it during the day with effort < 1 day.
     year_week_stop_date = get_fmt_year_week(stop_prog_date)
     upsert_week_entry(
         year_week_stop_date,

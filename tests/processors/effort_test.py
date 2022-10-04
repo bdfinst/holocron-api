@@ -332,8 +332,8 @@ def test_process_effort_hours(monkeypatch, mock_config):
                                 year=2000, month=1, day=12, hour=12, minute=0, second=0
                             ),
                             status=IN_PROGRESS_STATUS,
-                        ),  # 3.5 days of effort here for week 2
-                        # so total of 4
+                        ),  # 2.5 days of effort here for week 2
+                        # so total of 3 for week 2
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(
@@ -350,7 +350,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 ),
             ],
             {
-                "feature": {"2000_01": [3.7], "2000_02": [4], "2000_03": [5]},
+                "feature": {"2000_01": [3.7], "2000_02": [3], "2000_03": [5]},
                 "defect_effort": {},
                 "unplanned": {},
                 "maintenance": {},
