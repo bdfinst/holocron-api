@@ -13,7 +13,7 @@ from typing import Dict, List, Union
 from app import config
 from app.models import Ticket
 
-from .utils import IN_PROGRESS
+from .utils import IN_PROGRESS, get_fmt_year_week
 
 # hash table containing
 # the week in the format <year_number>_<week_number> in string
@@ -25,15 +25,8 @@ WeekAndEffortTable = Dict[str, Union[int, float]]
 WeekAndEffortTableForTickets = Dict[str, List[Union[int, float]]]
 
 
-def get_fmt_year_week(date: datetime) -> str:
-    """Return the formatted <year_number>_<week_number> of date."""
-    iso_date = date.isocalendar()
-    week_str = f"{iso_date.week}" if iso_date.week >= 10 else f"0{iso_date.week}"
-    return f"{iso_date.year}_{week_str}"
-
-
 def days_between_dates(start: datetime, end: datetime) -> float:
-    """Return the number of days between two dates."""
+    """Return the total number of days between two dates."""
     hours_per_day = 24
     seconds_per_day = 60 * 60 * hours_per_day
     time_delta = end - start
@@ -48,23 +41,24 @@ def days_between_dates(start: datetime, end: datetime) -> float:
 def upsert_week_entry(
     week: str, effort_spent: Union[float, int], table: WeekAndEffortTable
 ):
-    """Create a week effort if week not found otherwise sum with effort."""
+    """Upsert a week entry for distirbution table (table)."""
     if week in table:  # we are still processing old
-        # week data
+        # week data, so we accumulate effort spent
         table[week] += effort_spent
     else:  # we have received a new week data
         table[week] = effort_spent
 
 
-def get_intrvl_effort(
+def get_intrvl_effort_dist(
     in_prog_date: datetime, stop_prog_date: datetime, assignee_count: int
 ) -> WeekAndEffortTable:
-    """Return the table containg effort data for two date intervals."""
+    """Return effort distribution by week for two date intervals."""
+
     def calculate_effort(days_spent: float) -> float:
         """Return the effort days given days_spent and the number of assignees."""
         return days_spent * assignee_count
 
-    week_effort_hash_table: WeekAndEffortTable = {}
+    intrvl_effort_dist: WeekAndEffortTable = {}
     days_effort = days_between_dates(in_prog_date, stop_prog_date)
 
     # handling the case that days spent are less than 1
@@ -74,10 +68,9 @@ def get_intrvl_effort(
 
     # process effort spent during the day of progress.
     curr_date = in_prog_date.replace(hour=23, minute=59, second=59)
-    week_effort_hash_table[get_fmt_year_week(in_prog_date)] = days_between_dates(
+    intrvl_effort_dist[get_fmt_year_week(in_prog_date)] = days_between_dates(
         in_prog_date, curr_date
     )
-    weekends_days = [5, 6]
     # recompute days difference from the end of the day since
     # we forwarded time by computing effort during the day of
     # progress.
@@ -85,44 +78,43 @@ def get_intrvl_effort(
     # skip weekends, and calculate effort with hash of the week
     # as long as it is not a partial effort day remaining.
     while days_effort >= 1:
-        curr_date += timedelta(days=1)
-        days_effort -= 1
-        year_week = get_fmt_year_week(curr_date)
+        curr_date, days_effort = curr_date + timedelta(days=1), days_effort - 1
+        weekends_days = [5, 6]
         if curr_date.weekday() in weekends_days:
             continue
         # will create a new week entry if the day addition is
         # a new week and put effort in there, otherwise it will
         # stick with the old effort entry and sum the effort.
-        upsert_week_entry(
-            year_week, calculate_effort(1), week_effort_hash_table
-        )
+        year_week = get_fmt_year_week(curr_date)
+        upsert_week_entry(year_week, calculate_effort(1), intrvl_effort_dist)
 
     # at this points days_effort should be less than 1
     # but we gotta take into account that someone could have
     # spent time working on the ticket during the day and
     # finished it during the day with effort < 1 day.
-    year_week_stop_date = get_fmt_year_week(stop_prog_date)
-    upsert_week_entry(
-        year_week_stop_date,
-        calculate_effort(days_effort),
-        week_effort_hash_table,
-    )
-    return week_effort_hash_table
+    if days_effort > 0:
+        year_week_stop_date = get_fmt_year_week(stop_prog_date)
+        upsert_week_entry(
+            year_week_stop_date,
+            calculate_effort(days_effort),
+            intrvl_effort_dist,
+        )
+    return intrvl_effort_dist
 
 
 def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
-    """Return the list of effort spent on each date the ticket was in progress."""
+    """Return the distribution of effort for ticket."""
     assignee_count = 1  # the default value of assginees for now
     # must change when we figure out how many assignees are working on the ticket
     last_in_prog_date, last_status_was_in_prog = ticket.status_history[0], False
-    week_and_effort_table: WeekAndEffortTable = {}
+    effort_dist_for_ticket: WeekAndEffortTable = {}
 
     def accumulate_effort(intrvl_effort: WeekAndEffortTable):
         """Accumulate effort for week based on effort interval effort."""
         for week, effort_spent in intrvl_effort.items():
             # need to do this because we don't just update keys
             # we sum them for effort spent on ticket
-            upsert_week_entry(week, effort_spent, week_and_effort_table)
+            upsert_week_entry(week, effort_spent, effort_dist_for_ticket)
 
     for history in ticket.status_history:
         if history.status == IN_PROGRESS:
@@ -130,15 +122,15 @@ def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
             last_status_was_in_prog = True
         elif last_status_was_in_prog:
             accumulate_effort(
-                get_intrvl_effort(last_in_prog_date, history.date, assignee_count)
+                get_intrvl_effort_dist(last_in_prog_date, history.date, assignee_count)
             )
             last_status_was_in_prog = False
 
     if last_status_was_in_prog:
         accumulate_effort(
-            get_intrvl_effort(last_in_prog_date, datetime.now(), assignee_count)
+            get_intrvl_effort_dist(last_in_prog_date, datetime.now(), assignee_count)
         )
-    return week_and_effort_table
+    return effort_dist_for_ticket
 
 
 def process_effort(
@@ -171,5 +163,6 @@ def process_effort(
         )
         effort_dist_for_ticket = get_effort_distribution(ticket)
         accumulate_ticket_effort(effort_dist_for_ticket, chart_data_hours[effort_type])
+        # STILL HAVE TO DO COSTS
         accumulate_ticket_effort(effort_dist_for_ticket, chart_data_cost[effort_type])
     return {"hours": chart_data_hours, "costs": chart_data_hours}
