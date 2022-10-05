@@ -7,11 +7,12 @@
     "test": "tests"
   },
   "scripts": {
-    "test:e2e": "cypress run --config-file cypress/config/development.json",
+    "test:e2e": "cross-env cypress run --config-file cypress/config/development.json",
     "test:e2e-ci": "cypress run --browser chrome --config-file cypress/config/pipeline.json",
     "prepare": "husky install"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "husky": "^8.0.1"
   },
   "repository": {
