@@ -768,6 +768,9 @@ And once all that is done coverage should be complete.
 # e2e tests
 We are using cypress for our e2e tests. You can
 run cypress in dev mode by first starting your dev
-environment, and running `npm run test:ci`. For e2e
+environment, and running `npx cypress run --config-file cypress/config/development.json` (This won't work right now since
+we are still on Cypress9. The way to test e2e on dev
+manually at the moment is to install cypress version 9.7.0--which might ot work on everyone's computer--as
+dev dependency and run `npm run test:e2e`. This command needs to go away after the migration). For e2e
 tests in pipeline, we do not need any of the dependencies, and
 just `package.json` which has the scripts command `npm run test:e2e-ci` which uses pipeline's cypress.
