@@ -5,7 +5,7 @@ from pytest import fixture
 
 from app.models import StatusHistory, Ticket
 from app.processors import effort, utils
-from app.processors.effort import days_between_dates, process_effort
+from app.processors.effort import process_effort
 from tests.mocks import MockDateTime, config
 
 DONE_STATUS = "Done"
@@ -20,33 +20,6 @@ def mock_config(monkeypatch):
     monkeypatch.setattr(utils, "config", config)
     yield config
     config.reset()
-
-
-def test_days_between_dates():
-    """Testing module days_between_dates function."""
-    test_cases = [
-        (
-            """should return the total days between dates
-            between two dates rounded to 1 decimal place.""",
-            (
-                datetime(year=2000, month=1, day=3),
-                datetime(year=2000, month=1, day=9, hour=12, minute=0, second=0),
-            ),
-            6.5,
-        ),
-        (
-            """should return 0 if the difference is less
-            than the setup config expected cycle time hours.""",
-            (
-                datetime(year=2000, month=1, day=3),
-                datetime(year=2000, month=1, day=3, second=1),
-            ),
-            0,
-        ),
-    ]
-    for test_case in test_cases:
-        description, input_case, expected = test_case
-        assert days_between_dates(*input_case) == expected, description
 
 
 def test_process_effort_hours(monkeypatch, mock_config):

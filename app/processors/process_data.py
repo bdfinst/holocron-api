@@ -1,7 +1,15 @@
 """Process metrics data."""
 from typing import Any, Dict, List, NamedTuple
 
-from app.models import Branch, Build, GitRequest, Organization, Team, Valuestream
+from app.models import (
+    Branch,
+    Build,
+    GitRequest,
+    Organization,
+    Team,
+    Ticket,
+    Valuestream,
+)
 
 from .cumulative_flow import process_cumulative_flow
 from .cycle_time_defect import process_cycle_time_defect
@@ -101,7 +109,7 @@ def create_empty_week_object() -> Dict[str, Dict[str, List[int]]]:
 
 def get_latest_time(time_stamps: List[int]) -> int:
     """Return -1 if team/org/valueStream has no active collector targets."""
-    return max(time_stamps) if len(time_stamps) > 0 else -1
+    return max(time_stamps, default=-1)
 
 
 def build_weekly_data(metrics: Metrics) -> Dict[str, Dict[str, Dict[str, List[int]]]]:
@@ -116,14 +124,21 @@ def build_weekly_data(metrics: Metrics) -> Dict[str, Dict[str, Dict[str, List[in
     return weekly_data
 
 
+def get_tickets_with_sorted_history(team: Team) -> List[Ticket]:
+    """Return the tickets for team with sorted status histories."""
+    tickets = flat_map(team.ticket_boards, lambda board: board.tickets)
+    for ticket in tickets:
+        ticket.status_history.sort(key=lambda history: history.date)
+    return tickets
+
+
 def process_team(team: Team) -> TeamMetrics:
     """Run processors on one team to build its metrics."""
     # scm team repos
     # features ticket board
     # build pipeline
     # next( iterator
-
-    tickets = flat_map(team.ticket_boards, lambda board: board.tickets)
+    tickets = get_tickets_with_sorted_history(team)
     builds = flat_map(team.pipelines, lambda pipeline: pipeline.builds)
     integrations = flat_map(team.repositories, lambda repo: repo.commits)
     branches = flat_map(team.repositories, lambda repo: repo.branches)

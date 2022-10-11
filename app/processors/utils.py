@@ -39,6 +39,19 @@ def values_by_week(data: List[DateValue]) -> WeeklyData:
     return values
 
 
+def total_days_diff(start: datetime, end: datetime) -> float:
+    """Return the total number of days between two dates."""
+    hours_per_day = 24
+    seconds_per_day = 60 * 60 * hours_per_day
+    time_delta = end - start
+    actual_days_effort = time_delta.days + time_delta.seconds / seconds_per_day
+
+    if actual_days_effort * hours_per_day < config.MIN_EXPECTED_CYCLE_TIME_HOURS:
+        return 0
+    precision_factor = 10
+    return round(actual_days_effort * precision_factor) / precision_factor
+
+
 def days_between_dates(start: datetime, end: datetime) -> float:
     """Determine the number of days between two dates, rounded to one decimal place."""
     hours_per_day = 24
@@ -72,6 +85,13 @@ def is_completed_ticket(ticket: Ticket) -> bool:
         len(ticket.status_history) >= 1
         and ticket.status_history[0].status == "To Do"
         and ticket.status_history[-1].status == "Done"
+    )
+
+
+def is_no_effort_ticket(ticket: Ticket) -> bool:
+    """Return boolean representing if person did not work on ticket."""
+    return (
+        len(ticket.status_history) == 1 and ticket.status_history[-1].status == "Done"
     )
 
 

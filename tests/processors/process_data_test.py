@@ -7,6 +7,7 @@ from app.processors.process_data import (
     TeamMetrics,
     ValuestreamMetrics,
     get_latest_time,
+    get_tickets_with_sorted_history,
     process_organization,
     process_team,
 )
@@ -22,6 +23,17 @@ from tests.testdata import (
 from tests.testdata.teams import mock_team_last_collected
 
 mock_dt = MockDateTime(datetime(year=2000, month=1, day=16))
+
+
+def test_get_tickets_with_sorted_history():
+    """Testing get_tickets_with_sorted_history."""
+    team = mock_teams[0]
+    tickets_with_sorted_status_histories = get_tickets_with_sorted_history(team)
+    for t in tickets_with_sorted_status_histories:
+        assert all(
+            t.status_history[i].date <= t.status_history[i + 1].date
+            for i in range(len(t.status_history) - 1)
+        )
 
 
 def test_process_organization(monkeypatch):
@@ -69,8 +81,8 @@ def test_process_organization(monkeypatch):
                         "direct_integrations": [1],
                     },
                     "cumulative_flow": {
-                        "backlog": [4.0],
-                        "wip": [5.0, 1.0],
+                        "backlog": [],
+                        "wip": [4.0, -1],
                     },
                     "deploy_frequency": {
                         "deploys": [1, 1],
@@ -108,7 +120,7 @@ def test_process_organization(monkeypatch):
                     },
                     "cumulative_flow": {
                         "backlog": [],
-                        "wip": [5.0, 6.0],
+                        "wip": [6.0],
                     },
                     "deploy_frequency": {
                         "deploys": [],

@@ -13,7 +13,7 @@ from typing import Dict, List, Union
 from app import config
 from app.models import Ticket
 
-from .utils import IN_PROGRESS, get_fmt_year_week
+from .utils import IN_PROGRESS, get_fmt_year_week, total_days_diff
 
 # hash table containing
 # the week in the format <year_number>_<week_number> in string
@@ -23,19 +23,6 @@ WeekAndEffortTable = Dict[str, Union[int, float]]
 # in string, and the value is a list containing the
 # effort/cost spent for each ticket.
 WeekAndEffortTableForTickets = Dict[str, List[Union[int, float]]]
-
-
-def days_between_dates(start: datetime, end: datetime) -> float:
-    """Return the total number of days between two dates."""
-    hours_per_day = 24
-    seconds_per_day = 60 * 60 * hours_per_day
-    time_delta = end - start
-    actual_days_effort = time_delta.days + time_delta.seconds / seconds_per_day
-
-    if actual_days_effort * hours_per_day < config.MIN_EXPECTED_CYCLE_TIME_HOURS:
-        return 0
-    precision_factor = 10
-    return round(actual_days_effort * precision_factor) / precision_factor
 
 
 def upsert_week_entry(
@@ -59,7 +46,7 @@ def get_intrvl_effort_dist(
         return days_spent * assignee_count
 
     intrvl_effort_dist: WeekAndEffortTable = {}
-    days_effort = days_between_dates(in_prog_date, stop_prog_date)
+    days_effort = total_days_diff(in_prog_date, stop_prog_date)
 
     # handling the case that days spent are less than 1
     if days_effort < 1:
@@ -68,13 +55,13 @@ def get_intrvl_effort_dist(
 
     # process effort spent during the day of progress.
     curr_date = in_prog_date.replace(hour=23, minute=59, second=59)
-    intrvl_effort_dist[get_fmt_year_week(in_prog_date)] = days_between_dates(
+    intrvl_effort_dist[get_fmt_year_week(in_prog_date)] = total_days_diff(
         in_prog_date, curr_date
     )
     # recompute days difference from the end of the day since
     # we forwarded time by computing effort during the day of
     # progress.
-    days_effort = days_between_dates(curr_date, stop_prog_date)
+    days_effort = total_days_diff(curr_date, stop_prog_date)
     # skip weekends, and calculate effort with hash of the week
     # as long as it is not a partial effort day remaining.
     while days_effort >= 1:
