@@ -9,6 +9,7 @@ from app.processors.utils import (
     days_between_dates,
     flat_map,
     get_fmt_year_week,
+    total_days_diff,
     values_by_week,
 )
 from tests.mocks import config
@@ -39,6 +40,33 @@ def test_get_fmt_year_week():
     for test_case in test_cases:
         description, input_case, expected = test_case
         assert get_fmt_year_week(input_case) == expected, description
+
+
+def test_total_days_diff():
+    """Testing total_days_diff function."""
+    test_cases = [
+        (
+            """should return the total days between dates
+            between two dates rounded to 1 decimal place.""",
+            (
+                datetime(year=2000, month=1, day=3),
+                datetime(year=2000, month=1, day=9, hour=12, minute=0, second=0),
+            ),
+            6.5,
+        ),
+        (
+            """should return 0 if the difference is less
+            than the setup config expected cycle time hours.""",
+            (
+                datetime(year=2000, month=1, day=3),
+                datetime(year=2000, month=1, day=3, second=1),
+            ),
+            0,
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_case, expected = test_case
+        assert total_days_diff(*input_case) == expected, description
 
 
 def test_flat_map():

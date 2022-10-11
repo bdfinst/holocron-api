@@ -8,10 +8,10 @@ all_status_history_types = [
         ticket_id=1, date=datetime(year=2000, month=1, day=3), status="To Do"
     ),
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=7), status="In Progress"
+        ticket_id=1, date=datetime(year=2000, month=1, day=10), status="Done"
     ),
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=10), status="Done"
+        ticket_id=1, date=datetime(year=2000, month=1, day=7), status="In Progress"
     ),
 ]
 

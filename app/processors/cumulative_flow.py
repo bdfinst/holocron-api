@@ -2,149 +2,180 @@
 
 Cumulative flow data is weekly data that contains backlog and wip keys.
 One list entry for each ticket that was in the corresponding status that week.
-The value of that entry is the age of the ticket in days.
-This is calculated from the date the ticket was created,
-and compared to either the end of the week, or when the ticket changed state.
+The value of that entry -1 if that is not the last week of activity for
+the ticket, otherwise the value is the age of the ticket (business days not counting
+weekends).
 """
+from collections import OrderedDict
 from datetime import datetime, timedelta
-from typing import List, NamedTuple, Union
+from typing import Dict, List, Union
 
-from app.models import Ticket
+from app.models import StatusHistory, Ticket
 
-from .types import ChartData, DateValue
+from .types import ChartData
 from .utils import (
+    IN_PROGRESS,
     days_between_dates,
-    flat_map,
+    get_fmt_year_week,
     is_completed_ticket,
     is_epic_or_subtask_ticket,
-    values_by_week,
+    is_no_effort_ticket,
+    total_days_diff,
 )
 
-TO_DO_STATUS = "To Do"
-IN_PROGRESS_STATUS = "In Progress"
-NOT_STARTED_STATUS = ""
-
-ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7
-
-
-class DateValueWithStatus(NamedTuple):
-    """DateValue with an additional status string."""
-
-    date: datetime
-    value: Union[int, float]
-    status: str
-
-
-def status_snap_shot(date: datetime, ticket: Ticket) -> str:
-    """Check the status of a ticket at a given time."""
-    next_status_date = ticket.status_history[0].date
-    if date < next_status_date:
-        return NOT_STARTED_STATUS
-    index = 0
-    while date > next_status_date and index < len(ticket.status_history) - 1:
-        index += 1
-        next_status_date = ticket.status_history[index].date
-    if date < next_status_date:
-        index -= 1
-    return ticket.status_history[index].status
+# data structure that store the
+# week distribution for the category (wip or backlog)
+# where week is str in the format <year_number>_<week_number>
+# and value is the age of the ticket in the given week.
+WeekDistribution = Dict[str, Union[int, float]]
+# data structure that stores the (wip, and backlog)
+# as keys for dictionary, and the week distribution
+# as value for a ticket (based on how many days
+# the ticket was in progress or in backlog).
+TicketCumFlowDistribution = Dict[str, WeekDistribution]
+# Done status
+DONE_STATUS = "Done"
 
 
-def build_date_list(dates: List[datetime]) -> List[datetime]:
-    """Create a list of dates.
-
-    Includes each end of week (Friday at 11:59pm) and each status change.
-    Takes a list of status change dates, and adds each end of week to the list in order.
-    """
-    index = 0
-    date_to_check = dates[index]
-    days_to_add = {
-        0: 4,  # monday is 0, we add 4 days
-        1: 3,
-        2: 2,
-        3: 1,
-        4: 0,
-        5: 6,
-        6: 5,
-    }
-    while date_to_check < dates[-1]:
-        date_to_check += timedelta(days=days_to_add[date_to_check.weekday()])
-        if date_to_check.hour == 23 and date_to_check.minute == 59:
-            date_to_check += timedelta(days=7)
-        date_to_check = date_to_check.replace(hour=23, minute=59)
-        index += 1
-        if date_to_check > dates[index]:
-            date_to_check = dates[index]
+def get_hist_stat_at_date(
+    date: datetime, latest_stat_hist4unique_weeks: List[StatusHistory]
+) -> str:
+    """Return the status history of the ticket on a given date."""
+    # binary search the status since the ticket status histories are
+    # sorted, and return what the status would be
+    # on the given date.
+    low_idx, high_idx = 0, len(latest_stat_hist4unique_weeks) - 1
+    while low_idx < high_idx:
+        mid_idx = (low_idx + high_idx) // 2
+        if date < latest_stat_hist4unique_weeks[mid_idx].date:
+            high_idx = mid_idx - 1
+        elif date > latest_stat_hist4unique_weeks[mid_idx].date:
+            low_idx = mid_idx + 1
         else:
-            dates.insert(index, date_to_check)
-    return dates
-
-
-def is_unique(
-    datevalue: DateValueWithStatus, datevaluelist: List[DateValueWithStatus]
-) -> bool:
-    """Check if the list contains another entry with the same week and status."""
-    match = next(
-        (
-            d
-            for d in datevaluelist
-            if d.date.isocalendar().week == datevalue.date.isocalendar().week
-            and d.status == datevalue.status
-        ),
-        None,
+            break
+    # after binary search is finished, we need to
+    # find where it would be.
+    closest_match, is_first_date, is_last_date = (
+        latest_stat_hist4unique_weeks[low_idx],
+        low_idx == 0,
+        low_idx == len(latest_stat_hist4unique_weeks) - 1,
     )
-    return match is None
+    if closest_match.date > date and not is_first_date:
+        before_closest_match = latest_stat_hist4unique_weeks[low_idx - 1]
+        return before_closest_match.status
+    if closest_match.date < date and not is_last_date:
+        after_closest_match = latest_stat_hist4unique_weeks[low_idx + 1]
+        return after_closest_match.status
+    return closest_match.status
 
 
-def to_age_data(ticket: Ticket) -> List[DateValueWithStatus]:
-    """Create the DateValueWithStatus list for a given ticket."""
-    date_list = [history.date for history in ticket.status_history]
+def get_uniq_weeks_latest_stat_hists(ticket: Ticket) -> List[StatusHistory]:
+    """Return status history with activity based on latest date with unique weeks."""
+    # example, if ticket.status_history contains
+    # two dates that are both in the same week,
+    # then the value for the week_to_max_stat_hist
+    # will contain the history item containing the latest date
+    uniq_week_stat_hist: Dict[str, StatusHistory] = OrderedDict()
+    # skip done status
+    hists_with_activity = iter(
+        h for h in ticket.status_history if h.status != DONE_STATUS
+    )
+    for history in hists_with_activity:
+        week = get_fmt_year_week(history.date)
+        uniq_week_stat_hist[week] = history
+    return [history for _, history in uniq_week_stat_hist.items()]
+
+
+def get_last_activity_date(ticket: Ticket) -> datetime:
+    """Return the last activity of a ticket before done otherwise current date."""
     if not is_completed_ticket(ticket):
-        date_list.append(datetime.now())
-    date_list = build_date_list(date_list)
-    result: List[DateValueWithStatus] = []
-    for date in date_list:
-        days = days_between_dates(date_list[0], date)
-        if len(result) > 0:
-            result.append(DateValueWithStatus(date, days, result[-1].status))
-        result.append(DateValueWithStatus(date, days, status_snap_shot(date, ticket)))
-    if is_completed_ticket(ticket):
-        days = days_between_dates(date_list[0], date_list[-1])
-        result.append(DateValueWithStatus(date_list[-1], days, result[-1].status))
-        result.append(
-            DateValueWithStatus(
-                date_list[-1],
-                days,
-                status_snap_shot(date_list[-1], ticket),
-            )
-        )
+        return datetime.now()
+    idx_of_last_activity_status = next(
+        (
+            i
+            for i in range(len(ticket.status_history) - 1, -1, -1)
+            if ticket.status_history[i].status != DONE_STATUS
+        ),
+    )
+    return ticket.status_history[idx_of_last_activity_status].date
 
-    return [
-        item
-        for index, item in enumerate(result)
-        if is_unique(item, result[index + 1 :])
-    ]
+
+def get_ticket_cum_flow(ticket: Ticket) -> TicketCumFlowDistribution:
+    """Return the cumulative flow distribution for a ticket."""
+
+    def get_cum_flow_bucket(ticket_status: str) -> str:
+        """Return the bucket the value goes in given ticket status."""
+        return "wip" if ticket_status == IN_PROGRESS else "backlog"
+
+    ticket_cum_flow = {"wip": {}, "backlog": {}}
+    first_activity_date, last_activity_date = (
+        ticket.status_history[0].date,
+        get_last_activity_date(ticket),
+    )
+    # first fill in the
+    # status history buckets for
+    # ticket_cum_flow based off of dates
+    # that exist in status history.
+    latest_stat_hist4unique_weeks = get_uniq_weeks_latest_stat_hists(ticket)
+    for history in latest_stat_hist4unique_weeks:
+        week = get_fmt_year_week(history.date)
+        bucket = get_cum_flow_bucket(history.status)
+        ticket_cum_flow[bucket][week] = -1
+
+    # then fill in the gaps with week
+    # that are formed from status history
+    curr_date = first_activity_date
+    days_diff = total_days_diff(curr_date, last_activity_date)
+    while days_diff >= 1:
+        week = get_fmt_year_week(curr_date)
+        hist_status = get_hist_stat_at_date(curr_date, latest_stat_hist4unique_weeks)
+        bucket = get_cum_flow_bucket(hist_status)
+        # if the ticket bucket week value has not already been
+        # set based on latest_stat_hist4unique_weeks, then set the week
+        # data with the given bucket ("wip" or "backlog")
+        if (
+            week not in ticket_cum_flow["wip"]
+            and week not in ticket_cum_flow["backlog"]
+        ):
+            ticket_cum_flow[bucket][week] = -1
+        curr_date, days_diff = curr_date + timedelta(days=1), days_diff - 1
+    # at this point we might have some days_diff > 0
+    # but we do not care, since we only care about
+    # which week it would be at given the last
+    # activity date.
+    last_week = get_fmt_year_week(last_activity_date)
+    last_week_status = get_hist_stat_at_date(
+        last_activity_date, latest_stat_hist4unique_weeks
+    )
+    last_week_bucket = get_cum_flow_bucket(last_week_status)
+    ticket_cum_flow[last_week_bucket][last_week] = days_between_dates(
+        first_activity_date, last_activity_date
+    )
+    return ticket_cum_flow
 
 
 def process_cumulative_flow(tickets: List[Ticket]) -> ChartData:
     """Process tickets into cumulative flow data."""
-    tickets_that_matter = [
-        ticket for ticket in tickets if not is_epic_or_subtask_ticket(ticket)
-    ]
-    age_history = flat_map(tickets_that_matter, to_age_data)
+    tickets_that_matter = iter(
+        ticket
+        for ticket in tickets
+        if not is_epic_or_subtask_ticket(ticket) and not is_no_effort_ticket(ticket)
+    )
+    cumulative_flow = {"backlog": {}, "wip": {}}
 
-    return {
-        "backlog": values_by_week(
-            [
-                DateValue(item.date, item.value)
-                for item in age_history
-                if item.status == TO_DO_STATUS and item.value != 0
-            ]
-        ),
-        "wip": values_by_week(
-            [
-                DateValue(item.date, item.value)
-                for item in age_history
-                if item.status == IN_PROGRESS_STATUS and item.value != 0
-            ]
-        ),
-    }
+    def upsert_ticket_cum_flow(week: str, value: Union[float, int], bucket: str):
+        """Upsert value into cumulative_flow bucket."""
+        if week not in cumulative_flow[bucket]:
+            cumulative_flow[bucket][week] = [value]
+        else:
+            cumulative_flow[bucket][week].append(value)
+
+    for ticket in tickets_that_matter:
+        ticket_cum_flow = get_ticket_cum_flow(ticket)
+        wip, backlog = ticket_cum_flow["wip"], ticket_cum_flow["backlog"]
+        for week, value in wip.items():
+            upsert_ticket_cum_flow(week, value, "wip")
+        for week, value in backlog.items():
+            upsert_ticket_cum_flow(week, value, "backlog")
+
+    return cumulative_flow
