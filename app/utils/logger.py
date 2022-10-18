@@ -9,6 +9,7 @@ class StreamFormatter(logging.Formatter):
     """Logging Formatter to add colors and count warning / errors."""
 
     GREY = "\x1b[38;21m"
+    GREEN = "\x1b[1;32m"
     YELLOW = "\x1b[33;21m"
     RED = "\x1b[31;21m"
     BOLD_RED = "\x1b[31;1m"
@@ -17,7 +18,7 @@ class StreamFormatter(logging.Formatter):
 
     FORMATS = {
         logging.DEBUG: GREY + MSG_FORMAT + RESET,
-        logging.INFO: GREY + MSG_FORMAT + RESET,
+        logging.INFO: GREEN + MSG_FORMAT + RESET,
         logging.WARNING: YELLOW + MSG_FORMAT + RESET,
         logging.ERROR: RED + MSG_FORMAT + RESET,
         logging.CRITICAL: BOLD_RED + MSG_FORMAT + RESET,

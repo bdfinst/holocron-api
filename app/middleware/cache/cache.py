@@ -1,4 +1,5 @@
 """Class."""
+import logging
 import time
 from dataclasses import dataclass, field
 from threading import Thread
@@ -43,7 +44,13 @@ class Cache:
     def _run_cache(self):
         """Run cache update on a timer. Use in a thread."""
         while True:
+            logging.info("---Running calculations for metrics.---")
+            start = time.time()
             self._update_cache()
+            end = time.time()
+            logging.info(f"---Took {round(end - start, 2)} seconds.---")
+            logging.info("---Done running calculations and updating cache.---")
+            logging.info(f"---Going to sleep for {self.update_time} seconds.---")
             time.sleep(self.update_time)
 
     def start(self):
