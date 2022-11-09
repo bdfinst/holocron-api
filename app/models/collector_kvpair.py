@@ -1,9 +1,8 @@
 """Collector KV Pair model."""
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 
-from app.models import Collector
-
 from ._base import MetadataBase, ModelBase
+from .collector import Collector
 
 
 # This is just a model
