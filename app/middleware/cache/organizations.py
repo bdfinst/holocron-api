@@ -9,5 +9,9 @@ TEN_MINUTES = 600
 
 
 organizations_cache = Cache(
-    MetricsSchema(), organizations_crud, TEN_MINUTES, process_organization
+    MetricsSchema(),
+    organizations_crud,
+    TEN_MINUTES,
+    process_organization,
+    "calculating organization metrics",
 )

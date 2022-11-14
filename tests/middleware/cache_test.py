@@ -14,7 +14,7 @@ class MockSchema(Schema):
     id = fields.Int()
 
 
-mock_cache = cache.Cache(MockSchema(), crud, 0, MagicMock())  # type: ignore
+mock_cache = cache.Cache(MockSchema(), crud, 0, MagicMock(), "test")  # type: ignore
 
 
 def test_start(monkeypatch):

@@ -19,6 +19,7 @@ class Cache:
     crud: BaseCRUD
     update_time: int
     process_func: Callable
+    process_func_desc: str
     data: Dict[int, str] = field(default_factory=dict)
 
     def _get_ids(self) -> Generator[int, None, None]:
@@ -44,12 +45,12 @@ class Cache:
     def _run_cache(self):
         """Run cache update on a timer. Use in a thread."""
         while True:
-            logging.info("---Running calculations for metrics.---")
+            logging.info(f"---Running {self.process_func_desc}.---")
             start = time.time()
             self._update_cache()
             end = time.time()
             logging.info(f"---Took {round(end - start, 2)} seconds.---")
-            logging.info("---Done running calculations and updating cache.---")
+            logging.info("---Done running and updating cache.---")
             logging.info(f"---Going to sleep for {self.update_time} seconds.---")
             time.sleep(self.update_time)
 
