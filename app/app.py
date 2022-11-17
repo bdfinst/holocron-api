@@ -1,4 +1,8 @@
 """Application entrypoint."""
+import atexit
+import logging
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 
 from app import config
@@ -17,6 +21,25 @@ from app.middleware import (
 from app.routes import router
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
+
+
+def register_background_tasks():
+    """Create and start background tasks for app to run."""
+    scheduler = BackgroundScheduler()
+    # adding metrics calculation job for the scheduler
+    scheduler.add_job(
+        organizations_cache.run,
+        "interval",
+        minutes=10,
+        name="Calculate metrics for organizations.",
+    )
+    scheduler.start()
+
+    def on_scheduler_shutdown():
+        logging.info("---Shutting Down Scheduler.---")
+        scheduler.shutdown()
+
+    atexit.register(on_scheduler_shutdown)
 
 
 def create_app():
@@ -39,6 +62,6 @@ def create_app():
     serve_spec(app, spec)
     limiter.init_app(app)
     Database.establish_connection()
-    organizations_cache.start()
+    register_background_tasks()
 
     return app

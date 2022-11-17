@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify
 
 from app.exceptions import HolocronIntegrityError
-from app.middleware import organizations_cache
+from app.middleware import SchemaCacheNotReady, organizations_cache
 from app.security import get_sanitized_id
 
 router = Blueprint("metrics", __name__, url_prefix="/metrics")
@@ -28,6 +28,8 @@ def get_organization_metrics(org_id: str):
           content:
             application/json:
               schema: MetricsSchema
+        202:
+          description: Metrics are still being processed
         404:
           description: Organization not found
     """
@@ -35,4 +37,6 @@ def get_organization_metrics(org_id: str):
         result = organizations_cache.get_entity(get_sanitized_id(org_id))
     except HolocronIntegrityError:
         return "Resource not found", 404
+    except SchemaCacheNotReady:
+        return "Processing not completed", 202
     return jsonify(result), 200

@@ -28,3 +28,13 @@ def test_get_metrics_404(client, mock_cache):
     resp = client.get("/api/v1/metrics/-1")
 
     assert resp.text == expected
+
+
+def test_get_metrics_202(client, mock_cache):
+    """Test GET /api/v1/metrics:id endpoint."""
+    expected = "Processing not completed"
+
+    resp = client.get("/api/v1/metrics/42")
+
+    assert resp.text == expected
+    assert resp.status_code == 202
