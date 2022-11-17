@@ -64,7 +64,6 @@ In addition to the fields below, all models have the following fields.
 | team_id        | integer  | Foreign key to `teams.id`.                                              |
 | name           | string   | The name of the resource collected.                                     |
 | url            | string   | The URL for the resource collected, non-nullable.                       |
-| api_url        | string   | The API URL for the resource collected.                                 |
 | is_deleted     | boolean  | A flag for soft delete.                                                 |
 | board_id       | integer  | If target is a ticketboard, this will be the ID given by the resource.  |
 | pipeline_id    | integer  | If target is a pipeline, this will be the ID given by the resource.     |

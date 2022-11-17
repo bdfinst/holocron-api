@@ -23,8 +23,7 @@ class CollectorTarget(MetadataBase, ModelBase):
     team_id = Column(Integer, ForeignKey(Team.id, ondelete="SET NULL"))
     name = Column(String)
     url = Column(String, nullable=False)
-    api_url = Column(String)
     is_deleted = Column(Boolean, server_default="False")
     last_collected = Column(BigInteger)
 
-    UniqueConstraint(collector_id, api_url)
+    UniqueConstraint(collector_id, url)
