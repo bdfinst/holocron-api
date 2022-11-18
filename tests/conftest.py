@@ -36,6 +36,8 @@ def application(monkeypatch):
     monkeypatch.setattr(app.app.Database, "establish_connection", MagicMock())
     monkeypatch.setattr(app.app, "organizations_cache", MagicMock())
     monkeypatch.setattr(app.app, "set_user", MagicMock())
+    monkeypatch.setattr(app.app, "atexit", MagicMock())
+    monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
     application = app.create_app()
     application.config.update({"TESTING": True})
     return application
