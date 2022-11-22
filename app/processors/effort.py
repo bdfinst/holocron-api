@@ -131,7 +131,9 @@ def process_effort(
         key: {} for key in config.JIRA_TICKET_TYPE_BUCKETS
     }
 
-    def accumulate_ticket_effort(dist: WeekAndEffortTable, table: WeekAndEffortTable):
+    def accumulate_ticket_effort(
+        dist: WeekAndEffortTable, table: WeekAndEffortTableForTickets
+    ):
         """Accumulate ticket effort for each week."""
         for week, effort_spent in dist.items():
             if week in table:

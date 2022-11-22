@@ -2,7 +2,7 @@
 import atexit
 import logging
 
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler  # type: ignore
 from flask import Flask
 
 from app import config

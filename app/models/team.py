@@ -29,3 +29,12 @@ class Team(MetadataBase, ModelBase):
     valuestream_id = Column(Integer, ForeignKey(Valuestream.id), nullable=False)
 
     UniqueConstraint(name, valuestream_id)
+
+
+class TeamHistory(MetadataBase, ModelBase):
+    """Model class."""
+
+    __tablename__ = "team_history"
+
+    team_size = Column(Integer, nullable=False)
+    team_id = Column(Integer, ForeignKey(Team.id, ondelete="CASCADE"), nullable=False)

@@ -12,7 +12,7 @@ from typing import Dict, List, Union
 
 from app.models import StatusHistory, Ticket
 
-from .types import ChartData
+from .types import ChartData, Dict
 from .utils import (
     IN_PROGRESS,
     days_between_dates,
@@ -107,7 +107,10 @@ def get_ticket_cum_flow(ticket: Ticket) -> TicketCumFlowDistribution:
         """Return the bucket the value goes in given ticket status."""
         return "wip" if ticket_status == IN_PROGRESS else "backlog"
 
-    ticket_cum_flow = {"wip": {}, "backlog": {}}
+    ticket_cum_flow: Dict[str, Dict[str, Union[int, float]]] = {
+        "wip": {},
+        "backlog": {},
+    }
     first_activity_date, last_activity_date = (
         ticket.status_history[0].date,
         get_last_activity_date(ticket),
@@ -161,7 +164,10 @@ def process_cumulative_flow(tickets: List[Ticket]) -> ChartData:
         for ticket in tickets
         if not is_epic_or_subtask_ticket(ticket) and not is_no_effort_ticket(ticket)
     )
-    cumulative_flow = {"backlog": {}, "wip": {}}
+    cumulative_flow: Dict[str, Dict[str, List[Union[int, float]]]] = {
+        "backlog": {},
+        "wip": {},
+    }
 
     def upsert_ticket_cum_flow(week: str, value: Union[float, int], bucket: str):
         """Upsert value into cumulative_flow bucket."""
