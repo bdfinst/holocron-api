@@ -11,7 +11,7 @@ from .organization import Organization
 from .pay_rate import PayRate
 from .pipeline import Pipeline
 from .repository import Repository
-from .team import Team
+from .team import Team, TeamHistory
 from .ticket import StatusHistory, Ticket
 from .ticket_board import TicketBoard
 from .user import User
