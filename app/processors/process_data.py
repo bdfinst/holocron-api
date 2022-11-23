@@ -11,6 +11,7 @@ from app.models import (
     Valuestream,
 )
 
+from .code_review_trend import process_code_review_trend
 from .cumulative_flow import process_cumulative_flow
 from .cycle_time_defect import process_cycle_time_defect
 from .deploy_frequency import process_deploy_frequency
@@ -33,6 +34,7 @@ class Metrics(NamedTuple):
     lead_time_throughput: ChartData
     cycle_time_defect: ChartData
     integration_frequency: ChartData
+    code_review_trend: ChartData
 
 
 class TeamMetrics(NamedTuple):
@@ -104,6 +106,9 @@ def create_empty_week_object() -> Dict[str, Dict[str, List[int]]]:
         "deploy_frequency": {
             "deploys": [],
         },
+        "code_review_trend": {
+            "age_in_days_review_was_open": [],
+        },
     }
 
 
@@ -162,6 +167,7 @@ def process_team(team: Team) -> TeamMetrics:
             lead_time,
             cycle_time_defect,
             integration_frequency,
+            process_code_review_trend(git_requests),
         )
     )
     return TeamMetrics(

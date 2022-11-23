@@ -87,6 +87,9 @@ def test_process_organization(monkeypatch):
                     "deploy_frequency": {
                         "deploys": [1, 1],
                     },
+                    "code_review_trend": {
+                        "age_in_days_review_was_open": [],
+                    },
                 },
                 "2000_02": {
                     "effort_hours": {
@@ -124,6 +127,9 @@ def test_process_organization(monkeypatch):
                     },
                     "deploy_frequency": {
                         "deploys": [],
+                    },
+                    "code_review_trend": {
+                        "age_in_days_review_was_open": [],
                     },
                 },
             },
