@@ -9,7 +9,7 @@ from app.processors.utils import (
     days_between_dates,
     flat_map,
     get_fmt_year_week,
-    total_days_diff,
+    total_days_diff_workflow,
     values_by_week,
 )
 from tests.mocks import config
@@ -66,7 +66,7 @@ def test_total_days_diff():
     ]
     for test_case in test_cases:
         description, input_case, expected = test_case
-        assert total_days_diff(*input_case) == expected, description
+        assert total_days_diff_workflow(*input_case) == expected, description
 
 
 def test_flat_map():

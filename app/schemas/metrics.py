@@ -64,6 +64,12 @@ class EffortSchema(MetricsSchemaBase):
     maintenance = List(Number())
 
 
+class CodeReviewTrendSchema(MetricsSchemaBase):
+    """Schema for code review trend data."""
+
+    age_in_days_review_was_open = List(Number())
+
+
 class WeeklyDataSchema(MetricsSchemaBase):
     """Schema for weekly data of team metrics."""
 
@@ -74,6 +80,7 @@ class WeeklyDataSchema(MetricsSchemaBase):
     integration_frequency = Nested(IntegrationFrequencySchema)
     cumulative_flow = Nested(CumulativeFlowSchema)
     deploy_frequency = Nested(DeployFrequencySchema)
+    code_review_trend = Nested(CodeReviewTrendSchema)
 
 
 class TeamMetricsSchema(MetricsSchemaBase):

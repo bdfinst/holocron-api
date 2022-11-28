@@ -6,12 +6,24 @@ of numbers where each item represents the GitRequest, and
 the number for the item is the amount in days the
 GitRequest was open from last_updated to merged_at.
 """
+from datetime import datetime
 from typing import List
 
 from app.models import GitRequest
 
 from .types import ChartData, DateValue
-from .utils import total_days_diff, values_by_week
+from .utils import values_by_week
+
+
+def total_days_diff(start: datetime, end: datetime) -> float:
+    """Return the total number of days between two dates."""
+    hours_per_day = 24
+    seconds_per_day = 60 * 60 * hours_per_day
+    time_delta = end - start
+    actual_days_effort = time_delta.days + time_delta.seconds / seconds_per_day
+
+    precision_factor = 10
+    return round(actual_days_effort * precision_factor) / precision_factor
 
 
 def to_code_review_trend_date_value(git_request: GitRequest) -> DateValue:
