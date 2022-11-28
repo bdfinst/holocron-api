@@ -20,10 +20,10 @@ def total_days_diff(start: datetime, end: datetime) -> float:
     hours_per_day = 24
     seconds_per_day = 60 * 60 * hours_per_day
     time_delta = end - start
-    actual_days_effort = time_delta.days + time_delta.seconds / seconds_per_day
+    days_diff = time_delta.days + time_delta.seconds / seconds_per_day
 
     precision_factor = 10
-    return round(actual_days_effort * precision_factor) / precision_factor
+    return round(days_diff * precision_factor) / precision_factor
 
 
 def to_code_review_trend_date_value(git_request: GitRequest) -> DateValue:
