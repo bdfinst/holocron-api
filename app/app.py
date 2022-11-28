@@ -30,7 +30,7 @@ def register_background_tasks():
     scheduler.add_job(
         organizations_cache.run,
         "interval",
-        minutes=1,
+        minutes=10,
         name="Calculate metrics for organizations.",
     )
     scheduler.start()
