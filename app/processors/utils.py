@@ -39,7 +39,7 @@ def values_by_week(data: List[DateValue]) -> WeeklyData:
     return values
 
 
-def total_days_diff(start: datetime, end: datetime) -> float:
+def total_days_diff_workflow(start: datetime, end: datetime) -> float:
     """Return the total number of days between two dates."""
     hours_per_day = 24
     seconds_per_day = 60 * 60 * hours_per_day

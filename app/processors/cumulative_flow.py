@@ -20,7 +20,7 @@ from .utils import (
     is_completed_ticket,
     is_epic_or_subtask_ticket,
     is_no_effort_ticket,
-    total_days_diff,
+    total_days_diff_workflow,
 )
 
 # data structure that store the
@@ -128,7 +128,7 @@ def get_ticket_cum_flow(ticket: Ticket) -> TicketCumFlowDistribution:
     # then fill in the gaps with week
     # that are formed from status history
     curr_date = first_activity_date
-    days_diff = total_days_diff(curr_date, last_activity_date)
+    days_diff = total_days_diff_workflow(curr_date, last_activity_date)
     while days_diff >= 1:
         week = get_fmt_year_week(curr_date)
         hist_status = get_hist_stat_at_date(curr_date, latest_stat_hist4unique_weeks)
