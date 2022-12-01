@@ -1,4 +1,6 @@
 """Schema for User model."""
+from typing import Tuple
+
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from app.models import User
@@ -14,3 +16,4 @@ class UserSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = User
         include_relationships = True
+        exclude: Tuple[str, ...] = ("sso_id",)
