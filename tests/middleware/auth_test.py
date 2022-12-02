@@ -13,7 +13,7 @@ from app.middleware import (
     return_user,
     set_user,
 )
-from app.models import Team
+from app.models import Team, User
 from tests.mocks import crud, request
 
 
@@ -120,7 +120,7 @@ def test_requires_admin_or_member_member(mock_request, monkeypatch):
     setattr(mock_request, "user", {"id": 1, "isAdmin": False, "username": "t"})
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
     monkeypatch.setattr(
-        auth.teams_crud, "get_entity", MagicMock(return_value=Team(users=[1]))
+        auth.teams_crud, "get_entity", MagicMock(return_value=Team(users=[User(id=1)]))
     )
 
     result = requires_admin_or_member(wrapped_test_func)(team_id=1)
