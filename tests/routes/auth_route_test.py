@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from pytest import fixture
 
 from app.middleware import auth
-from app.models import Team
+from app.models import Team, User
 from app.routes import pay_rates, teams, users
 from tests.mocks import crud, request
 
@@ -65,7 +65,7 @@ def test_requires_admin_or_member_member_example_route(
     """Test PUT /api/v1/team endpoint as example for requires_admin_or_member."""
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
     test_cases = [
-        ("""should allow team members to update team""", False, [1], 200),
+        ("""should allow team members to update team""", False, [User(id=1)], 200),
         ("""should allow admins to update team""", True, [], 200),
         (
             """should not allow non team members and non team admins to update""",

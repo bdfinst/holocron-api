@@ -90,7 +90,7 @@ def requires_admin_or_member(func: Callable) -> Callable:
             return func(*args, **kwargs)
         with generate_session() as session:
             team = teams_crud.get_entity(session, kwargs["team_id"])
-            if user["id"] in team.users:
+            if any(team_usr.id == user["id"] for team_usr in team.users):
                 return func(*args, **kwargs)
         log_unpriviledge_user_access(user, "ADMIN OR MEMBER")
         return INVALID_PERMISSIONS, 403
