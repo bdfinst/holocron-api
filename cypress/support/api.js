@@ -1,4 +1,4 @@
-const apiUrl = Cypress.config('apiUrl')
+const apiUrl = `${Cypress.config('baseUrl')}/api/v1`
 
 const headers = { authorization: Cypress.env('TOKEN') }
 
