@@ -1,8 +1,0 @@
-{
-  "video": false,
-  "baseUrl": "http://localhost",
-  "apiUrl": "http://localhost/api/v1",
-  "viewportWidth": 1280,
-  "viewportHeight": 800,
-  "mode": "development"
-}
