@@ -80,8 +80,19 @@ def test_requires_admin_or_member_member_example_route(
         monkeypatch.setattr(
             auth.teams_crud,
             "get_entity",
-            MagicMock(return_value=Team(users=team_admins)),
+            MagicMock(return_value=Team(users=team_admins, team_size=1)),
         )
-        json = {"name": "test", "valuestreamId": 1, "teamSize": 1}
+        monkeypatch.setattr(
+            teams.teams_crud,
+            "get_entity",
+            MagicMock(return_value=Team(users=team_admins, team_size=1)),
+        )
+        monkeypatch.setattr(
+            teams.teams_crud,
+            "update_entity",
+            MagicMock(return_value=Team(name="test2", users=team_admins, team_size=1)),
+        )
+
+        json = {"name": "test2", "valuestreamId": 1, "teamSize": 1}
         resp = client.put("/api/v1/teams/1", json=json)
         assert resp.status_code == expected, description

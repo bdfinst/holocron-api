@@ -18,6 +18,7 @@ from app.middleware import (
     set_user,
     validate_text,
 )
+from app.processors import team_history
 from app.routes import router
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
@@ -32,6 +33,12 @@ def register_background_tasks():
         "interval",
         minutes=10,
         name="Calculate metrics for organizations.",
+    )
+    scheduler.add_job(
+        team_history.delete_outdated_team_history,
+        "interval",
+        days=7,
+        name="Delete outdated team history data",
     )
     scheduler.start()
 
