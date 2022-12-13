@@ -29,7 +29,7 @@ def log_security_event(event_description: str):
 
 
 def get_sanitized_id(id_: str) -> int:
-    """Get the id from a user id to query for database."""
+    """Get the integer id from user input id."""
     try:
         return int(id_)
     except Exception as err:

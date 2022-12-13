@@ -1,11 +1,15 @@
 """Team routes."""
+from typing import Any
+
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.crud import teams_crud
+from app.crud.team_history import team_history_crud
+from app.crud.teams import teams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin_or_member
+from app.models import Team
 from app.schemas import TeamSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
@@ -70,10 +74,16 @@ def create_team():
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_team = teams_crud.create_entity(session, data)
+            raw_team: Team = teams_crud.create_entity(session, data)
         except HolocronIntegrityError as err:
             return err.messages, 400
-        result = schema.dump(raw_team)
+        result: dict[str, Any] = schema.dump(raw_team)
+
+        try:
+            team_history_crud.create_entity(session, raw_team)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
+
     return jsonify(result), 201
 
 
@@ -146,13 +156,23 @@ def update_team(team_id: str):
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
     with generate_session() as session:
+
+        db_team_id = get_sanitized_id(team_id)
+
+        old_team_data = teams_crud.get_entity(session, db_team_id)
+
         try:
-            raw_team = teams_crud.update_entity(
-                session, data, get_sanitized_id(team_id)
-            )
+            raw_team = teams_crud.update_entity(session, data, db_team_id)
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_team)
+
+        if raw_team.team_size != old_team_data.team_size:
+            try:
+                team_history_crud.create_entity(session, raw_team)
+            except HolocronIntegrityError as err:
+                return err.messages, 400
+
     return jsonify(result), 200
 
 

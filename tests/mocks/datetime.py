@@ -1,4 +1,5 @@
 """Mock datetime."""
+from datetime import timezone
 
 
 class MockDateTime:
@@ -8,6 +9,6 @@ class MockDateTime:
         """Initialize with datetime."""
         self.datetime = datetime
 
-    def now(self):
+    def now(self, timezone=timezone.utc):
         """Mock now function."""
         return self.datetime

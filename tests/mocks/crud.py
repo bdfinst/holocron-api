@@ -1,5 +1,6 @@
 """Mock for all CRUD modules."""
 from app.exceptions import HolocronIntegrityError
+from app.models import Team, TeamHistory
 
 
 class MockCRUD:
@@ -47,4 +48,17 @@ class MockCRUD:
         return json
 
 
+class TeamHistoryCRUD(MockCRUD):
+    """TeamHistory Mock CRUD class."""
+
+    def create_entity(self, session, team: Team):
+        """Mock create_entity method."""
+        new_team_history = TeamHistory(
+            team_size=team.team_size,
+            team_id=team.id,
+        )
+        return new_team_history
+
+
 crud = MockCRUD()
+team_history_crud = TeamHistoryCRUD()
