@@ -19,7 +19,7 @@ def to_code_review_trend_date_value(git_request: GitRequest) -> DateValue:
     """Get the DateValue for a git_request's merged_at."""
     return DateValue(
         git_request.merged_at,
-        total_days_diff(git_request.last_updated, git_request.merged_at),
+        total_days_diff(git_request.first_created, git_request.merged_at),
     )
 
 
