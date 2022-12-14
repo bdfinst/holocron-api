@@ -15,6 +15,7 @@ class GitRequest(MetadataBase, ModelBase):
     )
     title = Column(String(), nullable=False)
     is_open = Column(Boolean)
+    first_created = Column(DateTime, nullable=False)
     merged_at = Column(DateTime)
     last_updated = Column(DateTime, nullable=False)
     url = Column(String, nullable=False, unique=True)

@@ -98,6 +98,7 @@ In addition to the fields below, all models have the following fields.
 |repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
 |title|string|The title of the request, non-nullable.|
 |is_open|boolean|Flag as to whether the commit is currently open.|
+|first_created|When the request was first created.|
 |merged_at|datetime|When the request was merged.|
 |last_updated|datetime|When the request was last updated.|
 |url|string|The URL of the request, unique and non-nullable.|
