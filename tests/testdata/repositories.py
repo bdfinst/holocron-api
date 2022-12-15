@@ -23,7 +23,7 @@ git_requests = [
         repository_id=1,
         title="test request",
         is_open=True,
-        first_created=datetime(year=2000, month=1, day=3),
+        first_opened=datetime(year=2000, month=1, day=3),
         last_updated=datetime(year=2000, month=1, day=3),
         url="https://test-mr/-/23",
     ),
