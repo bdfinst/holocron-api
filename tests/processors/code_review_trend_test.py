@@ -16,7 +16,7 @@ def test_process_code_review_trend(monkeypatch):
                     title="test",
                     is_open=True,
                     merged_at=None,
-                    first_created=datetime(year=2000, month=1, day=25),
+                    first_opened=datetime(year=2000, month=1, day=25),
                 )
             ],
             {
@@ -25,7 +25,7 @@ def test_process_code_review_trend(monkeypatch):
         ),
         (
             """should calculate the days difference between merged_at
-            and first_created, and include that calculation on the
+            and first_opened, and include that calculation on the
             week of the merged_at date.""",
             [
                 # ignored
@@ -34,7 +34,7 @@ def test_process_code_review_trend(monkeypatch):
                     title="test",
                     is_open=True,
                     merged_at=None,
-                    first_created=datetime(year=2000, month=1, day=25),
+                    first_opened=datetime(year=2000, month=1, day=25),
                 ),
                 # week { "2000_01": 5 }
                 GitRequest(
@@ -42,7 +42,7 @@ def test_process_code_review_trend(monkeypatch):
                     title="test2",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=9),
-                    first_created=datetime(year=2000, month=1, day=4),
+                    first_opened=datetime(year=2000, month=1, day=4),
                 ),
                 # week { "2000_02": 11 }
                 GitRequest(
@@ -50,7 +50,7 @@ def test_process_code_review_trend(monkeypatch):
                     title="test3",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=15),
-                    first_created=datetime(year=2000, month=1, day=4),
+                    first_opened=datetime(year=2000, month=1, day=4),
                 ),
                 # week { "2000_01": 0.5 }
                 GitRequest(
@@ -58,7 +58,7 @@ def test_process_code_review_trend(monkeypatch):
                     title="test4",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=5, hour=12),
-                    first_created=datetime(year=2000, month=1, day=5),
+                    first_opened=datetime(year=2000, month=1, day=5),
                 ),
             ],
             {
