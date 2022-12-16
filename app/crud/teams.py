@@ -1,18 +1,28 @@
 """BaseCRUD extension and instance for Team model."""
 import logging
-from typing import Any, Dict
+from dataclasses import dataclass
+from typing import Any, Dict, Set
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
-from app.models import Team
+from app.models import Team, TicketBoard
 
 from ._base import BaseCRUD
 from .collector_targets import collector_targets_crud
 from .users import users_crud
 
 _USED_MSG = "already in use"
+
+
+@dataclass
+class TeamValidationData:
+    """Class used to help in data validation logic."""
+
+    team: Team
+    all_ticket_board_ids: Set[int]
 
 
 def validate_business_logic_create(team: Team):
@@ -48,6 +58,22 @@ def validate_business_logic_update(team: Team):
             raise HolocronIntegrityError(invalid_field, reason_for_invalid)
 
 
+def get_team_validation_data(session: Session, team: Team) -> TeamValidationData:
+    """Return team validation data."""
+    all_ticket_boards = session.scalars(
+        select(TicketBoard).where(TicketBoard.board_id.is_not(None))
+    ).all()
+    return TeamValidationData(team, {t.id for t in all_ticket_boards})
+
+
+def is_workflow_only(team_validation_data: TeamValidationData) -> bool:
+    """Return if team only has workflow data."""
+    return all(
+        t.id in team_validation_data.all_ticket_board_ids
+        for t in team_validation_data.team.collector_targets
+    )
+
+
 class TeamsCRUD(BaseCRUD[Team]):
     """Base CRUD extension for Team model."""
 
@@ -68,6 +94,8 @@ class TeamsCRUD(BaseCRUD[Team]):
             collector_targets_crud.get_entity(session, target_id)
             for target_id in json.get("collector_target_ids", [])
         ]
+        team_validation_data = get_team_validation_data(session, new_team)
+        new_team.is_workflow_only = is_workflow_only(team_validation_data)
         validate_business_logic_create(new_team)
         try:
             session.add(new_team)
@@ -98,6 +126,8 @@ class TeamsCRUD(BaseCRUD[Team]):
             collector_targets_crud.get_entity(session, target_id)
             for target_id in json.get("collector_target_ids", [])
         ]
+        team_validation_data = get_team_validation_data(session, team)
+        team.is_workflow_only = is_workflow_only(team_validation_data)
         validate_business_logic_update(team)
         try:
             session.add(team)

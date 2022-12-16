@@ -52,7 +52,11 @@ def test_create_team(client, mock_crud, monkeypatch):
     monkeypatch.setattr(
         teams.teams_crud,
         "create_entity",
-        MagicMock(return_value=Team(id=1, team_size=1, name="test", valuestream_id=1)),
+        MagicMock(
+            return_value=Team(
+                id=1, team_size=1, name="test", valuestream_id=1, is_workflow_only=False
+            )
+        ),
     )
 
     resp = client.post("/api/v1/teams", json=json)
@@ -66,6 +70,7 @@ def test_create_team(client, mock_crud, monkeypatch):
         "createdAt": None,
         "updatedAt": None,
         "users": [],
+        "isWorkflowOnly": False,
     }
 
     assert resp.json == expected
@@ -101,18 +106,36 @@ def test_update_team(client, mock_crud, monkeypatch):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {"name": "test2", "valuestreamId": 1, "teamSize": 1}
     expected = dict(
-        id=1, collectorTargets=[], createdAt=None, updatedAt=None, users=[], **json
+        id=1,
+        collectorTargets=[],
+        createdAt=None,
+        updatedAt=None,
+        users=[],
+        isWorkflowOnly=False,
+        **json
     )
 
     monkeypatch.setattr(
         teams.teams_crud,
         "get_entity",
-        MagicMock(return_value=Team(id=1, team_size=1, name="test", valuestream_id=1)),
+        MagicMock(
+            return_value=Team(
+                id=1, team_size=1, name="test", valuestream_id=1, is_workflow_only=False
+            )
+        ),
     )
     monkeypatch.setattr(
         teams.teams_crud,
         "update_entity",
-        MagicMock(return_value=Team(id=1, team_size=1, name="test2", valuestream_id=1)),
+        MagicMock(
+            return_value=Team(
+                id=1,
+                team_size=1,
+                name="test2",
+                valuestream_id=1,
+                is_workflow_only=False,
+            )
+        ),
     )
 
     resp = client.put("/api/v1/teams/1", json=json)

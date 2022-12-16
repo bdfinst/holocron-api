@@ -1,5 +1,13 @@
 """Holocron team model."""
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from ._base import MetadataBase, ModelBase
@@ -27,6 +35,7 @@ class Team(MetadataBase, ModelBase):
     repositories = relationship("Repository", overlaps="collector_targets")
     ticket_boards = relationship("TicketBoard", overlaps="collector_targets")
     valuestream_id = Column(Integer, ForeignKey(Valuestream.id), nullable=False)
+    is_workflow_only = Column(Boolean, nullable=False, server_default="False")
 
     UniqueConstraint(name, valuestream_id)
 
