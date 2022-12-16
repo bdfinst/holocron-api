@@ -1,12 +1,15 @@
 """Team CRUD tests."""
 from unittest.mock import MagicMock
 
-from pytest import raises
+from pytest import fixture, raises
 from sqlalchemy.exc import IntegrityError
 
-from app.crud import collector_targets_crud, teams_crud
+from app.crud import collector_targets_crud
+from app.crud import teams as teams_crud_mod
+from app.crud import teams_crud
+from app.crud.teams import TeamValidationData, is_workflow_only
 from app.exceptions import HolocronIntegrityError
-from app.models import Repository
+from app.models import Repository, Team, TicketBoard
 from tests.utils import first_argument
 
 json = {
@@ -18,7 +21,38 @@ json = {
 }
 
 
-def test_create_entity(mock_session):
+@fixture
+def mock_get_team_validation_data(monkeypatch):
+    """Mock get_team_validation_data in app.crud.teams."""
+    monkeypatch.setattr(
+        teams_crud_mod,
+        "get_team_validation_data",
+        lambda _, team: TeamValidationData(team, {}),
+    )
+
+
+def test_is_workflow_only(mock_session):
+    """Test is_workflow_only method."""
+    test_cases = [
+        (
+            """Should return true if team only has ticketboards.""",
+            TeamValidationData(Team(id=1, collector_targets=[TicketBoard(id=1)]), {1}),
+            True,
+        ),
+        (
+            """Should return false otherwise.""",
+            TeamValidationData(
+                Team(id=1, collector_targets=[TicketBoard(id=1), Repository(id=2)]), {1}
+            ),
+            False,
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_value, expected = test_case
+        assert expected == is_workflow_only(input_value), description
+
+
+def test_create_entity(mock_session, mock_get_team_validation_data):
     """Test create_entity method."""
     result = teams_crud.create_entity(mock_session, json)
     team = first_argument(mock_session.add)
@@ -31,7 +65,9 @@ def test_create_entity(mock_session):
     assert result == team
 
 
-def test_create_entity_valuestream_id_error(mock_session):
+def test_create_entity_valuestream_id_error(
+    mock_session, mock_get_team_validation_data
+):
     """Test create_entity method with invalid valuestream id."""
 
     def commit_error():
@@ -46,7 +82,7 @@ def test_create_entity_valuestream_id_error(mock_session):
     assert expected == str(e.value)
 
 
-def test_create_entity_unique_error(mock_session):
+def test_create_entity_unique_error(mock_session, mock_get_team_validation_data):
     """Test create_entity method with uniqueness violation."""
 
     def commit_error():
@@ -61,7 +97,9 @@ def test_create_entity_unique_error(mock_session):
     assert expected == str(e.value)
 
 
-def test_create_entity_collector_targets_error(mock_session, monkeypatch):
+def test_create_entity_collector_targets_error(
+    mock_session, mock_get_team_validation_data, monkeypatch
+):
     """Test create_entity with collector targets error."""
     expected = "collectorTargetIds - already in use"
     mock_team_json = {
@@ -90,7 +128,7 @@ def test_create_entity_collector_targets_error(mock_session, monkeypatch):
     assert expected == str(e.value)
 
 
-def test_create_entity_unknown_error(mock_session):
+def test_create_entity_unknown_error(mock_session, mock_get_team_validation_data):
     """Test create_entity with an unknown error."""
 
     def commit_error():
@@ -105,7 +143,7 @@ def test_create_entity_unknown_error(mock_session):
     assert expected == str(e.value)
 
 
-def test_update_entity(mock_session):
+def test_update_entity(mock_session, mock_get_team_validation_data):
     """Test update_entity method."""
     expected = "SELECT * FROM teams WHERE teams.id = :id_1"
 
@@ -121,7 +159,9 @@ def test_update_entity(mock_session):
     assert result == team
 
 
-def test_update_entity_valuestream_id_error(mock_session):
+def test_update_entity_valuestream_id_error(
+    mock_session, mock_get_team_validation_data
+):
     """Test update_entity method with invalid valuestream id."""
 
     def commit_error():
@@ -136,7 +176,7 @@ def test_update_entity_valuestream_id_error(mock_session):
     assert expected == str(e.value)
 
 
-def test_update_entity_unique_error(mock_session):
+def test_update_entity_unique_error(mock_session, mock_get_team_validation_data):
     """Test update_entity method with uniqueness violation."""
 
     def commit_error():
@@ -151,7 +191,9 @@ def test_update_entity_unique_error(mock_session):
     assert expected == str(e.value)
 
 
-def test_update_entity_collector_targets_error(mock_session, monkeypatch):
+def test_update_entity_collector_targets_error(
+    mock_session, mock_get_team_validation_data, monkeypatch
+):
     """Test update_entity with collector targets error."""
     expected = "collectorTargetIds - already in use"
     mock_team_json = {
@@ -180,7 +222,7 @@ def test_update_entity_collector_targets_error(mock_session, monkeypatch):
     assert expected == str(e.value)
 
 
-def test_update_entity_unknown_error(mock_session):
+def test_update_entity_unknown_error(mock_session, mock_get_team_validation_data):
     """Test update_entity with an unknown error."""
 
     def commit_error():

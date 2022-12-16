@@ -35,6 +35,7 @@ In addition to the fields below, all models have the following fields.
 |name|string|The name of the team, non-nullable.*|
 |team_size|integer|The number of members on the team, non-nullable.|
 |valuestream_id|integer|Foreign key to `valuestreams.id`, non-nullable.*|
+|is_workflow_only|boolean|Team only has workflow data.|
 
 \*Combined unique constraint.
 
