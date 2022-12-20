@@ -90,6 +90,7 @@ def test_process_organization(monkeypatch):
                     "code_review_trend": {
                         "age_in_days_review_was_open": [],
                     },
+                    "team_size_histories": {"team_size": []},
                 },
                 "2000_02": {
                     "effort_hours": {
@@ -131,6 +132,7 @@ def test_process_organization(monkeypatch):
                     "code_review_trend": {
                         "age_in_days_review_was_open": [],
                     },
+                    "team_size_histories": {"team_size": []},
                 },
             },
             data_quality_issues={},

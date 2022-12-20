@@ -160,6 +160,7 @@ def update_team(team_id: str):
         db_team_id = get_sanitized_id(team_id)
 
         old_team_data = teams_crud.get_entity(session, db_team_id)
+        old_team_team_size = old_team_data.team_size
 
         try:
             raw_team = teams_crud.update_entity(session, data, db_team_id)
@@ -167,7 +168,7 @@ def update_team(team_id: str):
             return err.messages, 400
         result = schema.dump(raw_team)
 
-        if raw_team.team_size != old_team_data.team_size:
+        if raw_team.team_size != old_team_team_size:
             try:
                 team_history_crud.create_entity(session, raw_team)
             except HolocronIntegrityError as err:
