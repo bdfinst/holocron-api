@@ -34,6 +34,7 @@ class Team(MetadataBase, ModelBase):
     pipelines = relationship("Pipeline", overlaps="collector_targets")
     repositories = relationship("Repository", overlaps="collector_targets")
     ticket_boards = relationship("TicketBoard", overlaps="collector_targets")
+    team_size_history = relationship("TeamHistory")
     valuestream_id = Column(Integer, ForeignKey(Valuestream.id), nullable=False)
     is_workflow_only = Column(Boolean, nullable=False, server_default="False")
 

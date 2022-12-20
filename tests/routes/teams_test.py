@@ -69,6 +69,7 @@ def test_create_team(client, mock_crud, monkeypatch):
         "collectorTargets": [],
         "createdAt": None,
         "updatedAt": None,
+        "teamSizeHistory": [],
         "users": [],
         "isWorkflowOnly": False,
     }
@@ -112,6 +113,7 @@ def test_update_team(client, mock_crud, monkeypatch):
         updatedAt=None,
         users=[],
         isWorkflowOnly=False,
+        teamSizeHistory=[],
         **json
     )
 
@@ -158,10 +160,22 @@ def test_update_team_validation_error(client, mock_crud):
     assert resp.status_code == 400
 
 
-def test_update_team_database_error(client, mock_crud):
+def test_update_team_database_error(client, mock_crud, monkeypatch):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {"name": "error", "valuestreamId": 1, "teamSize": 1}
     expected = {"error": "error"}
+
+    monkeypatch.setattr(
+        teams.teams_crud,
+        "get_entity",
+        MagicMock(
+            return_value=Team(
+                name="error",
+                valuestream_id=1,
+                team_size=1,
+            )
+        ),
+    )
 
     resp = client.put("/api/v1/teams/1", json=json)
 
