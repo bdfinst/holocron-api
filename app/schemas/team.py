@@ -1,7 +1,7 @@
 """Schema for Team model."""
 from typing import Any, Dict
 
-from marshmallow import fields
+from marshmallow import fields, validate
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Team
@@ -40,8 +40,11 @@ class NewTeamSchema(TeamSchemaBase):
     """New team schema."""
 
     name = fields.Str(required=True, validate=input_name_validator)
-    user_ids = fields.List(fields.Int())
-    collector_target_ids = fields.List(fields.Int())
+    user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
+    collector_target_ids = fields.List(
+        fields.Int(), required=True, validate=validate.Length(min=1)
+    )
+    team_size = fields.Int(required=True, validate=validate.Range(min=1))
 
 
 class TeamSchema:
