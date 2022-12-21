@@ -19,7 +19,7 @@ from .effort import process_effort
 from .integration_frequency import process_integration_frequency
 from .lead_time import process_lead_time
 from .repo_build import get_latest_builds
-from .team_history import process_team_size_histories
+from .team_history import process_team_history
 from .types import ChartData
 from .utils import flat_map
 from .wip_load import process_wip_load
@@ -36,7 +36,7 @@ class Metrics(NamedTuple):
     cycle_time_defect: ChartData
     integration_frequency: ChartData
     code_review_trend: ChartData
-    team_size_histories: ChartData
+    team_history: ChartData
 
 
 class TeamMetrics(NamedTuple):
@@ -111,7 +111,7 @@ def create_empty_week_object() -> Dict[str, Dict[str, List[int]]]:
         "code_review_trend": {
             "age_in_days_review_was_open": [],
         },
-        "team_size_histories": {"team_size": []},
+        "team_history": {"team_size": []},
     }
 
 
@@ -159,7 +159,7 @@ def process_team(team: Team) -> TeamMetrics:
     wip_load = process_wip_load(tickets)
     integration_frequency = process_integration_frequency(integrations)
 
-    team_size = process_team_size_histories(team.team_size_history)
+    team_history = process_team_history(team.team_history)
 
     weekly_data = build_weekly_data(
         Metrics(
@@ -171,7 +171,7 @@ def process_team(team: Team) -> TeamMetrics:
             cycle_time_defect,
             integration_frequency,
             process_code_review_trend(git_requests),
-            team_size,
+            team_history,
         )
     )
     return TeamMetrics(
