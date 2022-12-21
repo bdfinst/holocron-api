@@ -47,7 +47,13 @@ def test_get_team_404(client, mock_crud):
 
 def test_create_team(client, mock_crud, monkeypatch):
     """Test POST /api/v1/teams endpoint."""
-    json = {"name": "test", "valuestreamId": 1, "teamSize": 1}
+    json = {
+        "name": "test",
+        "valuestreamId": 1,
+        "teamSize": 1,
+        "userIds": [1],
+        "collectorTargetIds": [1],
+    }
 
     monkeypatch.setattr(
         teams.teams_crud,
@@ -80,21 +86,58 @@ def test_create_team(client, mock_crud, monkeypatch):
 
 def test_create_team_validation_error(client, mock_crud):
     """Test POST /api/v1/teams endpoint."""
-    json = {"name": "test", "valuestreamId": 1, "extra": "field"}
-    expected = {
-        "teamSize": ["Missing data for required field."],
-        "extra": ["Unknown field."],
-    }
+    MISSING_DATA_MSG = "Missing data for required field."
+    UNKNOWN_FIELD_MSG = "Unknown field."
+    test_cases = [
+        (
+            """should show missing and extra fields.""",
+            {
+                "extra": "field",
+            },
+            {
+                "name": [MISSING_DATA_MSG],
+                "userIds": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
+                "teamSize": [MISSING_DATA_MSG],
+                "extra": [UNKNOWN_FIELD_MSG],
+                "valuestreamId": [MISSING_DATA_MSG],
+            },
+        ),
+        (
+            """should show invalid fields.""",
+            {
+                "name": "",
+                "userIds": [],
+                "collectorTargetIds": [],
+                "teamSize": -1,
+            },
+            {
+                "name": ["String does not match expected pattern."],
+                "userIds": ["Shorter than minimum length 1."],
+                "collectorTargetIds": ["Shorter than minimum length 1."],
+                "teamSize": ["Must be greater than or equal to 1."],
+                "valuestreamId": [MISSING_DATA_MSG],
+            },
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_json, expected_json = test_case
 
-    resp = client.post("/api/v1/teams", json=json)
+        resp = client.post("/api/v1/teams", json=input_json)
 
-    assert resp.json == expected
-    assert resp.status_code == 400
+        assert resp.json == expected_json, description
+        assert resp.status_code == 400, description
 
 
 def test_create_team_database_error(client, mock_crud):
     """Test POST /api/v1/teams endpoint."""
-    json = {"name": "error", "valuestreamId": 1, "teamSize": 1}
+    json = {
+        "name": "error",
+        "valuestreamId": 1,
+        "teamSize": 1,
+        "userIds": [1],
+        "collectorTargetIds": [1],
+    }
     expected = {"error": "error"}
 
     resp = client.post("/api/v1/teams", json=json)
@@ -105,7 +148,13 @@ def test_create_team_database_error(client, mock_crud):
 
 def test_update_team(client, mock_crud, monkeypatch):
     """Test PUT /api/v1/teams/1 endpoint."""
-    json = {"name": "test2", "valuestreamId": 1, "teamSize": 1}
+    json = {
+        "name": "test2",
+        "valuestreamId": 1,
+        "teamSize": 1,
+        "userIds": [1],
+        "collectorTargetIds": [1],
+    }
     expected = dict(
         id=1,
         collectorTargets=[],
@@ -114,7 +163,9 @@ def test_update_team(client, mock_crud, monkeypatch):
         users=[],
         isWorkflowOnly=False,
         teamSizeHistory=[],
-        **json
+        name="test2",
+        teamSize=1,
+        valuestreamId=1,
     )
 
     monkeypatch.setattr(
@@ -148,21 +199,58 @@ def test_update_team(client, mock_crud, monkeypatch):
 
 def test_update_team_validation_error(client, mock_crud):
     """Test PUT /api/v1/teams/1 endpoint."""
-    expected = {
-        "teamSize": ["Missing data for required field."],
-        "extra": ["Unknown field."],
-    }
-    json = {"name": "test", "valuestreamId": 1, "extra": "field"}
+    MISSING_DATA_MSG = "Missing data for required field."
+    UNKNOWN_FIELD_MSG = "Unknown field."
+    test_cases = [
+        (
+            """should show missing and extra fields.""",
+            {
+                "extra": "field",
+            },
+            {
+                "name": [MISSING_DATA_MSG],
+                "userIds": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
+                "teamSize": [MISSING_DATA_MSG],
+                "extra": [UNKNOWN_FIELD_MSG],
+                "valuestreamId": [MISSING_DATA_MSG],
+            },
+        ),
+        (
+            """should show invalid fields.""",
+            {
+                "name": "",
+                "userIds": [],
+                "collectorTargetIds": [],
+                "teamSize": -1,
+            },
+            {
+                "name": ["String does not match expected pattern."],
+                "userIds": ["Shorter than minimum length 1."],
+                "collectorTargetIds": ["Shorter than minimum length 1."],
+                "teamSize": ["Must be greater than or equal to 1."],
+                "valuestreamId": [MISSING_DATA_MSG],
+            },
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_json, expected_json = test_case
 
-    resp = client.put("/api/v1/teams/1", json=json)
+        resp = client.put("/api/v1/teams/1", json=input_json)
 
-    assert resp.json == expected
-    assert resp.status_code == 400
+        assert resp.json == expected_json, description
+        assert resp.status_code == 400, description
 
 
 def test_update_team_database_error(client, mock_crud, monkeypatch):
     """Test PUT /api/v1/teams/1 endpoint."""
-    json = {"name": "error", "valuestreamId": 1, "teamSize": 1}
+    json = {
+        "name": "error",
+        "valuestreamId": 1,
+        "teamSize": 1,
+        "userIds": [1],
+        "collectorTargetIds": [1],
+    }
     expected = {"error": "error"}
 
     monkeypatch.setattr(

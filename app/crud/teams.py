@@ -15,6 +15,7 @@ from .collector_targets import collector_targets_crud
 from .users import users_crud
 
 _USED_MSG = "already in use"
+_NO_FEATURE_BOARDS_MSG = "team needs at least one feature board"
 
 
 @dataclass
@@ -25,14 +26,25 @@ class TeamValidationData:
     all_ticket_board_ids: Set[int]
 
 
-def validate_business_logic_create(team: Team):
+def validate_business_logic_create(team_validation_data: TeamValidationData):
     """Validate business logic when creating a team."""
     validation_checkers = [
         (
-            any(ct.team_id is not None for ct in team.collector_targets),
+            all(
+                ct.id not in team_validation_data.all_ticket_board_ids
+                for ct in team_validation_data.team.collector_targets
+            ),
+            "collectorTargetIds",
+            _NO_FEATURE_BOARDS_MSG,
+        ),
+        (
+            any(
+                ct.team_id is not None
+                for ct in team_validation_data.team.collector_targets
+            ),
             "collectorTargetIds",
             _USED_MSG,
-        )
+        ),
     ]
     for checker in validation_checkers:
         is_invalid, invalid_field, reason_for_invalid = checker
@@ -40,17 +52,25 @@ def validate_business_logic_create(team: Team):
             raise HolocronIntegrityError(invalid_field, reason_for_invalid)
 
 
-def validate_business_logic_update(team: Team):
+def validate_business_logic_update(team_validation_data: TeamValidationData):
     """Validate business logic when updating team."""
     validation_checkers = [
         (
+            all(
+                ct.id not in team_validation_data.all_ticket_board_ids
+                for ct in team_validation_data.team.collector_targets
+            ),
+            "collectorTargetIds",
+            _NO_FEATURE_BOARDS_MSG,
+        ),
+        (
             any(
-                ct.team_id is not None and ct.team_id != team.id
-                for ct in team.collector_targets
+                ct.team_id is not None and ct.team_id != team_validation_data.team.id
+                for ct in team_validation_data.team.collector_targets
             ),
             "collectorTargetIds",
             _USED_MSG,
-        )
+        ),
     ]
     for checker in validation_checkers:
         is_invalid, invalid_field, reason_for_invalid = checker
@@ -96,7 +116,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         ]
         team_validation_data = get_team_validation_data(session, new_team)
         new_team.is_workflow_only = is_workflow_only(team_validation_data)
-        validate_business_logic_create(new_team)
+        validate_business_logic_create(team_validation_data)
         try:
             session.add(new_team)
             session.commit()
@@ -128,7 +148,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         ]
         team_validation_data = get_team_validation_data(session, team)
         team.is_workflow_only = is_workflow_only(team_validation_data)
-        validate_business_logic_update(team)
+        validate_business_logic_update(team_validation_data)
         try:
             session.add(team)
             session.commit()

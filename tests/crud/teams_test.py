@@ -16,7 +16,7 @@ json = {
     "name": "test",
     "team_size": 1,
     "user_ids": [],
-    "collector_target_ids": [],
+    "collector_target_ids": [21],
     "valuestream_id": 1,
 }
 
@@ -24,10 +24,27 @@ json = {
 @fixture
 def mock_get_team_validation_data(monkeypatch):
     """Mock get_team_validation_data in app.crud.teams."""
+    all_ticket_board_ids = {21}
     monkeypatch.setattr(
         teams_crud_mod,
         "get_team_validation_data",
-        lambda _, team: TeamValidationData(team, {}),
+        lambda _, team: TeamValidationData(team, all_ticket_board_ids),
+    )
+
+
+@fixture
+def mock_team_collector_targets(monkeypatch):
+    """Mock to satisfy one feature board per team."""
+    monkeypatch.setattr(
+        collector_targets_crud,
+        "get_entity",
+        MagicMock(
+            return_value=TicketBoard(
+                collector_id=1,
+                url="https://test-board.com",
+                id=21,
+            )
+        ),
     )
 
 
@@ -52,21 +69,29 @@ def test_is_workflow_only(mock_session):
         assert expected == is_workflow_only(input_value), description
 
 
-def test_create_entity(mock_session, mock_get_team_validation_data):
+def test_create_entity(
+    mock_session,
+    mock_get_team_validation_data,
+    mock_team_collector_targets,
+):
     """Test create_entity method."""
     result = teams_crud.create_entity(mock_session, json)
     team = first_argument(mock_session.add)
+    mock_team_feature_board_id = 21
 
     assert team.name == "test"
     assert team.team_size == 1
     assert team.users == []
-    assert team.collector_targets == []
+    assert len(team.collector_targets) == 1
+    assert team.collector_targets[0].id == mock_team_feature_board_id
     assert team.valuestream_id == 1
     assert result == team
 
 
 def test_create_entity_valuestream_id_error(
-    mock_session, mock_get_team_validation_data
+    mock_session,
+    mock_get_team_validation_data,
+    mock_team_collector_targets,
 ):
     """Test create_entity method with invalid valuestream id."""
 
@@ -82,7 +107,9 @@ def test_create_entity_valuestream_id_error(
     assert expected == str(e.value)
 
 
-def test_create_entity_unique_error(mock_session, mock_get_team_validation_data):
+def test_create_entity_unique_error(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
     """Test create_entity method with uniqueness violation."""
 
     def commit_error():
@@ -98,37 +125,69 @@ def test_create_entity_unique_error(mock_session, mock_get_team_validation_data)
 
 
 def test_create_entity_collector_targets_error(
-    mock_session, mock_get_team_validation_data, monkeypatch
+    mock_session,
+    mock_get_team_validation_data,
+    monkeypatch,
 ):
     """Test create_entity with collector targets error."""
-    expected = "collectorTargetIds - already in use"
-    mock_team_json = {
-        "name": "test",
-        "team_size": 1,
-        "user_ids": [],
-        "collector_target_ids": [1],
-        "valuestream_id": 1,
-    }
-    monkeypatch.setattr(
-        collector_targets_crud,
-        "get_entity",
-        MagicMock(
-            return_value=Repository(
-                collector_id=1,
-                url="https://test-repo.com",
-                id=1,
-                team_id=42,
-            )
+    test_cases = [
+        (
+            """should error on collector targets already in use.""",
+            (
+                {
+                    "name": "test",
+                    "team_size": 1,
+                    "user_ids": [],
+                    "collector_target_ids": [21],
+                    "valuestream_id": 1,
+                },
+                TicketBoard(
+                    collector_id=1,
+                    url="https://test-board.com",
+                    id=21,
+                    team_id=42,
+                ),
+            ),
+            "collectorTargetIds - already in use",
         ),
-    )
+        (
+            """should error on response having no feature boards.""",
+            (
+                {
+                    "name": "test",
+                    "team_size": 1,
+                    "user_ids": [],
+                    "collector_target_ids": [22],
+                    "valuestream_id": 1,
+                },
+                Repository(
+                    collector_id=1,
+                    url="https://test-board.com",
+                    id=22,
+                    team_id=42,
+                ),
+            ),
+            "collectorTargetIds - team needs at least one feature board",
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_values, expected_msg = test_case
+        team_json, collector_target_crud_entity = input_values
+        monkeypatch.setattr(
+            collector_targets_crud,
+            "get_entity",
+            MagicMock(
+                return_value=collector_target_crud_entity,
+            ),
+        )
+        with raises(HolocronIntegrityError) as e:
+            teams_crud.create_entity(mock_session, team_json)
+        assert expected_msg == str(e.value), description
 
-    with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, mock_team_json)
 
-    assert expected == str(e.value)
-
-
-def test_create_entity_unknown_error(mock_session, mock_get_team_validation_data):
+def test_create_entity_unknown_error(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
     """Test create_entity with an unknown error."""
 
     def commit_error():
@@ -143,24 +202,28 @@ def test_create_entity_unknown_error(mock_session, mock_get_team_validation_data
     assert expected == str(e.value)
 
 
-def test_update_entity(mock_session, mock_get_team_validation_data):
+def test_update_entity(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
     """Test update_entity method."""
     expected = "SELECT * FROM teams WHERE teams.id = :id_1"
 
     result = teams_crud.update_entity(mock_session, json, 1)
     team = first_argument(mock_session.add)
+    expected_feature_board_id = 21
 
     assert team.name == "test"
     assert team.team_size == 1
     assert team.users == []
-    assert team.collector_targets == []
+    assert len(team.collector_targets) == 1
+    assert team.collector_targets[0].id == expected_feature_board_id
     assert team.valuestream_id == 1
     assert first_argument(mock_session.scalars).statement == expected
     assert result == team
 
 
 def test_update_entity_valuestream_id_error(
-    mock_session, mock_get_team_validation_data
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
 ):
     """Test update_entity method with invalid valuestream id."""
 
@@ -176,7 +239,9 @@ def test_update_entity_valuestream_id_error(
     assert expected == str(e.value)
 
 
-def test_update_entity_unique_error(mock_session, mock_get_team_validation_data):
+def test_update_entity_unique_error(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
     """Test update_entity method with uniqueness violation."""
 
     def commit_error():
@@ -195,34 +260,64 @@ def test_update_entity_collector_targets_error(
     mock_session, mock_get_team_validation_data, monkeypatch
 ):
     """Test update_entity with collector targets error."""
-    expected = "collectorTargetIds - already in use"
-    mock_team_json = {
-        "name": "test",
-        "team_size": 1,
-        "user_ids": [],
-        "collector_target_ids": [1],
-        "valuestream_id": 1,
-    }
-    monkeypatch.setattr(
-        collector_targets_crud,
-        "get_entity",
-        MagicMock(
-            return_value=Repository(
-                collector_id=1,
-                url="https://test-repo.com",
-                id=1,
-                team_id=42,
-            )
+    test_cases = [
+        (
+            """should error on collector targets already in use.""",
+            (
+                {
+                    "name": "test",
+                    "team_size": 1,
+                    "user_ids": [],
+                    "collector_target_ids": [21],
+                    "valuestream_id": 1,
+                },
+                TicketBoard(
+                    collector_id=1,
+                    url="https://test-board.com",
+                    id=21,
+                    team_id=42,
+                ),
+            ),
+            "collectorTargetIds - already in use",
         ),
-    )
+        (
+            """should error on response having no feature boards.""",
+            (
+                {
+                    "name": "test",
+                    "team_size": 1,
+                    "user_ids": [],
+                    "collector_target_ids": [22],
+                    "valuestream_id": 1,
+                },
+                Repository(
+                    collector_id=1,
+                    url="https://test-board.com",
+                    id=22,
+                    team_id=42,
+                ),
+            ),
+            "collectorTargetIds - team needs at least one feature board",
+        ),
+    ]
+    for test_case in test_cases:
+        description, input_values, expected_msg = test_case
+        team_json, collector_target_crud_entity = input_values
+        monkeypatch.setattr(
+            collector_targets_crud,
+            "get_entity",
+            MagicMock(
+                return_value=collector_target_crud_entity,
+            ),
+        )
+        with raises(HolocronIntegrityError) as e:
+            teams_crud.update_entity(mock_session, team_json, 1)
+        assert expected_msg == str(e.value), description
 
-    with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, mock_team_json, 1)
 
-    assert expected == str(e.value)
-
-
-def test_update_entity_unknown_error(mock_session, mock_get_team_validation_data):
+def test_update_entity_unknown_error(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
     """Test update_entity with an unknown error."""
 
     def commit_error():
