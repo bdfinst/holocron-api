@@ -34,10 +34,8 @@ def process_team_size(team_history: TeamHistory) -> DateValue:
     return DateValue(team_history.created_at, team_history.team_size)
 
 
-def process_team_size_histories(team_size_histories: List[TeamHistory]) -> ChartData:
+def process_team_history(team_history: List[TeamHistory]) -> ChartData:
     """Process team size into weekly data."""
     return {
-        "team_size": values_by_week(
-            [process_team_size(team_size) for team_size in team_size_histories]
-        )
+        "team_size": values_by_week([process_team_size(hist) for hist in team_history])
     }

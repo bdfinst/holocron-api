@@ -9,7 +9,7 @@ from app.models import Team, TeamHistory
 from app.processors import team_history
 from app.processors.team_history import (
     delete_outdated_team_history,
-    process_team_size_histories,
+    process_team_history,
 )
 from tests.mocks import MockDateTime
 
@@ -127,6 +127,6 @@ def test_process_team_size():
     ]
 
     for case in test_cases:
-        _, input_case, expected = case
-        actual = process_team_size_histories(input_case)
-        assert expected == actual
+        description, input_case, expected = case
+        actual = process_team_history(input_case)
+        assert expected == actual, description

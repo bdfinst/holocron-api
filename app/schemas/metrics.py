@@ -70,7 +70,7 @@ class CodeReviewTrendSchema(MetricsSchemaBase):
     age_in_days_review_was_open = List(Number())
 
 
-class TeamSizeHistoriesSchema(MetricsSchemaBase):
+class TeamHistorySchema(MetricsSchemaBase):
     """Schema for team size histories data."""
 
     team_size = List(Number())
@@ -87,7 +87,7 @@ class WeeklyDataSchema(MetricsSchemaBase):
     cumulative_flow = Nested(CumulativeFlowSchema)
     deploy_frequency = Nested(DeployFrequencySchema)
     code_review_trend = Nested(CodeReviewTrendSchema)
-    team_size_histories = Nested(TeamSizeHistoriesSchema)
+    team_history = Nested(TeamHistorySchema)
 
 
 class TeamMetricsSchema(MetricsSchemaBase):

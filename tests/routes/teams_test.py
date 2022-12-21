@@ -75,7 +75,7 @@ def test_create_team(client, mock_crud, monkeypatch):
         "collectorTargets": [],
         "createdAt": None,
         "updatedAt": None,
-        "teamSizeHistory": [],
+        "teamHistory": [],
         "users": [],
         "isWorkflowOnly": False,
     }
@@ -162,7 +162,7 @@ def test_update_team(client, mock_crud, monkeypatch):
         updatedAt=None,
         users=[],
         isWorkflowOnly=False,
-        teamSizeHistory=[],
+        teamHistory=[],
         name="test2",
         teamSize=1,
         valuestreamId=1,
