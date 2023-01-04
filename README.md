@@ -39,6 +39,13 @@ In addition to the fields below, all models have the following fields.
 
 \*Combined unique constraint.
 
+**team_history** - History of team size changes.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|team_size|integer|The number of members on the team, non-nullable.|
+|team_id|integer|Foreign key to `teams.id`, non-nullable.|
+
 **users** - Application users.
 
 |Field|Type|Description|
@@ -48,7 +55,7 @@ In addition to the fields below, all models have the following fields.
 |is_org_leadership|boolean|Flag as to whether the user is part of organization leadership.|
 |is_admin|boolean|Flag as to whether the user is an admin.|
 
-*team_users* - Many-to-many relationship between teams and users.
+**team_users** - Many-to-many relationship between teams and users.
 
 **collectors** - The collector services self register in the database using this model.
 
@@ -56,6 +63,16 @@ In addition to the fields below, all models have the following fields.
 |-----|----|-----------|
 |name|string|Collector name, unique and non-nullable.|
 |target|string|The URL of the resource to collect from.|
+
+**collector_kv_pairs** - Key value pairs attached to collectors for any additional info required by the application.
+
+|Field|Type|Description|
+|-----|----|-----------|
+|collector_id|integer|Foreign key to `collectors.id`, non-nullable.*|
+|key|string|The key, non-nullable.*|
+|value|string|The associated value to the key, non-nullable.|
+
+\*Combined unique constraint.
 
 **collector_targets** - The top level objects that the collectors collect. Currently this includes repositories, pipelines, and ticket boards.
 
@@ -80,6 +97,7 @@ In addition to the fields below, all models have the following fields.
 |last_updated|datetime|When the branch was last updated, non-nullable.|
 |name|string|The name of the branch, non-nullable.|
 |url|string|The URL of the branch, unique and non-nullable.|
+|is_default|boolean|Flag as to whether or not the branch is the default branch.|
 
 **commits** - Commits collected from a repository collector target.
 
@@ -133,6 +151,7 @@ In addition to the fields below, all models have the following fields.
 |ticket_id|integer|The ID of the ticket assigned by the resource, non-nullable.*|
 |assignee|string|The email of the person assigned the ticket.|
 |status|string|The current status of the ticket, non-nullable.|
+|ticket_type|string|Whether the ticket is considered to be for features, defects, maintenance, or unplanned work.|
 |super_ticket_id|integer|Foreign key to `tickets.id`.|
 |priority|string|The priority assigned to the ticket.|
 
@@ -145,7 +164,7 @@ In addition to the fields below, all models have the following fields.
 |ticket_id|integer|Foreign key to `tickets.id`, non-nullable.*|
 |date|datetime|When the status was changed.*|
 |status|string|What the status was changed to.|
-.
+
 \*Combined unique constraint.
 
 ## Getting started
