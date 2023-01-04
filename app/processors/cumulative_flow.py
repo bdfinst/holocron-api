@@ -12,7 +12,7 @@ from typing import Dict, List, Union
 
 from app.models import StatusHistory, Ticket
 
-from .types import ChartData, Dict
+from .types import ChartData
 from .utils import (
     IN_PROGRESS,
     days_between_dates,
