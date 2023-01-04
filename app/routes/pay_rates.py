@@ -1,4 +1,6 @@
 """PayRate routes."""
+from typing import Any, Mapping, Tuple, cast
+
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
@@ -11,12 +13,12 @@ from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 router = Blueprint("payrates", __name__, url_prefix="/payrates")
 
 schema = PayRateSchema()
-manySchema = MultiplePayRateSchema()
+many_schema = MultiplePayRateSchema()
 
 
 @router.route("", methods=["GET"])
 @requires_leadership
-def list_pay_rates():
+def list_pay_rates() -> Tuple[Any, int]:
     """List pay rates route.
 
     ---
@@ -43,7 +45,7 @@ def list_pay_rates():
 
 @router.route("", methods=["POST"])
 @requires_leadership
-def upsert_pay_rates():
+def upsert_pay_rates() -> Tuple[Any, int]:
     """Upsert pay rates route.
 
     ---
@@ -71,7 +73,7 @@ def upsert_pay_rates():
               schema: ValidationErrorSchema
     """
     try:
-        data = manySchema.load(request.json)
+        data = many_schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400

@@ -1,4 +1,6 @@
 """Commit routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import commits_crud
@@ -13,7 +15,7 @@ schema = CommitSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_commits_for_team(team_id: str):
+def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
     """Get commits for a given team id.
 
     ---
@@ -53,7 +55,7 @@ def list_commits_for_team(team_id: str):
 
 
 @router.route("/<commit_id>", methods=["GET"])
-def get_commit(commit_id: str):
+def get_commit(commit_id: str) -> Tuple[Any, int]:
     """Get commit by id.
 
     ---

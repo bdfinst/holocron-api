@@ -1,4 +1,6 @@
 """User routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import users_crud
@@ -14,7 +16,7 @@ schema = UserSchema()
 
 
 @router.route("", methods=["GET"])
-def list_users():
+def list_users() -> Tuple[Any, int]:
     """List users route.
 
     ---
@@ -40,7 +42,7 @@ def list_users():
 
 
 @router.route("/<user_id>", methods=["GET"])
-def get_user(user_id: str):
+def get_user(user_id: str) -> Tuple[Any, int]:
     """Get user by id route.
 
     ---
@@ -73,7 +75,7 @@ def get_user(user_id: str):
 
 @router.route("/<user_id>", methods=["DELETE"])
 @requires_admin
-def delete_user(user_id: str):
+def delete_user(user_id: str) -> Tuple[Any, int]:
     """Delete user route.
 
     ---

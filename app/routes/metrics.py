@@ -1,4 +1,6 @@
 """Metric routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.exceptions import HolocronIntegrityError
@@ -9,7 +11,7 @@ router = Blueprint("metrics", __name__, url_prefix="/metrics")
 
 
 @router.route("/<org_id>", methods=["GET"])
-def get_organization_metrics(org_id: str):
+def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
 
     ---

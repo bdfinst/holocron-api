@@ -1,4 +1,6 @@
 """Pipeline routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import pipelines_crud
@@ -13,7 +15,7 @@ schema = PipelineSchema()
 
 
 @router.route("", methods=["GET"])
-def list_pipelines():
+def list_pipelines() -> Tuple[Any, int]:
     """Get pipelines.
 
     ---
@@ -39,7 +41,7 @@ def list_pipelines():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_pipelines_for_team(team_id: str):
+def list_pipelines_for_team(team_id: str) -> Tuple[Any, int]:
     """Get pipelines for a given team id.
 
     ---
@@ -79,7 +81,7 @@ def list_pipelines_for_team(team_id: str):
 
 
 @router.route("/<pipeline_id>", methods=["GET"])
-def get_pipeline(pipeline_id: str):
+def get_pipeline(pipeline_id: str) -> Tuple[Any, int]:
     """Get pipeline by id.
 
     ---

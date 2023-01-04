@@ -1,4 +1,6 @@
 """Repository routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import repositories_crud
@@ -13,7 +15,7 @@ schema = RepositorySchema()
 
 
 @router.route("", methods=["GET"])
-def list_repositories():
+def list_repositories() -> Tuple[Any, int]:
     """Get repositories.
 
     ---
@@ -39,7 +41,7 @@ def list_repositories():
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_repositories_for_team(team_id: str):
+def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
     """Get repositories for a given team id.
 
     ---
@@ -79,7 +81,7 @@ def list_repositories_for_team(team_id: str):
 
 
 @router.route("/<repo_id>", methods=["GET"])
-def get_repository(repo_id: str):
+def get_repository(repo_id: str) -> Tuple[Any, int]:
     """Get repository by id.
 
     ---

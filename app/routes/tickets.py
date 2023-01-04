@@ -1,4 +1,6 @@
 """Ticket routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import tickets_crud
@@ -13,7 +15,7 @@ schema = TicketSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_tickets_for_team(team_id: str):
+def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
     """Get tickets for a given team id.
 
     ---
@@ -53,7 +55,7 @@ def list_tickets_for_team(team_id: str):
 
 
 @router.route("/<ticket_id>", methods=["GET"])
-def get_ticket(ticket_id: str):
+def get_ticket(ticket_id: str) -> Tuple[Any, int]:
     """Get ticket by id.
 
     ---

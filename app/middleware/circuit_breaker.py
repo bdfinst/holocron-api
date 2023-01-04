@@ -12,9 +12,7 @@ ONE_MINUTE = 60
 class CircuitBreaker:
     """Circuit breaker class."""
 
-    def __init__(self):
-        """Initialize with a dict to track breaks."""
-        self.break_times: Dict[str, datetime] = {}
+    break_times: Dict[str, datetime] = {}
 
     def check_break(self, addr: str) -> bool:
         """Check if an ip address has a circuit break."""

@@ -1,5 +1,5 @@
 """Team routes."""
-from typing import Any
+from typing import Any, Tuple
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
@@ -19,7 +19,7 @@ schema = TeamSchema()
 
 
 @router.route("", methods=["GET"])
-def list_teams():
+def list_teams() -> Tuple[Any, int]:
     """List teams route.
 
     ---
@@ -45,7 +45,7 @@ def list_teams():
 
 
 @router.route("", methods=["POST"])
-def create_team():
+def create_team() -> Tuple[Any, int]:
     """Create team route.
 
     ---
@@ -88,7 +88,7 @@ def create_team():
 
 
 @router.route("/<team_id>", methods=["GET"])
-def get_team(team_id: str):
+def get_team(team_id: str) -> Tuple[Any, int]:
     """Get team by id route.
 
     ---
@@ -121,7 +121,7 @@ def get_team(team_id: str):
 
 @router.route("/<team_id>", methods=["PUT"])
 @requires_admin_or_member
-def update_team(team_id: str):
+def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
 
     ---
@@ -179,7 +179,7 @@ def update_team(team_id: str):
 
 @router.route("/<team_id>", methods=["DELETE"])
 @requires_admin_or_member
-def delete_team(team_id: str):
+def delete_team(team_id: str) -> Tuple[Any, int]:
     """Delete team route.
 
     ---

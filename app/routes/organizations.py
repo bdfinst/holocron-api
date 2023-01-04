@@ -1,4 +1,6 @@
 """Organization routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
@@ -15,7 +17,7 @@ schema = OrganizationSchema()
 
 
 @router.route("", methods=["GET"])
-def list_organizations():
+def list_organizations() -> Tuple[Any, int]:
     """List organizations route.
 
     ---
@@ -43,7 +45,7 @@ def list_organizations():
 
 
 @router.route("", methods=["POST"])
-def create_organization():
+def create_organization() -> Tuple[Any, int]:
     """Create organization route.
 
     ---
@@ -80,7 +82,7 @@ def create_organization():
 
 
 @router.route("/<org_id>", methods=["GET"])
-def get_organization(org_id: str):
+def get_organization(org_id: str) -> Tuple[Any, int]:
     """Get organization by id route.
 
     ---
@@ -113,7 +115,7 @@ def get_organization(org_id: str):
 
 @router.route("/<org_id>", methods=["PUT"])
 @requires_admin
-def update_organization(org_id: str):
+def update_organization(org_id: str) -> Tuple[Any, int]:
     """Update organization route.
 
     ---
@@ -160,7 +162,7 @@ def update_organization(org_id: str):
 
 @router.route("/<org_id>", methods=["DELETE"])
 @requires_admin
-def delete_organization(org_id: str):
+def delete_organization(org_id: str) -> Tuple[Any, int]:
     """Delete organization route.
 
     ---

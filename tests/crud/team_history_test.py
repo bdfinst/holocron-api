@@ -3,7 +3,7 @@ from pytest import fixture
 
 from app.crud import team_history
 from app.crud.team_history import team_history_crud
-from app.models import Team, TeamHistory
+from app.models import Team
 from tests.mocks import mock_select
 from tests.utils import first_argument
 
@@ -22,7 +22,7 @@ def test_create_entity(mock_session):
         team_size=4,
         valuestream_id=1,
     )
-    result: TeamHistory = team_history_crud.create_entity(mock_session, team)
+    result = team_history_crud.create_entity(mock_session, team)
     history = first_argument(mock_session.add)
 
     assert history.team_size == team.team_size
