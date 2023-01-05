@@ -14,7 +14,7 @@ def mock_crud(monkeypatch):
 
 
 def test_input_validators(client, mock_crud):
-    """Test DELETE /api/v1/organizations for schema input validation."""
+    """Test POST /api/v1/organizations for schema input validation."""
     test_cases = [
         (
             """should disallow characters that exceed max char""",
@@ -45,7 +45,7 @@ def test_input_validators(client, mock_crud):
     for test_case in test_cases:
         description, organization_name, expected = test_case
         code, resp_json = expected
-        json = {"name": organization_name}
+        json = {"name": organization_name, "userIds": [1]}
 
         resp = client.post("/api/v1/organizations", json=json)
 

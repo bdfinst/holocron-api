@@ -19,6 +19,8 @@ In addition to the fields below, all models have the following fields.
 |-----|----|-----------|
 |name|string|The name of the organization, unique and non-nullable.|
 
+**organization_users** - Many-to-many relationship between organizations and users.
+
 **valuestreams** - Mid level organization structure.
 
 |Field|Type|Description|

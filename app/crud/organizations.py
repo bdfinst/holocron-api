@@ -9,6 +9,7 @@ from app.exceptions import HolocronIntegrityError
 from app.models import Organization
 
 from ._base import BaseCRUD
+from .users import users_crud
 
 
 class OrganizationsCRUD(BaseCRUD[Organization]):
@@ -18,6 +19,11 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
     def create_entity(session: Session, json: Dict[str, Any]) -> Organization:
         """Insert organization in database."""
         new_organization = Organization(name=json.get("name"))
+
+        new_organization.users = [
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
+        ]
 
         try:
             session.add(new_organization)
@@ -37,6 +43,11 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         """Update organization in database."""
         organization = self.get_entity(session, id_)
         organization.name = json.get("name")
+
+        organization.users = [
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
+        ]
 
         try:
             session.add(organization)
