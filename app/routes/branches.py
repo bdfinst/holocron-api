@@ -1,4 +1,6 @@
 """Branch routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import branches_crud
@@ -13,7 +15,7 @@ schema = BranchSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_branches_for_team(team_id: str):
+def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
     """Get branches for a given team id.
 
     ---
@@ -53,7 +55,7 @@ def list_branches_for_team(team_id: str):
 
 
 @router.route("/<branch_id>", methods=["GET"])
-def get_branch(branch_id: str):
+def get_branch(branch_id: str) -> Tuple[Any, int]:
     """Get branch by id.
 
     ---

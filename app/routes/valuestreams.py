@@ -1,4 +1,6 @@
 """Valuestream routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
@@ -15,7 +17,7 @@ schema = ValuestreamSchema()
 
 
 @router.route("", methods=["GET"])
-def list_valuestreams():
+def list_valuestreams() -> Tuple[Any, int]:
     """List valuestreams route.
 
     ---
@@ -41,7 +43,7 @@ def list_valuestreams():
 
 
 @router.route("", methods=["POST"])
-def create_valuestream():
+def create_valuestream() -> Tuple[Any, int]:
     """Create valuestream route.
 
     ---
@@ -78,7 +80,7 @@ def create_valuestream():
 
 
 @router.route("/<valuestream_id>", methods=["GET"])
-def get_valuestream(valuestream_id: str):
+def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Get valuestream by id route.
 
     ---
@@ -113,7 +115,7 @@ def get_valuestream(valuestream_id: str):
 
 @router.route("/<valuestream_id>", methods=["PUT"])
 @requires_admin
-def update_valuestream(valuestream_id: str):
+def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Update valuestream route.
 
     ---
@@ -160,7 +162,7 @@ def update_valuestream(valuestream_id: str):
 
 @router.route("/<valuestream_id>", methods=["DELETE"])
 @requires_admin
-def delete_valuestream(valuestream_id: str):
+def delete_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Delete valuestream route.
 
     ---

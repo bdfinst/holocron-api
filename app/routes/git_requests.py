@@ -1,4 +1,6 @@
 """GitRequest routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import git_requests_crud
@@ -13,7 +15,7 @@ schema = GitRequestSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_git_requests_for_team(team_id: str):
+def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
     """Get git requests for a given team id.
 
     ---
@@ -53,7 +55,7 @@ def list_git_requests_for_team(team_id: str):
 
 
 @router.route("/<git_request_id>", methods=["GET"])
-def get_git_request(git_request_id: str):
+def get_git_request(git_request_id: str) -> Tuple[Any, int]:
     """Get git request by id.
 
     ---

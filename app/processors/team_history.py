@@ -13,7 +13,7 @@ from .types import ChartData, DateValue
 from .utils import values_by_week
 
 
-def delete_outdated_team_history():
+def delete_outdated_team_history() -> None:
     """Delete outdated team history data."""
     with generate_session() as session:
         teams: list[Team] = teams_crud.get_entities(session)

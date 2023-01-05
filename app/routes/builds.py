@@ -1,4 +1,6 @@
 """Build routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import builds_crud
@@ -12,7 +14,7 @@ schema = BuildSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
-def list_builds_for_team(team_id: str):
+def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
     """Get builds for a given team id.
 
     ---
@@ -52,7 +54,7 @@ def list_builds_for_team(team_id: str):
 
 
 @router.route("/<build_id>", methods=["GET"])
-def get_build(build_id: str):
+def get_build(build_id: str) -> Tuple[Any, int]:
     """Get Build by id.
 
     ---
