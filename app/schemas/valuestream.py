@@ -1,7 +1,7 @@
 """Schema for Valuestream model."""
 from typing import Any, Dict
 
-from marshmallow import fields
+from marshmallow import fields, validate
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app.models import Valuestream
@@ -9,6 +9,7 @@ from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .team import ExistingTeamSchema
+from .user import UserSchema
 
 
 class ExistingValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
@@ -22,6 +23,7 @@ class ExistingValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
 
     organization_id = auto_field()
     teams = fields.Nested(ExistingTeamSchema, many=True)
+    users = fields.Nested(UserSchema, many=True)
 
 
 class NewValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
@@ -34,6 +36,7 @@ class NewValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
 
     name = fields.Str(required=True, validate=input_name_validator)
     organization_id = fields.Int(required=True)
+    user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
 
 
 class ValuestreamSchema:

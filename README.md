@@ -28,6 +28,8 @@ In addition to the fields below, all models have the following fields.
 |name|string|The name of the valuestream, non-nullable.*|
 |organization_id|integer|Foreign key to `organizations.id`, non-nullable.*|
 
+**valuestream_users** - Many-to-many relationship between valuestreams and users.
+
 \*Combined unique constraint.
 
 **teams** - Lowest level organization structure.
