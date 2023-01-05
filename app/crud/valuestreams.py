@@ -9,6 +9,7 @@ from app.exceptions import HolocronIntegrityError
 from app.models import Valuestream
 
 from ._base import BaseCRUD
+from .users import users_crud
 
 
 class ValuestreamsCRUD(BaseCRUD[Valuestream]):
@@ -21,6 +22,11 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
             name=json.get("name"),
             organization_id=json.get("organization_id"),
         )
+
+        new_valuestream.users = [
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
+        ]
 
         try:
             session.add(new_valuestream)
@@ -43,6 +49,11 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
         valuestream = self.get_entity(session, id_)
         valuestream.name = json.get("name")
         valuestream.organization_id = json.get("organization_id")
+
+        valuestream.users = [
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
+        ]
 
         try:
             session.add(valuestream)
