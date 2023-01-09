@@ -795,3 +795,33 @@ We are using cypress for our e2e tests. To run e2e tests locally on dev
 environment see `dev-environment`. For e2e
 tests in pipeline, we do not need any of the dependencies, and
 just `package.json` which has the scripts command `npm run test:e2e-ci` which uses pipeline's cypress.
+
+# access control
+The API has the following access control groups and
+permissions.
+
+| Permissions     | Admin | OrgLeadership     | Org admin | VS Admin | Team Admin |
+| :---        |    :----:   |          :----: | :----: | :----: | ---:|
+| Read Pay Rate | | Y | | | |
+| Read Any Org Aggregate | Y | | | | |
+| Read Any VS Aggregate | Y | | | | |
+| Read Any Team Data | Y | | | | |
+| Read Their Org Aggregate | Y| | Y| | |
+| Read Their VS Aggregate | Y| | Y| Y| |
+| Read Their Team Data | Y| | Y| Y| Y|
+| Create/Update Pay Rate | | Y| | | |
+| Create Org | Y| | | | |
+| Create VS | Y| | Y| | | |
+| Create Team | Y| | Y| Y| | |
+| Update Any Org | Y| | | | | |
+| Update Any VS | Y| | | | | |
+| Update Any Team | Y| | | | | |
+| Update Their Org | Y| | Y| | | |
+| Update Their VS | Y| | Y| Y| | |
+| Update Their Team | Y| | Y| Y| Y| |
+| Delete Any Org | Y| | | | | |
+| Delete Any VS | Y| | | | | |
+| Delete Any Team | Y| | | | | |
+| Delete Their Org | Y| | Y| | | |
+| Delete Their VS | Y| | Y| Y| | |
+| Delete Their Team | Y| | Y| Y| Y| |
