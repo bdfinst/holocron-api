@@ -1,7 +1,7 @@
 """Models."""
 from ._base import MetadataBase, ModelBase
 from .branch import Branch
-from .build import Build, Job
+from .build import Build
 from .collector import Collector
 from .collector_kvpair import CollectorKVPair
 from .collector_target import CollectorTarget

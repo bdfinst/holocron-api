@@ -16,12 +16,9 @@ from .utils import values_by_week
 def process_build(build: Build) -> DateValue:
     """Get the DateValue for a deployment."""
     deploy = 0
-    for job in build.jobs:
-        if (
-            job.stage == config.RELEASE_STAGE_NAME
-            and job.status == config.STAGE_PASSED_STATUS
-        ):
-            deploy = 1
+    if build.is_deployed is True and build.build_status is config.PIPLINE_PASSED_STATUS:
+        deploy = 1
+
     return DateValue(build.end_time, deploy)
 
 
