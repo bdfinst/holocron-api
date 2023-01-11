@@ -135,17 +135,8 @@ In addition to the fields below, all models have the following fields.
 |build_status|string|Whether the build passed or failed overall, non-nullable.|
 |start_time|datetime|When the build was started.|
 |end_time|datetime|When the build finished.|
-
-**jobs** - The individual job of a build.
-
-|Field|Type|Description|
-|-----|----|-----------|
-|build_id|integer|Foreign key to `builds.id`, non-nullable.|
-|name|string|The name of the job, non-nullable.|
-|status|string|Whether the job passed or failed, non-nullable.|
-|stage|string|The name of the stage, non-nullable.|
-|job_id|integer|The ID of the job assigned by the resource, non-nullable.|
-|job_url|string|The URL of the job, unique and non-nullable.|
+|is_deployed|boolean|Whether the pipeline executed a deploy.|
+|passed_with_warnings|boolean|If the build succeeds with failed jobs.|
 
 **tickets** - Work tickets collected from a ticketboard collector target.
 
