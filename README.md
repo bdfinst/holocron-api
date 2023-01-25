@@ -93,6 +93,16 @@ In addition to the fields below, all models have the following fields.
 | trunk_branch   | string   | If target is a repository, this will be the name of the default branch. |
 | last_collected | DateTime | The time the collector target was last collected from its url source.   |
 
+**collector_target_config_items** - Key value pairs attached to collector targets for any additional info required by the application.
+
+| Field                 | Type      | Description                                           |
+|-----------------------|-----------|-------------------------------------------------------|
+| collector_target_id   | integer   | Foreign key to `collector_targets.id`, non-nullable.* |
+| key                   | string    | The key, non-nullable.*                               |
+| value                 | string    | The associated value to the key, non-nullable.        |
+
+\*Combined unique constraint.
+
 **branches** - Branches collected from a repository collector target.
 
 |Field|Type|Description|
