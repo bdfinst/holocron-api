@@ -45,6 +45,7 @@ Cypress.Commands.add('apiDeleteValueStream', vsId =>
     method: 'DELETE',
     url: `${apiV1Url}/valuestreams/${vsId}`,
     headers,
+    failOnStatusCode: false,
   }),
 )
 
@@ -53,6 +54,7 @@ Cypress.Commands.add('apiDeleteOrganization', orgId =>
     method: 'DELETE',
     url: `${apiV1Url}/organizations/${orgId}`,
     headers,
+    failOnStatusCode: false,
   }),
 )
 
@@ -61,6 +63,7 @@ Cypress.Commands.add('apiDeleteTeam', teamId =>
     method: 'DELETE',
     url: `${apiV1Url}/teams/${teamId}`,
     headers,
+    failOnStatusCode: false,
   }),
 )
 
