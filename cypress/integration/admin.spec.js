@@ -1,18 +1,24 @@
 const reactComponentUpdateTimeout = 10000
 // describe to only test in dev mode
 
-function randomString(strLen) {
-  return Math.round(36 ** (strLen + 1) - Math.random() * 36 ** strLen)
-    .toString(36)
-    .slice(1)
-}
+const setUp = (organizationName, valueStreamName) =>
+  cy.apiCreateOrganization(organizationName).then(({ organization }) => {
+    cy.apiCreateValueStream(valueStreamName, organization.id).then(
+      ({ valuestream }) => {
+        cy.wrap({
+          organization,
+          valuestream,
+        })
+      },
+    )
+  })
 
-function mockAuth() {
-  if (Cypress.config('mode') == 'pipeline') {
-    cy.intercept('*', req => {
-      req.headers.authorization = Cypress.env('TOKEN')
+const tearDown = (createdTeamId, organization, valueStream) => {
+    cy.apiDeleteTeam(createdTeamId).then(() => {
+      cy.apiDeleteValueStream(valueStream.id).then(() => {
+        cy.apiDeleteOrganization(organization.id)
+      })
     })
-  }
 }
 
 describe('Test team CRUD', () => {
@@ -25,18 +31,18 @@ describe('Test team CRUD', () => {
     orgName,
     vsName
 
-  beforeEach(mockAuth)
+  beforeEach(cy.mockAuth)
 
   after(() => {
-    cy.apiTearDown(createdTeamId, dummyOrganization, dummyValueStream)
+    tearDown(createdTeamId, dummyOrganization, dummyValueStream)
   })
 
   before(() => {
-    teamName = `cypress ${randomString(8)}`
-    orgName = `cypress ${randomString(8)}`
-    vsName = `cypress ${randomString(8)}`
+    teamName = cy.utils.randomName(8)
+    orgName = cy.utils.randomName(8)
+    vsName = cy.utils.randomName(8)
 
-    cy.apiSetUp(orgName, vsName).then(({ organization, valuestream }) => {
+    setUp(orgName, vsName).then(({ organization, valuestream }) => {
       dummyOrganization = organization
       dummyValueStream = valuestream
     })
@@ -46,12 +52,12 @@ describe('Test team CRUD', () => {
     // visit the create team page first
     cy.visitAddTeamPage()
     // fill out the form
-    cy.get(`[id="select-an-organization"]`).type(`${orgName}{downarrow}{enter}`)
-    cy.get(`[id="select-a-valuestream"]`).type(`${vsName}{downarrow}{enter}`)
-    cy.get(`[aria-label="Enter a Team Name"]`).type(teamName)
-    cy.get(`[aria-label="Enter the number of members in your team"]`).type('1')
+    cy.get(`[id="select-organization"]`).type(`${orgName}{downarrow}{enter}`)
+    cy.get(`[id="select-valuestream"]`).type(`${vsName}{downarrow}{enter}`)
+    cy.get(`[id="enter-your-team-name"]`).type(teamName)
+    cy.get(`[id="enter-the-number-of-members-in-your-team"]`).type('1')
     cy.pickOptionMUIAutocomplete(`[id="select-team-admins"]`)
-    cy.pickOptionMUIAutocomplete(`[id="select-feature-boards"]`)
+    cy.pickOptionMUIAutocomplete(`[id="select-ticket-boards"]`)
 
     cy.screenshot(`${screenshotFolderName}/can_create_a_team_pending`)
 
@@ -66,24 +72,22 @@ describe('Test team CRUD', () => {
       })
       .its('response.statusCode')
       .should('eq', 201)
+    
+    cy.waitForAPIDataAfterUserChange()
     // the update and delete button for the team should be visible if the team is created
     cy.get(`[aria-label="update-team-${teamName}"]`, {
       timeout: reactComponentUpdateTimeout,
-    }).should('be.visible')
+    })
     cy.get(`[aria-label="delete-team-${teamName}"]`, {
       timeout: reactComponentUpdateTimeout,
-    }).should('be.visible')
+    })
 
     cy.screenshot(`${screenshotFolderName}/can_create_a_team_done`)
   })
 
   it('can update a team', () => {
-    // visit the admin page
-    cy.visitAdminPage()
-    // click on update button for the team
-    cy.get('[aria-label=Team]').type(teamName)
-    cy.get(`[aria-label="update-team-${teamName}"]`).click()
-    cy.get(`[aria-label="Enter the number of members in your team"]`).type(
+    cy.visitUpdateTeamPage(teamName)
+    cy.get(`[id="update-the-number-of-members-in-your-team"]`).type(
       '{backspace}2',
     )
 
@@ -95,21 +99,19 @@ describe('Test team CRUD', () => {
     cy.wait('@updateTeam')
       .its('response.statusCode')
       .should('eq', 200)
-
+      
     cy.waitForAPIDataAfterUserChange()
-
-    cy.get('[aria-label=Team]').type(teamName)
+    cy.get('[aria-label="Search team by name"]').type(teamName)
     cy.get(`[aria-label="update-team-${teamName}"]`).click()
-    cy.get(`[aria-label="Enter the number of members in your team"]`)
+    cy.get(`[id="update-the-number-of-members-in-your-team"]`)
       .should('have.value', '2', { timeout: reactComponentUpdateTimeout })
-      .should('be.visible')
 
     cy.screenshot(`${screenshotFolderName}/can_update_a_team_done`)
   })
 
   it('can delete a team', () => {
     cy.visitAdminPage()
-    cy.get('[aria-label=Team]').type(teamName)
+    cy.get('[aria-label="Search team by name"]').type(teamName)
     cy.get(`[aria-label="delete-team-${teamName}"]`).click()
     cy.get(`[aria-labelledby="confirm-dialog"]`).should('exist')
     cy.get(`[aria-label="Enter ${teamName} to Confirm Action"]`).type(
@@ -127,6 +129,7 @@ describe('Test team CRUD', () => {
       .its('response.statusCode')
       .should('eq', 204)
 
+    cy.waitForAPIDataAfterUserChange()
     cy.get(`[aria-labelledby="confirm-dialog"]`).should('not.exist')
     cy.get(`[aria-label="delete-team-${teamName}"]`).should('not.exist')
 

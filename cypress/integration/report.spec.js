@@ -1,20 +1,3 @@
-const reactComponentUpdateTimeout = 10000
-// describe to only test in dev mode
-
-function randomString(strLen) {
-  return Math.round(36 ** (strLen + 1) - Math.random() * 36 ** strLen)
-    .toString(36)
-    .slice(1)
-}
-
-function mockAuth() {
-  if (Cypress.config('mode') == 'pipeline') {
-    cy.intercept('*', req => {
-      req.headers.authorization = Cypress.env('TOKEN')
-    })
-  }
-}
-
 const screenshotFolderName = 'test_report'
 
 const confirmNoCrashesFound = () => {
@@ -66,7 +49,7 @@ const filterByBoardStatus = () => {
 }
 
 describe('Test Report', () => {
-  beforeEach(mockAuth)
+  beforeEach(cy.mockAuth)
 
   it('should allow us to filter the boards by teamId, name, and onboarding status', () => {
     // filter by teamId

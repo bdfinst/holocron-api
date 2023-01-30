@@ -28,40 +28,20 @@
 const baseUrl = Cypress.config('baseUrl')
 const timeout = 240000
 
-Cypress.Commands.add('apiSetUp', (organizationName, valueStreamName) =>
-  cy.apiCreateOrganization(organizationName).then(({ organization }) => {
-    cy.apiCreateValueStream(valueStreamName, organization.id).then(
-      ({ valuestream }) => {
-        cy.wrap({
-          organization,
-          valuestream,
-        })
-      },
-    )
-  }),
-)
+cy.utils = {
+  randomName: strLen => `cypress-${Math.round(36 ** (strLen + 1) - Math.random() * 36 ** strLen)
+    .toString(36)
+    .slice(1)}`
+}
 
-Cypress.Commands.add('apiSafeDelTeam', teamId => {
-  cy.apiGetTeams().then(({ body: { result: teams } }) => {
-    const foundTeam = teams.find(team => team.id === teamId)
-    if (foundTeam) {
-      return cy.apiDeleteTeam(teamId)
-    }
-    // don't care if the team is already deleted on the test
-    return cy.wrap({})
-  })
+Cypress.Commands.add('mockAuth', () => {
+  if (Cypress.config('mode') == 'pipeline') {
+    cy.intercept('*', req => {
+      req.headers.authorization = Cypress.env('TOKEN')
+    })
+  }
 })
 
-Cypress.Commands.add(
-  'apiTearDown',
-  (createdTeamId, organization, valueStream) => {
-    cy.apiSafeDelTeam(createdTeamId).then(() => {
-      cy.apiDeleteValueStream(valueStream.id).then(() => {
-        cy.apiDeleteOrganization(organization.id)
-      })
-    })
-  },
-)
 
 Cypress.Commands.add('visitDashboard', () => {
   cy.intercept('GET', '**/api/v1/users').as('getUsers')
@@ -77,12 +57,27 @@ Cypress.Commands.add('visitAdminPage', () => {
   cy.intercept('GET', '**/api/v1/teams').as('getTeams')
   cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
   cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
+  cy.visit(`${baseUrl}/admin`, { timeout })
+  cy.wait(
+    [
+      '@getUsers',
+      '@getTeams',
+      '@getValueStreams',
+      '@getOrganizations',
+    ],
+    { timeout },
+  )
+})
+
+Cypress.Commands.add('visitReportsPage', () => {
+  cy.intercept('GET', '**/api/v1/users').as('getUsers')
+  cy.intercept('GET', '**/api/v1/teams').as('getTeams')
+  cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
+  cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
   cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
   cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
-  cy.intercept('GET', '**/api/v1/pipelines').as(
-    'getPipelines',
-  )
-  cy.visit(`${baseUrl}/admin`, { timeout })
+  cy.intercept('GET', '**/api/v1/pipelines').as('getPipelines')
+  cy.visit(`${baseUrl}/reports`, { timeout })
   cy.wait(
     [
       '@getUsers',
@@ -97,17 +92,55 @@ Cypress.Commands.add('visitAdminPage', () => {
   )
 })
 
-Cypress.Commands.add('visitReportsPage', () => {
+Cypress.Commands.add('waitForCollectorTargets', () => {
+  cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
+  cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
+  cy.intercept('GET', '**/api/v1/pipelines').as('getPipelines')
+  cy.wait(
+    [
+      '@getBoards',
+      '@getRepos',
+      '@getPipelines',
+    ],
+    { timeout },
+  )
+})
+
+
+Cypress.Commands.add('visitAddTeamPage', () => {
   cy.intercept('GET', '**/api/v1/users').as('getUsers')
   cy.intercept('GET', '**/api/v1/teams').as('getTeams')
   cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
   cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
   cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
   cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
-  cy.intercept('GET', '**/api/v1/pipelines').as(
-    'getPipelines',
+  cy.intercept('GET', '**/api/v1/pipelines').as('getPipelines')
+  cy.visit(`${baseUrl}/admin/add-team`, { timeout })
+  cy.wait(
+    [
+      '@getUsers',
+      '@getTeams',
+      '@getValueStreams',
+      '@getOrganizations',
+      '@getBoards',
+      '@getRepos',
+      '@getPipelines',
+    ],
+    { timeout },
   )
-  cy.visit(`${baseUrl}/reports`, { timeout })
+})
+
+Cypress.Commands.add('visitUpdateTeamPage', teamName => {
+  cy.intercept('GET', '**/api/v1/users').as('getUsers')
+  cy.intercept('GET', '**/api/v1/teams').as('getTeams')
+  cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
+  cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
+  cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
+  cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
+  cy.intercept('GET', '**/api/v1/pipelines').as('getPipelines')
+  cy.visitAdminPage()
+  cy.get('[aria-label="Search team by name"]').type(teamName)
+  cy.get(`[aria-label="update-team-${teamName}"]`).click()
   cy.wait(
     [
       '@getUsers',
@@ -127,29 +160,17 @@ Cypress.Commands.add('waitForAPIDataAfterUserChange', () => {
   cy.intercept('GET', '**/api/v1/teams').as('getTeams')
   cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
   cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
-  cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
-  cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
-  cy.intercept('GET', '**/api/v1/pipelines').as(
-    'getPipelines',
-  )
   cy.wait(
     [
       '@getUsers',
       '@getTeams',
       '@getValueStreams',
       '@getOrganizations',
-      '@getBoards',
-      '@getRepos',
-      '@getPipelines',
     ],
     { timeout },
   )
 })
 
-Cypress.Commands.add('visitAddTeamPage', () => {
-  cy.visitAdminPage()
-  cy.get(`[aria-label="Add a Team"]`).click()
-})
 
 Cypress.Commands.add('pickOptionMUIAutocomplete', selector => {
   cy.get(selector).click({ force: true })
