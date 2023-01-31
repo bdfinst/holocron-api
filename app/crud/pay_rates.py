@@ -15,13 +15,13 @@ class PayRatesCRUD(BaseCRUD[PayRate]):
     @staticmethod
     def upsert_entity(session: Session, json: Dict[str, Any]) -> PayRate:
         """Upsert pay rate in database."""
-        email = json.get("email")
+        email = json["email"]
         pay_rate = session.scalars(
             select(PayRate).where(PayRate.email == email)
         ).first()
         if pay_rate is None:
             pay_rate = PayRate()
-        pay_rate.rate = json.get("rate")
+        pay_rate.rate = json["rate"]
         pay_rate.email = email
 
         session.add(pay_rate)

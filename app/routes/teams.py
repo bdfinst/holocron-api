@@ -80,10 +80,10 @@ def create_team() -> Tuple[Any, int]:
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_team: Team = teams_crud.create_entity(session, data)
+            raw_team = teams_crud.create_entity(session, data)
         except HolocronIntegrityError as err:
             return err.messages, 400
-        result: dict[str, Any] = schema.dump(raw_team)
+        result = schema.dump(raw_team)
 
         try:
             team_history_crud.create_entity(session, raw_team)

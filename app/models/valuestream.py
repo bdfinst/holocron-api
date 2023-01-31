@@ -1,16 +1,20 @@
 """Holocron organization model."""
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, UniqueConstraint
-from sqlalchemy.orm import relationship
+from typing import List
+
+from sqlalchemy import Column, ForeignKey, Integer, Table, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
-from .organization import Organization
+from .team import Team
 from .user import User
 
 association_table = Table(
     "valuestream_users",
     MetadataBase.metadata,
-    Column("valuestream_id", ForeignKey("valuestreams.id", ondelete="CASCADE")),
-    Column("user_id", ForeignKey(User.id)),
+    Column(
+        "valuestream_id", Integer, ForeignKey("valuestreams.id", ondelete="CASCADE")
+    ),
+    Column("user_id", Integer, ForeignKey(User.id)),
 )
 
 
@@ -18,12 +22,12 @@ class Valuestream(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "valuestreams"
+    __table_args__ = (UniqueConstraint("name", "organization_id"),)
 
-    name = Column(String, nullable=False)
-    organization_id = Column(
-        Integer, ForeignKey(Organization.id), nullable=False, index=True
+    name: Mapped[str]
+
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id"), index=True
     )
-    teams = relationship("Team")
-    users = relationship("User", secondary=association_table)
-
-    UniqueConstraint(name, organization_id)
+    teams: Mapped[List["Team"]] = relationship()
+    users: Mapped[List["User"]] = relationship(secondary=association_table)

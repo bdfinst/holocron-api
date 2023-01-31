@@ -1,15 +1,20 @@
 """SCM repository model."""
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from typing import List, Optional
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from .branch import Branch
 from .collector_target import CollectorTarget
+from .commit import Commit
+from .git_request import GitRequest
 
 
 class Repository(CollectorTarget):
     """Model class."""
 
-    trunk_branch = Column(String)
-    repository_id = Column(Integer, index=True)
-    branches = relationship("Branch")
-    commits = relationship("Commit")
-    git_requests = relationship("GitRequest")
+    trunk_branch: Mapped[Optional[str]]
+
+    repository_id: Mapped[Optional[int]] = mapped_column(index=True)
+    branches: Mapped[List["Branch"]] = relationship()
+    commits: Mapped[List["Commit"]] = relationship()
+    git_requests: Mapped[List["GitRequest"]] = relationship()

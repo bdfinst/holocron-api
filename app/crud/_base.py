@@ -1,5 +1,5 @@
 """Base classes for model-based database operations."""
-from typing import Generic, List, Type, TypeVar
+from typing import Generic, Sequence, Type, TypeVar
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -13,11 +13,11 @@ T = TypeVar("T", bound=ModelBase)
 class BaseCRUD(Generic[T]):
     """Base class for CRUD methods."""
 
-    def __init__(self, model: Type[ModelBase]):
+    def __init__(self, model: Type[T]):
         """Initialize with the given model."""
         self.model = model
 
-    def get_entities(self, session: Session) -> List[T]:
+    def get_entities(self, session: Session) -> Sequence[T]:
         """Get all entities."""
         return session.scalars(select(self.model)).all()
 

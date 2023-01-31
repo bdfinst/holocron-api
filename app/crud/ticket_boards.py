@@ -1,5 +1,5 @@
 """BaseCRUD extension and instance for TicketBoard model."""
-from typing import List
+from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,14 +13,14 @@ from .teams import teams_crud
 class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
     """Base CRUD extension for TicketBoard model."""
 
-    def get_entities(self, session: Session) -> List[TicketBoard]:
+    def get_entities(self, session: Session) -> Sequence[TicketBoard]:
         """Override get_entities to return only ticket boards."""
         return session.scalars(
             select(TicketBoard).where(TicketBoard.board_id.is_not(None))
         ).all()
 
     @staticmethod
-    def get_entities_for_team(session: Session, team_id: int) -> List[TicketBoard]:
+    def get_entities_for_team(session: Session, team_id: int) -> Sequence[TicketBoard]:
         """Get all ticket boards for a given team."""
         team = teams_crud.get_entity(session, team_id)
         return session.scalars(

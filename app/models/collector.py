@@ -1,5 +1,5 @@
 """Holocron collector model."""
-from sqlalchemy import Column, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
 
@@ -9,5 +9,6 @@ class Collector(MetadataBase, ModelBase):
 
     __tablename__ = "collectors"
 
-    name = Column(String, nullable=False, unique=True)
-    target = Column(String, nullable=False)
+    target: Mapped[str]
+
+    name: Mapped[str] = mapped_column(unique=True)

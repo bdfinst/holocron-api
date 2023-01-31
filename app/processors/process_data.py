@@ -185,10 +185,26 @@ def process_team(team: Team) -> TeamMetrics:
         {},
         {
             "feature": get_latest_time(
-                [board.last_collected for board in team.ticket_boards]
+                [
+                    board.last_collected
+                    for board in team.ticket_boards
+                    if board.last_collected is not None
+                ]
             ),
-            "scm": get_latest_time([repo.last_collected for repo in team.repositories]),
-            "build": get_latest_time([pipe.last_collected for pipe in team.pipelines]),
+            "scm": get_latest_time(
+                [
+                    repo.last_collected
+                    for repo in team.repositories
+                    if repo.last_collected is not None
+                ]
+            ),
+            "build": get_latest_time(
+                [
+                    pipe.last_collected
+                    for pipe in team.pipelines
+                    if pipe.last_collected is not None
+                ]
+            ),
         },
     )
 

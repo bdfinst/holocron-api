@@ -1,28 +1,22 @@
 """SCM commit model."""
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    UniqueConstraint,
-)
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
-from .repository import Repository
 
 
 class Commit(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "commits"
+    __table_args__ = (UniqueConstraint("repository_id", "sha"),)
 
-    repository_id = Column(
-        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    sha: Mapped[str]
+    is_merged: Mapped[bool]
+
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
-    sha = Column(String(), nullable=False)
-    is_merged = Column(Boolean)
-    date = Column(DateTime(timezone=True), nullable=False)
-
-    UniqueConstraint(repository_id, sha)
+    date: Mapped[datetime] = mapped_column(DateTime(timezone=True))

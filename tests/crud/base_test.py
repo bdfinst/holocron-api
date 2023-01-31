@@ -27,8 +27,10 @@ class ValidModel(MetadataBase, ModelBase):
     board_id = 0
 
 
-class InvalidModel(ModelBase):
+class InvalidModel(MetadataBase, ModelBase):
     """Mock model class missing required fields."""
+
+    __tablename__ = "invalid_models"
 
 
 # BaseCRUD

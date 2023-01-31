@@ -93,7 +93,7 @@ def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
     """Return the distribution of effort for ticket."""
     assignee_count = 1  # the default value of assginees for now
     # must change when we figure out how many assignees are working on the ticket
-    last_in_prog_date, last_status_was_in_prog = ticket.status_history[0], False
+    last_in_prog_date, last_status_was_in_prog = ticket.status_history[0].date, False
     effort_dist_for_ticket: WeekAndEffortTable = {}
 
     def accumulate_effort(intrvl_effort: WeekAndEffortTable):

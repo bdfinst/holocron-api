@@ -1,8 +1,10 @@
 """SCM branch model."""
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from datetime import datetime
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
-from .repository import Repository
 
 
 class Branch(MetadataBase, ModelBase):
@@ -10,10 +12,11 @@ class Branch(MetadataBase, ModelBase):
 
     __tablename__ = "branches"
 
-    repository_id = Column(
-        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    last_updated: Mapped[datetime]
+    name: Mapped[str]
+    is_default: Mapped[bool]
+
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
-    last_updated = Column(DateTime, nullable=False)
-    name = Column(String, nullable=False)
-    url = Column(String, nullable=False, unique=True)
-    is_default = Column(Boolean, server_default="False")
+    url: Mapped[str] = mapped_column(unique=True)

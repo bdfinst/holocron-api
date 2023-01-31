@@ -1,7 +1,8 @@
 """Build instance model."""
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from datetime import datetime
 
-from app.models.pipeline import Pipeline
+from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
 
@@ -11,12 +12,13 @@ class Build(MetadataBase, ModelBase):
 
     __tablename__ = "builds"
 
-    pipeline_id = Column(
-        Integer, ForeignKey(Pipeline.id, ondelete="CASCADE"), nullable=False
+    build_status: Mapped[str]
+    is_deployed: Mapped[bool]
+    passed_with_warnings: Mapped[bool]
+
+    pipeline_id: Mapped[int] = mapped_column(
+        ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
-    build_url = Column(String, nullable=False, unique=True)
-    build_status = Column(String, nullable=False)
-    start_time = Column(DateTime(timezone=True))
-    end_time = Column(DateTime(timezone=True))
-    is_deployed = Column(Boolean, server_default="False")
-    passed_with_warnings = Column(Boolean, server_default="False")
+    build_url: Mapped[str] = mapped_column(unique=True)
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))

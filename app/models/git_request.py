@@ -1,8 +1,11 @@
 """SCM merge/pull request model."""
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
-from .repository import Repository
 
 
 class GitRequest(MetadataBase, ModelBase):
@@ -10,12 +13,13 @@ class GitRequest(MetadataBase, ModelBase):
 
     __tablename__ = "git_requests"
 
-    repository_id = Column(
-        Integer, ForeignKey(Repository.id, ondelete="CASCADE"), nullable=False
+    title: Mapped[str]
+    is_open: Mapped[bool]
+    last_updated: Mapped[datetime]
+    first_opened: Mapped[Optional[datetime]]
+    merged_at: Mapped[Optional[datetime]]
+
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
-    title = Column(String(), nullable=False)
-    is_open = Column(Boolean)
-    first_opened = Column(DateTime)
-    merged_at = Column(DateTime)
-    last_updated = Column(DateTime, nullable=False)
-    url = Column(String, nullable=False, unique=True)
+    url: Mapped[str] = mapped_column(unique=True)

@@ -1,24 +1,21 @@
 """Holocron team model."""
-from sqlalchemy import (
-    Boolean,
-    Column,
-    ForeignKey,
-    Integer,
-    String,
-    Table,
-    UniqueConstraint,
-)
-from sqlalchemy.orm import relationship
+from typing import List
+
+from sqlalchemy import Column, ForeignKey, Integer, Table, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
+from .collector_target import CollectorTarget
+from .pipeline import Pipeline
+from .repository import Repository
+from .ticket_board import TicketBoard
 from .user import User
-from .valuestream import Valuestream
 
 association_table = Table(
     "team_users",
     MetadataBase.metadata,
-    Column("team_id", ForeignKey("teams.id", ondelete="CASCADE")),
-    Column("user_id", ForeignKey(User.id)),
+    Column("team_id", Integer, ForeignKey("teams.id", ondelete="CASCADE")),
+    Column("user_id", Integer, ForeignKey(User.id)),
 )
 
 
@@ -26,19 +23,23 @@ class Team(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "teams"
+    __table_args__ = (UniqueConstraint("name", "valuestream_id"),)
 
-    name = Column(String, nullable=False)
-    team_size = Column(Integer, nullable=False)
-    users = relationship("User", secondary=association_table)
-    collector_targets = relationship("CollectorTarget")
-    pipelines = relationship("Pipeline", overlaps="collector_targets")
-    repositories = relationship("Repository", overlaps="collector_targets")
-    ticket_boards = relationship("TicketBoard", overlaps="collector_targets")
-    team_history = relationship("TeamHistory")
-    valuestream_id = Column(Integer, ForeignKey(Valuestream.id), nullable=False)
-    is_workflow_only = Column(Boolean, nullable=False, server_default="False")
+    name: Mapped[str]
+    team_size: Mapped[int]
+    is_workflow_only: Mapped[bool]
 
-    UniqueConstraint(name, valuestream_id)
+    valuestream_id: Mapped[int] = mapped_column(ForeignKey("valuestreams.id"))
+    collector_targets: Mapped[List["CollectorTarget"]] = relationship()
+    team_history: Mapped[List["TeamHistory"]] = relationship()
+    users: Mapped[List["User"]] = relationship(secondary=association_table)
+    pipelines: Mapped[List["Pipeline"]] = relationship(overlaps="collector_targets")
+    repositories: Mapped[List["Repository"]] = relationship(
+        overlaps="collector_targets"
+    )
+    ticket_boards: Mapped[List["TicketBoard"]] = relationship(
+        overlaps="collector_targets"
+    )
 
 
 class TeamHistory(MetadataBase, ModelBase):
@@ -46,5 +47,6 @@ class TeamHistory(MetadataBase, ModelBase):
 
     __tablename__ = "team_history"
 
-    team_size = Column(Integer, nullable=False)
-    team_id = Column(Integer, ForeignKey(Team.id, ondelete="CASCADE"), nullable=False)
+    team_size: Mapped[int]
+
+    team_id: Mapped[int] = mapped_column(ForeignKey(Team.id, ondelete="CASCADE"))
