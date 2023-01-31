@@ -8,7 +8,7 @@ from app.crud import valuestreams_crud
 from app.exceptions import HolocronIntegrityError
 from tests.utils import first_argument
 
-json = {"name": "test", "organization_id": 1}
+json = {"name": "test", "organization_id": 1, "user_ids": []}
 
 
 def test_create_entity(mock_session):

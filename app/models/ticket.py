@@ -1,42 +1,43 @@
 """Workflow ticket model."""
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
-from sqlalchemy.orm import backref, relationship
+from datetime import datetime
+from typing import List, Optional
+
+from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
-from .ticket_board import TicketBoard
 
 
 class Ticket(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "tickets"
+    __table_args__ = (UniqueConstraint("ticket_id", "board_id"),)
 
-    board_id = Column(
-        Integer, ForeignKey(TicketBoard.id, ondelete="CASCADE"), nullable=False
-    )
-    ticket_id = Column(Integer, nullable=False)
-    assignee = Column(String())
-    status = Column(String(), nullable=False)
-    ticket_type = Column(String())
-    super_ticket_id = Column(Integer, ForeignKey("tickets.id"))
-    sub_tickets = relationship(
-        "Ticket", backref=backref("super_ticket", remote_side="Ticket.id")
-    )
-    priority = Column(String())
+    ticket_id: Mapped[int]
+    status: Mapped[str]
+    ticket_type: Mapped[Optional[str]]
+    priority: Mapped[Optional[str]]
+    assignee: Mapped[Optional[str]]
 
-    UniqueConstraint(ticket_id, board_id)
+    board_id: Mapped[int] = mapped_column(
+        ForeignKey("collector_targets.id", ondelete="CASCADE")
+    )
+    super_ticket_id: Mapped[Optional[int]] = mapped_column(ForeignKey("tickets.id"))
+    sub_tickets: Mapped[List["Ticket"]] = relationship(
+        backref=backref("super_ticket", remote_side="Ticket.id")
+    )
+    status_history: Mapped[List["StatusHistory"]] = relationship()
 
 
 class StatusHistory(MetadataBase, ModelBase):
     """Model class for ticket status history."""
 
     __tablename__ = "ticket_status_histories"
+    __table_args__ = (UniqueConstraint("ticket_id", "date"),)
 
-    ticket_id = Column(
-        Integer, ForeignKey(Ticket.id, ondelete="CASCADE"), nullable=False
-    )
-    ticket = relationship("Ticket", backref=backref("status_history"))
-    date = Column(DateTime(), nullable=False)
-    status = Column(String(), nullable=False)
+    date: Mapped[datetime]
+    status: Mapped[str]
 
-    UniqueConstraint(ticket_id, date)
+    ticket_id: Mapped[int] = mapped_column(ForeignKey(Ticket.id, ondelete="CASCADE"))
+    ticket: Mapped["Ticket"] = relationship(back_populates=("status_history"))

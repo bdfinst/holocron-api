@@ -211,7 +211,7 @@ When running this project using the dev-environment repository, you can find the
 
 Poetry is a package manager that automatically creates a [python virtual environment](https://docs.python.org/3/library/venv.html#venv-def), a project configuration file (pyproject.toml) and a dependency lock file (poetry.lock). To use the environment, use `poetry install` initially and whenever there are any dependency changes pulled. Afterwards, you can use `poetry run <command>` to execute a command in the virtual environment, or `poetry shell` to activate it and all future commands will be run in the environment until you give the `exit` command.
 
-For pipeline compatibility, we need to export our dependencies to a requirements.txt file. After any update to the dependencies in pyproject.toml and poetry.lock, run the following command `poetry export -o requirements.txt --without-hashes --dev`.
+For pipeline compatibility, we need to export our dependencies to a requirements.txt file. After any update to the dependencies in pyproject.toml and poetry.lock, run the following command `poetry export -o requirements.txt --without-hashes --with dev`.
 
 To add a dependency `poetry add <package_name>` or `poetry add -D <package_name>` for dev dependencies.
 
@@ -229,18 +229,21 @@ Model definitions are found under `app/models`. To start, we will create a file 
 
 ```python
 """Forum model."""
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from typing import List, Optional
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .collector_target import CollectorTarget
+from .thread import Thread
 
 
 class Forum(CollectorTarget):
     """Model class."""
 
-    forum_id = Column(Integer, index=True)
-    description = Column(String)
-    threads = relationship("Thread")
+    description: Mapped[Optional[str]]
+
+    forum_id: Mapped[Optional[int]] = mapped_column(index=True)
+    threads: Mapped[List["Thread"]] = relationship()
 ```
 
 The `CollectorTarget` parent class applies several common fields that all these top level models utilize. It also inherits from `MetadataBase` and `ModelBase` which provide data for migrations and the definitions for the primary key and some timestamp fields respectively.
@@ -249,7 +252,8 @@ Next, we will create our `thread` model in a new file `thread.py`.
 
 ```python
 """Forum thread model."""
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ._base import MetadataBase, ModelBase
 from .forum import Forum
@@ -259,8 +263,8 @@ class Thread(MetadataBase, ModelBase):
 
     __tablename__ = "threads"
 
-    forum_id = Column(Integer, ForeignKey(Forum.id, ondelete="CASCADE"), nullable=False)
-    url = Column(String, nullable=False, unique=True)
+    forum_id: Mapped[int] = mapped_column(ForeignKey(Forum.id, ondelete="CASCADE"))
+    url: Mapped[str] = mapped_column(unique=True)
 ```
 
 Next we need to update the `Team` model in `team.py` to include a relationship to `Forum`.
@@ -271,7 +275,7 @@ Next we need to update the `Team` model in `team.py` to include a relationship t
 
         ...
 
-        forums = relationship("Forum", overlaps="collector_targets")
+        forums: Mapped[List["Forum"]] = relationship(overlaps="collector_targets")
 ```
 
 Now we just need to add the new models to `__init__.py` for easy imports.
@@ -284,7 +288,7 @@ from .thread import Thread
 
 After creating/updating a model, a new migration file needs to be created. You can generate a new migration by running the following command from within the dev environment backend container.
 
-`docker compose up &`
+`docker compose up`
 
 and then 
 
@@ -328,7 +332,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from app.models import Forum
 
 from ._base import SchemaBase
-from .thread import ThreadSchema
+from .collector_target_config import ConfigItemSchema
 
 
 class ForumSchema(SQLAlchemyAutoSchema, SchemaBase):
@@ -340,6 +344,9 @@ class ForumSchema(SQLAlchemyAutoSchema, SchemaBase):
         model = Forum
         include_relationships = True
         exclude: Tuple[str, ...] = ("threads",)
+
+    team_id = auto_field()
+    config = fields.Nested(ConfigItemSchema)
 ```
 
 Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
@@ -368,7 +375,7 @@ Now that we have a schema, we can make our CRUD logic. The CRUD files are found 
 
 ```python
 """BaseCRUD extension and instance for Forum model."""
-from typing import List
+from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -381,14 +388,14 @@ from .teams import teams_crud
 class ForumsCRUD(BaseCRUD[Forum]):
     """Base CRUD extension for Forum model."""
 
-    def get_entities(self, session: Session) -> List[Forum]:
+    def get_entities(self, session: Session) -> Sequence[Forum]:
         """Override get_entities to return only forums."""
         return session.scalars(
             select(Forum).where(Forum.forum_id.is_not(None))
         ).all()
     
     @staticmethod
-    def get_entities_for_team(session: Session, team_id: int) -> List[Forum]:
+    def get_entities_for_team(session: Session, team_id: int) -> Sequence[Forum]:
         """Get all forums for a given team."""
         team = teams_crud.get_entity(team_id)
         return session.scalars(
@@ -421,23 +428,6 @@ threads_crud = ThreadsCRUD(Thread, Forum, "form_id")
 
 Here we inherit `BaseMetricCRUD` which is a class that inherits `BaseCRUD` and also defines a generic method to get all entities for a given team. We don't need any new methods or overrides here so we then just instantiate our class. Additionally, `Thread` has a foreign key to `Form` named `form_id`
 which we need to pass in the constructor.
-
-We do need to then make a small update to that class to include our new `Forum` model. Add the import and a couple of new lines to the `__init__` method found in `_base.py`.
-
-```python
-from app.models import (... Forum)
-
-...
-
-class BaseMetricCRUD(BaseCRUD[T]):
-    """Extended base class for CRUD methods on team metric models."""
-
-    def __init__(self, model: Type[ModelBase], target_model: Type[CollectorTarget]):
-        """Initialize with the given model with collector target parent."""
-        ...
-        elif target_model == Forum:
-            id_field = "forum_id"
-```
 
 Now we just need to once again add our new class instances to the `__init__.py` for easy imports.
 
@@ -649,29 +639,7 @@ def get_forum(forum_id: str):
 
 For brevity, the updates to `threads.py` won't be included, but of course they should also be updated to be included in the OpenAPI docs.
 
-The final change is to ensure the OpenAPI specification understands our generated schemas correctly. Make a small change to `app/spec.py`:
-
-```python
-from app.schemas import (
-    ...,
-    ForumMetricsSchema,
-)
-
-...
-
-def serve_spec(app: Flask, spec: APISpec):
-    """Serve the API spec."""
-    template = spec.to_flasgger(
-        app,
-        definitions=[
-            ...,
-            ForumMetricsSchema,
-        ],
-    )
-    template = override_collector_target_spec(template, "forums", "ForumMetrics")
-```
-
-You can see all these updates at the /api/v1 endpoint.
+You can see these updates at the /api/v1 endpoint.
 
 ### Tests
 
@@ -743,6 +711,7 @@ def test_list_forums(client, mock_crud):
     resp = client.get("/api/v1/forums")
 
     assert resp.json == expected
+    assert resp.status_code == 200
 
 
 def test_list_forums_for_team(client, mock_crud):

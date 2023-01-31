@@ -18,11 +18,10 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Organization:
         """Insert organization in database."""
-        new_organization = Organization(name=json.get("name"))
+        new_organization = Organization(name=json["name"])
 
         new_organization.users = [
-            users_crud.get_entity(session, user_id)
-            for user_id in json.get("user_ids", [])
+            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
         ]
 
         try:
@@ -42,11 +41,10 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
     ) -> Organization:
         """Update organization in database."""
         organization = self.get_entity(session, id_)
-        organization.name = json.get("name")
+        organization.name = json["name"]
 
         organization.users = [
-            users_crud.get_entity(session, user_id)
-            for user_id in json.get("user_ids", [])
+            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
         ]
 
         try:

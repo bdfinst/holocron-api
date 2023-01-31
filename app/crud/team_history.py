@@ -1,5 +1,6 @@
 """BaseCRUD extension and instance for Team History model."""
 import logging
+from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -34,7 +35,7 @@ class TeamHistoryCRUD(BaseCRUD[TeamHistory]):
         return new_team_history
 
     @staticmethod
-    def get_entities_for_team(session: Session, team_id: int) -> list[TeamHistory]:
+    def get_entities_for_team(session: Session, team_id: int) -> Sequence[TeamHistory]:
         """Get all team history given an team id."""
         return session.scalars(
             select(TeamHistory).where(TeamHistory.team_id == team_id)

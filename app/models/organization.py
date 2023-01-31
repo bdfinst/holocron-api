@@ -1,15 +1,20 @@
 """Holocron organization model."""
-from sqlalchemy import Column, ForeignKey, String, Table
-from sqlalchemy.orm import relationship
+from typing import List
+
+from sqlalchemy import Column, ForeignKey, Integer, Table
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
 from .user import User
+from .valuestream import Valuestream
 
 association_table = Table(
     "organization_users",
     MetadataBase.metadata,
-    Column("organization_id", ForeignKey("organizations.id", ondelete="CASCADE")),
-    Column("user_id", ForeignKey(User.id)),
+    Column(
+        "organization_id", Integer, ForeignKey("organizations.id", ondelete="CASCADE")
+    ),
+    Column("user_id", Integer, ForeignKey(User.id)),
 )
 
 
@@ -18,6 +23,6 @@ class Organization(MetadataBase, ModelBase):
 
     __tablename__ = "organizations"
 
-    name = Column(String, nullable=False, unique=True)
-    valuestreams = relationship("Valuestream")
-    users = relationship("User", secondary=association_table)
+    name: Mapped[str] = mapped_column(unique=True)
+    users: Mapped[List["User"]] = relationship(secondary=association_table)
+    valuestreams: Mapped[List["Valuestream"]] = relationship()

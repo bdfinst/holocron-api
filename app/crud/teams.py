@@ -101,18 +101,17 @@ class TeamsCRUD(BaseCRUD[Team]):
     def create_entity(session: Session, json: Dict[str, Any]) -> Team:
         """Insert team in database."""
         new_team = Team(
-            name=json.get("name"),
-            team_size=json.get("team_size"),
-            valuestream_id=json.get("valuestream_id"),
+            name=json["name"],
+            team_size=json["team_size"],
+            valuestream_id=json["valuestream_id"],
         )
 
         new_team.users = [
-            users_crud.get_entity(session, user_id)
-            for user_id in json.get("user_ids", [])
+            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
         ]
         new_team.collector_targets = [
             collector_targets_crud.get_entity(session, target_id)
-            for target_id in json.get("collector_target_ids", [])
+            for target_id in json["collector_target_ids"]
         ]
         team_validation_data = get_team_validation_data(session, new_team)
         new_team.is_workflow_only = is_workflow_only(team_validation_data)
@@ -134,17 +133,16 @@ class TeamsCRUD(BaseCRUD[Team]):
     def update_entity(self, session: Session, json: Dict[str, Any], id_: int) -> Team:
         """Update team in database."""
         team = self.get_entity(session, id_)
-        team.name = json.get("name")
-        team.team_size = json.get("team_size")
-        team.valuestream_id = json.get("valuestream_id")
+        team.name = json["name"]
+        team.team_size = json["team_size"]
+        team.valuestream_id = json["valuestream_id"]
 
         team.users = [
-            users_crud.get_entity(session, user_id)
-            for user_id in json.get("user_ids", [])
+            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
         ]
         team.collector_targets = [
             collector_targets_crud.get_entity(session, target_id)
-            for target_id in json.get("collector_target_ids", [])
+            for target_id in json["collector_target_ids"]
         ]
         team_validation_data = get_team_validation_data(session, team)
         team.is_workflow_only = is_workflow_only(team_validation_data)

@@ -1,12 +1,14 @@
 """Workflow ticket board model."""
-from sqlalchemy import Column, Integer
-from sqlalchemy.orm import relationship
+from typing import List, Optional
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .collector_target import CollectorTarget
+from .ticket import Ticket
 
 
 class TicketBoard(CollectorTarget):
     """Model class."""
 
-    board_id = Column(Integer, index=True)
-    tickets = relationship("Ticket")
+    board_id: Mapped[Optional[int]] = mapped_column(index=True)
+    tickets: Mapped[List["Ticket"]] = relationship()

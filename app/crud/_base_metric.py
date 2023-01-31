@@ -1,5 +1,5 @@
 """Base classes for metric-based database operations."""
-from typing import List, Type, TypeVar
+from typing import Sequence, Type, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -17,7 +17,7 @@ class BaseMetricCRUD(BaseCRUD[T]):
 
     def __init__(
         self,
-        model: Type[ModelBase],
+        model: Type[T],
         target_model: Type[CollectorTarget],
         model_foreign_key_field_to_target: str,
     ):
@@ -30,7 +30,7 @@ class BaseMetricCRUD(BaseCRUD[T]):
         self.fk_id_field = model_foreign_key_field_to_target
         super().__init__(model)
 
-    def get_entities_for_team(self, session: Session, team_id: int) -> List[T]:
+    def get_entities_for_team(self, session: Session, team_id: int) -> Sequence[T]:
         """Get all entities for a given team."""
         team = teams_crud.get_entity(session, team_id)
         return session.scalars(

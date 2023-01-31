@@ -71,6 +71,7 @@ def test_create_team(client, mock_crud, monkeypatch, mock_admin):
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
+        "isWorkflowOnly": False,
     }
 
     monkeypatch.setattr(
@@ -119,6 +120,7 @@ def test_create_team_validation_error(client, mock_crud, mock_admin):
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
+                "isWorkflowOnly": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -128,6 +130,7 @@ def test_create_team_validation_error(client, mock_crud, mock_admin):
                 "userIds": [],
                 "collectorTargetIds": [],
                 "teamSize": -1,
+                "isWorkflowOnly": False,
             },
             {
                 "name": ["String does not match expected pattern."],
@@ -155,6 +158,7 @@ def test_create_team_database_error(client, mock_crud, mock_admin):
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
+        "isWorkflowOnly": False,
     }
     expected = {"error": "error"}
 
@@ -172,6 +176,7 @@ def test_update_team(client, mock_crud, monkeypatch, mock_admin):
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
+        "isWorkflowOnly": False,
     }
     expected = dict(
         id=1,
@@ -232,6 +237,7 @@ def test_update_team_validation_error(client, mock_crud, mock_admin):
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
+                "isWorkflowOnly": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -241,6 +247,7 @@ def test_update_team_validation_error(client, mock_crud, mock_admin):
                 "userIds": [],
                 "collectorTargetIds": [],
                 "teamSize": -1,
+                "isWorkflowOnly": False,
             },
             {
                 "name": ["String does not match expected pattern."],
@@ -268,6 +275,7 @@ def test_update_team_database_error(client, mock_crud, monkeypatch, mock_admin):
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
+        "isWorkflowOnly": False,
     }
     expected = {"error": "error"}
 

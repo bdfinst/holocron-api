@@ -12,11 +12,19 @@ from app.exceptions import HolocronIntegrityError
 from app.models import Repository, Team, TicketBoard
 from tests.utils import first_argument
 
-json = {
+json1 = {
     "name": "test",
     "team_size": 1,
     "user_ids": [],
     "collector_target_ids": [21],
+    "valuestream_id": 1,
+}
+
+json2 = {
+    "name": "test",
+    "team_size": 1,
+    "user_ids": [],
+    "collector_target_ids": [22],
     "valuestream_id": 1,
 }
 
@@ -75,7 +83,7 @@ def test_create_entity(
     mock_team_collector_targets,
 ):
     """Test create_entity method."""
-    result = teams_crud.create_entity(mock_session, json)
+    result = teams_crud.create_entity(mock_session, json1)
     team = first_argument(mock_session.add)
     mock_team_feature_board_id = 21
 
@@ -102,7 +110,7 @@ def test_create_entity_valuestream_id_error(
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json)
+        teams_crud.create_entity(mock_session, json1)
 
     assert expected == str(e.value)
 
@@ -119,7 +127,7 @@ def test_create_entity_unique_error(
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json)
+        teams_crud.create_entity(mock_session, json1)
 
     assert expected == str(e.value)
 
@@ -134,13 +142,7 @@ def test_create_entity_collector_targets_error(
         (
             """should error on collector targets already in use.""",
             (
-                {
-                    "name": "test",
-                    "team_size": 1,
-                    "user_ids": [],
-                    "collector_target_ids": [21],
-                    "valuestream_id": 1,
-                },
+                json1,
                 TicketBoard(
                     collector_id=1,
                     url="https://test-board.com",
@@ -153,13 +155,7 @@ def test_create_entity_collector_targets_error(
         (
             """should error on response having no feature boards.""",
             (
-                {
-                    "name": "test",
-                    "team_size": 1,
-                    "user_ids": [],
-                    "collector_target_ids": [22],
-                    "valuestream_id": 1,
-                },
+                json2,
                 Repository(
                     collector_id=1,
                     url="https://test-board.com",
@@ -197,7 +193,7 @@ def test_create_entity_unknown_error(
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json)
+        teams_crud.create_entity(mock_session, json1)
 
     assert expected == str(e.value)
 
@@ -208,7 +204,7 @@ def test_update_entity(
     """Test update_entity method."""
     expected = "SELECT * FROM teams WHERE teams.id = :id_1"
 
-    result = teams_crud.update_entity(mock_session, json, 1)
+    result = teams_crud.update_entity(mock_session, json1, 1)
     team = first_argument(mock_session.add)
     expected_feature_board_id = 21
 
@@ -234,7 +230,7 @@ def test_update_entity_valuestream_id_error(
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json, 1)
+        teams_crud.update_entity(mock_session, json1, 1)
 
     assert expected == str(e.value)
 
@@ -251,7 +247,7 @@ def test_update_entity_unique_error(
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json, 1)
+        teams_crud.update_entity(mock_session, json1, 1)
 
     assert expected == str(e.value)
 
@@ -264,13 +260,7 @@ def test_update_entity_collector_targets_error(
         (
             """should error on collector targets already in use.""",
             (
-                {
-                    "name": "test",
-                    "team_size": 1,
-                    "user_ids": [],
-                    "collector_target_ids": [21],
-                    "valuestream_id": 1,
-                },
+                json1,
                 TicketBoard(
                     collector_id=1,
                     url="https://test-board.com",
@@ -283,13 +273,7 @@ def test_update_entity_collector_targets_error(
         (
             """should error on response having no feature boards.""",
             (
-                {
-                    "name": "test",
-                    "team_size": 1,
-                    "user_ids": [],
-                    "collector_target_ids": [22],
-                    "valuestream_id": 1,
-                },
+                json2,
                 Repository(
                     collector_id=1,
                     url="https://test-board.com",
@@ -327,6 +311,6 @@ def test_update_entity_unknown_error(
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json, 1)
+        teams_crud.update_entity(mock_session, json1, 1)
 
     assert expected == str(e.value)
