@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify
 from app.crud import users_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.middleware import requires_admin
+from app.middleware import requires_admin, requires_security
 from app.schemas import UserSchema
 from app.security import get_sanitized_id
 
@@ -74,7 +74,7 @@ def get_user(user_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<user_id>", methods=["DELETE"])
-@requires_admin
+@requires_security([requires_admin])
 def delete_user(user_id: str) -> Tuple[Any, int]:
     """Delete user route.
 

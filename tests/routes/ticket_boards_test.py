@@ -1,8 +1,24 @@
 """TicketBoard route tests."""
 from pytest import fixture
 
+from app.middleware import auth
 from app.routes import ticket_boards
-from tests.mocks import crud
+from tests.mocks import crud, request
+
+
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    yield request
+    request.reset()
+
+
+@fixture
+def mock_admin(monkeypatch, mock_request):
+    """Mock an admin user."""
+    monkeypatch.setattr(auth, "SSO_ENABLED", True)
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
 @fixture
@@ -21,7 +37,7 @@ def test_list_ticket_boards(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_list_ticket_boards_for_team(client, mock_crud):
+def test_list_ticket_boards_for_team(client, mock_crud, mock_admin):
     """Test GET /api/v1/ticketboards/team/:id endpoint."""
     expected = {"result": []}
 

@@ -3,19 +3,36 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
+from app.middleware import auth
 from app.models import Team
 from app.routes import teams
-from tests.mocks import crud, team_history_crud
+from tests.mocks import crud, request, team_history_crud
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(teams, "teams_crud", crud)
+    monkeypatch.setattr(auth, "teams_crud", crud)
     monkeypatch.setattr(teams, "team_history_crud", team_history_crud)
 
 
-def test_list_teams(client, mock_crud):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    yield request
+    request.reset()
+
+
+@fixture
+def mock_admin(monkeypatch, mock_request):
+    """Mock an admin user."""
+    monkeypatch.setattr(auth, "SSO_ENABLED", True)
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
+
+
+def test_list_teams(client, mock_request, mock_crud):
     """Test GET /api/v1/teams endpoint."""
     expected = {"result": []}
 
@@ -25,7 +42,7 @@ def test_list_teams(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_team(client, mock_crud):
+def test_get_team(client, mock_crud, mock_admin):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
@@ -39,13 +56,14 @@ def test_get_team_404(client, mock_crud):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = "Resource not found"
 
+    # did not mock admin, we want requires_team_access to catch the error
     resp = client.get("/api/v1/teams/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
 
 
-def test_create_team(client, mock_crud, monkeypatch):
+def test_create_team(client, mock_crud, monkeypatch, mock_admin):
     """Test POST /api/v1/teams endpoint."""
     json = {
         "name": "test",
@@ -84,7 +102,7 @@ def test_create_team(client, mock_crud, monkeypatch):
     assert resp.status_code == 201
 
 
-def test_create_team_validation_error(client, mock_crud):
+def test_create_team_validation_error(client, mock_crud, mock_admin):
     """Test POST /api/v1/teams endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
     UNKNOWN_FIELD_MSG = "Unknown field."
@@ -129,7 +147,7 @@ def test_create_team_validation_error(client, mock_crud):
         assert resp.status_code == 400, description
 
 
-def test_create_team_database_error(client, mock_crud):
+def test_create_team_database_error(client, mock_crud, mock_admin):
     """Test POST /api/v1/teams endpoint."""
     json = {
         "name": "error",
@@ -146,7 +164,7 @@ def test_create_team_database_error(client, mock_crud):
     assert resp.status_code == 400
 
 
-def test_update_team(client, mock_crud, monkeypatch):
+def test_update_team(client, mock_crud, monkeypatch, mock_admin):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {
         "name": "test2",
@@ -197,7 +215,7 @@ def test_update_team(client, mock_crud, monkeypatch):
     assert resp.status_code == 200
 
 
-def test_update_team_validation_error(client, mock_crud):
+def test_update_team_validation_error(client, mock_crud, mock_admin):
     """Test PUT /api/v1/teams/1 endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
     UNKNOWN_FIELD_MSG = "Unknown field."
@@ -242,7 +260,7 @@ def test_update_team_validation_error(client, mock_crud):
         assert resp.status_code == 400, description
 
 
-def test_update_team_database_error(client, mock_crud, monkeypatch):
+def test_update_team_database_error(client, mock_crud, monkeypatch, mock_admin):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {
         "name": "error",
@@ -271,7 +289,7 @@ def test_update_team_database_error(client, mock_crud, monkeypatch):
     assert resp.status_code == 400
 
 
-def test_delete_team(client, mock_crud):
+def test_delete_team(client, mock_crud, mock_admin):
     """Test DELETE /api/v1/teams/1 endpoint."""
     resp = client.delete("/api/v1/teams/1")
 

@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify
 from app.crud import branches_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas import BranchSchema
 from app.security import get_sanitized_id
 
@@ -15,6 +16,7 @@ schema = BranchSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
+@requires_security([requires_admin, requires_team_access])
 def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
     """Get branches for a given team id.
 

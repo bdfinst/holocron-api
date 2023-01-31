@@ -1,8 +1,11 @@
 """Middleware."""
 from .auth import (
     requires_admin,
-    requires_admin_or_member,
-    requires_leadership,
+    requires_org_access,
+    requires_org_leadership,
+    requires_security,
+    requires_team_access,
+    requires_vs_access,
     return_user,
     set_user,
 )

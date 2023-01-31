@@ -8,7 +8,12 @@ from app.crud.team_history import team_history_crud
 from app.crud.teams import teams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.middleware import requires_admin_or_member
+from app.middleware import (
+    requires_admin,
+    requires_security,
+    requires_team_access,
+    requires_vs_access,
+)
 from app.models import Team
 from app.schemas import TeamSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
@@ -45,6 +50,7 @@ def list_teams() -> Tuple[Any, int]:
 
 
 @router.route("", methods=["POST"])
+@requires_security([requires_admin, requires_vs_access])
 def create_team() -> Tuple[Any, int]:
     """Create team route.
 
@@ -88,6 +94,7 @@ def create_team() -> Tuple[Any, int]:
 
 
 @router.route("/<team_id>", methods=["GET"])
+@requires_security([requires_admin, requires_team_access])
 def get_team(team_id: str) -> Tuple[Any, int]:
     """Get team by id route.
 
@@ -120,7 +127,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<team_id>", methods=["PUT"])
-@requires_admin_or_member
+@requires_security([requires_admin, requires_team_access])
 def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
 
@@ -178,7 +185,7 @@ def update_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<team_id>", methods=["DELETE"])
-@requires_admin_or_member
+@requires_security([requires_admin, requires_team_access])
 def delete_team(team_id: str) -> Tuple[Any, int]:
     """Delete team route.
 

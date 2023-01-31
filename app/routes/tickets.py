@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify
 from app.crud import tickets_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas import TicketSchema
 from app.security import get_sanitized_id
 
@@ -15,6 +16,7 @@ schema = TicketSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
+@requires_security([requires_admin, requires_team_access])
 def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
     """Get tickets for a given team id.
 

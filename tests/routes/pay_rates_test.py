@@ -1,8 +1,9 @@
 """PayRates route tests."""
 from pytest import fixture
 
+from app.middleware import auth
 from app.routes import pay_rates
-from tests.mocks import crud
+from tests.mocks import crud, request
 
 
 @fixture
@@ -11,9 +12,22 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(pay_rates, "pay_rates_crud", crud)
 
 
-def test_list_pay_rates(client, mock_crud):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    yield request
+    request.reset()
+
+
+def test_list_pay_rates(client, mock_crud, mock_request):
     """Test GET /api/v1/payrates endpoint."""
     expected = {"result": []}
+    setattr(
+        mock_request,
+        "user",
+        {"isOrgLeadership": True, "isAdmin": False, "id": 1, "username": "t"},
+    )
 
     resp = client.get("/api/v1/payrates")
 
@@ -21,9 +35,14 @@ def test_list_pay_rates(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_upsert_payrate(client, mock_crud):
+def test_upsert_payrate(client, mock_crud, mock_request):
     """Test POST /api/v1/payrates endpoint."""
     json = {"rates": [{"rate": 1, "email": "bob@somemail.com"}]}
+    setattr(
+        mock_request,
+        "user",
+        {"isOrgLeadership": True, "isAdmin": False, "id": 1, "username": "t"},
+    )
 
     resp = client.post("/api/v1/payrates", json=json)
 
@@ -31,8 +50,13 @@ def test_upsert_payrate(client, mock_crud):
     assert resp.status_code == 201
 
 
-def test_upsert_payrate_business_logic_error(client, mock_crud):
+def test_upsert_payrate_business_logic_error(client, mock_crud, mock_request):
     """Test POST /api/v1/payrates endpoint business logic errors."""
+    setattr(
+        mock_request,
+        "user",
+        {"isOrgLeadership": True, "isAdmin": False, "id": 1, "username": "t"},
+    )
     invalid_input_cases = [
         (
             "Invalid rates field",
@@ -91,7 +115,7 @@ def test_upsert_payrate_business_logic_error(client, mock_crud):
         assert resp.status_code == code, description
 
 
-def test_upsert_payrate_validation_error(client, mock_crud):
+def test_upsert_payrate_validation_error(client, mock_crud, mock_request):
     """Test POST /api/v1/payrates endpoint."""
     json = {"rates": [{"rate": 1, "extra": "field"}]}
     expected = {
@@ -102,6 +126,11 @@ def test_upsert_payrate_validation_error(client, mock_crud):
             }
         }
     }
+    setattr(
+        mock_request,
+        "user",
+        {"isOrgLeadership": True, "isAdmin": False, "id": 1, "username": "t"},
+    )
 
     resp = client.post("/api/v1/payrates", json=json)
 

@@ -1,14 +1,15 @@
 """Authentication middleware."""
 import json
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import jwt
 from flask import Response, request
 
 from app.config import SSO_ENABLED
-from app.crud import teams_crud, users_crud
+from app.crud import organizations_crud, teams_crud, users_crud, valuestreams_crud
 from app.database import generate_session
+from app.exceptions import HolocronIntegrityError
 from app.schemas import UserSchema
 from app.security import log_security_event
 
@@ -50,50 +51,125 @@ def log_unpriviledge_user_access(user: Dict[str, Any], access_group: str):
     log_security_event(msg)
 
 
-def requires_admin(func: Callable) -> Callable:
+def requires_org_leadership(**kwargs) -> Tuple[bool, Optional[str]]:
+    """Restrict access for endpoint to users with org leadership access."""
+    if not kwargs:
+        user = getattr(request, "user", {"isOrgLeadership": False})
+        if user["isOrgLeadership"]:
+            return True, None
+
+    return False, "ORG_LEADERSHIP"
+
+
+def requires_org_access(**kwargs) -> Tuple[bool, Optional[str]]:
+    """Restrict access for endpoint to users with org access."""
+    if not kwargs:
+        data = request.json
+        if data is not None:
+            current_org = (int)(data["organizationId"])
+        else:
+            return False, "ORGANIZATION_ADMIN"
+    else:
+        current_org = (int)(kwargs["org_id"])
+
+    user = getattr(request, "user", {"id": 0})
+    with generate_session() as session:
+        organization = organizations_crud.get_entity(session, current_org)
+        if any(
+            organization_user.id == user["id"]
+            for organization_user in organization.users
+        ):
+            return True, None
+
+    return False, "ORGANIZATION_ADMIN"
+
+
+def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
+    """Restrict access for endpoint to users with vs access."""
+    if not kwargs:
+        data = request.json
+        if data is not None:
+            current_valuestream = (int)(data["valuestreamId"])
+        else:
+            return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
+    else:
+        current_valuestream = (int)(kwargs["valuestream_id"])
+
+    user = getattr(request, "user", {"id": 0})
+    with generate_session() as session:
+        valuestream = valuestreams_crud.get_entity(session, current_valuestream)
+        if any(
+            valuestream_user.id == user["id"] for valuestream_user in valuestream.users
+        ):
+            return True, None
+
+        organization = organizations_crud.get_entity(
+            session, valuestream.organization_id
+        )
+        if any(
+            organization_user.id == user["id"]
+            for organization_user in organization.users
+        ):
+            return True, None
+
+    return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
+
+
+def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
+    """Restrict access for endpoint to users with team access."""
+    current_team = (int)(kwargs["team_id"])
+    user = getattr(request, "user", {"id": 0})
+    with generate_session() as session:
+        team = teams_crud.get_entity(session, current_team)
+        if any(user["id"] == team_usr.id for team_usr in team.users):
+            return True, None
+
+        valuestream = valuestreams_crud.get_entity(session, team.valuestream_id)
+        if any(
+            valuestream_user.id == user["id"] for valuestream_user in valuestream.users
+        ):
+            return True, None
+
+        organization = organizations_crud.get_entity(
+            session, valuestream.organization_id
+        )
+        if any(
+            organization_user.id == user["id"]
+            for organization_user in organization.users
+        ):
+            return True, None
+
+    return False, "TEAM_ADMIN OR VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
+
+
+def requires_admin(**_) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to admins."""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user = getattr(request, "user", None)
-        if not SSO_ENABLED or user["isAdmin"]:
-            return func(*args, **kwargs)
-        log_unpriviledge_user_access(user, "ADMIN")
-        return INVALID_PERMISSIONS, 403
-
-    wrapper.__name__ = func.__name__
-    return wrapper
+    user = getattr(request, "user", {"isAdmin": False})
+    if not SSO_ENABLED or user["isAdmin"]:
+        return True, None
+    return False, "ADMIN"
 
 
-def requires_leadership(func: Callable) -> Callable:
-    """Restrict access for endpoint to leadership."""
+def requires_security(arguments) -> Callable:
+    """Restrict access based on the required groups."""
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user = getattr(request, "user", None)
-        if not SSO_ENABLED or user["isOrgLeadership"]:
-            return func(*args, **kwargs)
-        log_unpriviledge_user_access(user, "LEADERSHIP")
-        return INVALID_PERMISSIONS, 403
+    def decorator(original_func):
+        @wraps(original_func)
+        def wrapper(*args, **kwargs):
+            user = getattr(request, "user", None)
+            permission_names = []
+            for security_func in arguments:
+                try:
+                    success, name = security_func(**kwargs)
+                except HolocronIntegrityError:
+                    return "Resource not found", 404
+                if success:
+                    return original_func(*args, **kwargs)
+                permission_names.append(name)
+            result = " OR ".join(permission_names)
+            log_unpriviledge_user_access(user, result)
+            return INVALID_PERMISSIONS, 403
 
-    wrapper.__name__ = func.__name__
-    return wrapper
+        return wrapper
 
-
-def requires_admin_or_member(func: Callable) -> Callable:
-    """Restrict access for endpoint to admins or team members."""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user = getattr(request, "user", None)
-        if not SSO_ENABLED or user["isAdmin"]:
-            return func(*args, **kwargs)
-        with generate_session() as session:
-            team = teams_crud.get_entity(session, kwargs["team_id"])
-            if any(team_usr.id == user["id"] for team_usr in team.users):
-                return func(*args, **kwargs)
-        log_unpriviledge_user_access(user, "ADMIN OR MEMBER")
-        return INVALID_PERMISSIONS, 403
-
-    wrapper.__name__ = func.__name__
-    return wrapper
+    return decorator

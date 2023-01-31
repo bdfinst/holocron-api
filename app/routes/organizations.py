@@ -7,7 +7,7 @@ from marshmallow import ValidationError
 from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.middleware import requires_admin
+from app.middleware import requires_admin, requires_org_access, requires_security
 from app.schemas import OrganizationSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
@@ -45,6 +45,7 @@ def list_organizations() -> Tuple[Any, int]:
 
 
 @router.route("", methods=["POST"])
+@requires_security([requires_admin])
 def create_organization() -> Tuple[Any, int]:
     """Create organization route.
 
@@ -82,6 +83,7 @@ def create_organization() -> Tuple[Any, int]:
 
 
 @router.route("/<org_id>", methods=["GET"])
+@requires_security([requires_admin, requires_org_access])
 def get_organization(org_id: str) -> Tuple[Any, int]:
     """Get organization by id route.
 
@@ -114,7 +116,7 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<org_id>", methods=["PUT"])
-@requires_admin
+@requires_security([requires_admin, requires_org_access])
 def update_organization(org_id: str) -> Tuple[Any, int]:
     """Update organization route.
 
@@ -161,7 +163,7 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<org_id>", methods=["DELETE"])
-@requires_admin
+@requires_security([requires_admin, requires_org_access])
 def delete_organization(org_id: str) -> Tuple[Any, int]:
     """Delete organization route.
 

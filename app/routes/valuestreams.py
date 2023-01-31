@@ -7,7 +7,12 @@ from marshmallow import ValidationError
 from app.crud import valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.middleware import requires_admin
+from app.middleware import (
+    requires_admin,
+    requires_org_access,
+    requires_security,
+    requires_vs_access,
+)
 from app.schemas import ValuestreamSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
@@ -43,6 +48,7 @@ def list_valuestreams() -> Tuple[Any, int]:
 
 
 @router.route("", methods=["POST"])
+@requires_security([requires_admin, requires_org_access])
 def create_valuestream() -> Tuple[Any, int]:
     """Create valuestream route.
 
@@ -80,6 +86,7 @@ def create_valuestream() -> Tuple[Any, int]:
 
 
 @router.route("/<valuestream_id>", methods=["GET"])
+@requires_security([requires_admin, requires_vs_access])
 def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Get valuestream by id route.
 
@@ -114,7 +121,7 @@ def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<valuestream_id>", methods=["PUT"])
-@requires_admin
+@requires_security([requires_admin, requires_vs_access])
 def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Update valuestream route.
 
@@ -161,7 +168,7 @@ def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<valuestream_id>", methods=["DELETE"])
-@requires_admin
+@requires_security([requires_admin, requires_vs_access])
 def delete_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Delete valuestream route.
 
