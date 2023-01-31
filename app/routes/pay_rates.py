@@ -6,7 +6,7 @@ from marshmallow import ValidationError
 
 from app.crud import pay_rates_crud
 from app.database import generate_session
-from app.middleware import requires_leadership
+from app.middleware import requires_org_leadership, requires_security
 from app.schemas import MultiplePayRateSchema, PayRateSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 
@@ -17,7 +17,7 @@ many_schema = MultiplePayRateSchema()
 
 
 @router.route("", methods=["GET"])
-@requires_leadership
+@requires_security([requires_org_leadership])
 def list_pay_rates() -> Tuple[Any, int]:
     """List pay rates route.
 
@@ -44,7 +44,7 @@ def list_pay_rates() -> Tuple[Any, int]:
 
 
 @router.route("", methods=["POST"])
-@requires_leadership
+@requires_security([requires_org_leadership])
 def upsert_pay_rates() -> Tuple[Any, int]:
     """Upsert pay rates route.
 

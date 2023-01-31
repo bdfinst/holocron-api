@@ -1,8 +1,9 @@
 """Builds route tests."""
 from pytest import fixture
 
+from app.middleware import auth
 from app.routes import builds
-from tests.mocks import crud
+from tests.mocks import crud, request
 
 
 @fixture
@@ -11,7 +12,22 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(builds, "builds_crud", crud)
 
 
-def test_list_builds_for_team(client, mock_crud):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    yield request
+    request.reset()
+
+
+@fixture
+def mock_admin(monkeypatch, mock_request):
+    """Mock an admin user."""
+    monkeypatch.setattr(auth, "SSO_ENABLED", True)
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
+
+
+def test_list_builds_for_team(client, mock_crud, mock_admin):
     """Test GET /api/v1/builds/team/:id endpoint."""
     expected = {"result": []}
 

@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify
 from app.crud import builds_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas import BuildSchema
 from app.security import get_sanitized_id
 
@@ -14,6 +15,7 @@ schema = BuildSchema()
 
 
 @router.route("/team/<team_id>", methods=["GET"])
+@requires_security([requires_admin, requires_team_access])
 def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
     """Get builds for a given team id.
 

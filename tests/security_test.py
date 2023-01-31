@@ -1,4 +1,6 @@
 """Security Middlewares test."""
+from functools import wraps
+from typing import Callable
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises
@@ -6,7 +8,7 @@ from pytest import fixture, raises
 from app import security
 from app.security import SQL_INJECTION, get_sanitized_id, on_unexpected_http_methods
 from tests.mocks import request
-from tests.utils import first_argument
+from tests.utils.utils import first_argument
 
 
 @fixture
