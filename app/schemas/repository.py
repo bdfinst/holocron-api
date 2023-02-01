@@ -21,4 +21,4 @@ class RepositorySchema(SQLAlchemyAutoSchema, SchemaBase):
         exclude: Tuple[str, ...] = ("branches", "commits", "git_requests")
 
     team_id = auto_field()
-    config = fields.Nested(ConfigItemSchema)
+    config = fields.Nested(ConfigItemSchema, many=True)
