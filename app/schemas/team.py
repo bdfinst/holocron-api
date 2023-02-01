@@ -11,18 +11,7 @@ from ._base import SchemaBase
 from .user import UserSchema
 
 
-class TeamSchemaBase(SQLAlchemyAutoSchema, SchemaBase):
-    """Base schema for Team model."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Team
-
-    valuestream_id = auto_field()
-
-
-class ExistingTeamSchema(TeamSchemaBase):
+class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
     """Existing team schema."""
 
     class Meta:
@@ -34,10 +23,17 @@ class ExistingTeamSchema(TeamSchemaBase):
 
     users = fields.Nested(UserSchema, many=True)
     collector_targets = auto_field()
+    valuestream_id = auto_field()
 
 
-class NewTeamSchema(TeamSchemaBase):
+class NewTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
     """New team schema."""
+
+    class Meta:
+        """Configuration."""
+
+        model = Team
+        exclude = ("is_workflow_only",)
 
     name = fields.Str(required=True, validate=input_name_validator)
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
@@ -45,6 +41,7 @@ class NewTeamSchema(TeamSchemaBase):
         fields.Int(), required=True, validate=validate.Length(min=1)
     )
     team_size = fields.Int(required=True, validate=validate.Range(min=1))
+    valuestream_id = auto_field()
 
 
 class TeamSchema:
