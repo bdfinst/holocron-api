@@ -40,4 +40,4 @@ class StatusHistory(MetadataBase, ModelBase):
     status: Mapped[str]
 
     ticket_id: Mapped[int] = mapped_column(ForeignKey(Ticket.id, ondelete="CASCADE"))
-    ticket: Mapped["Ticket"] = relationship(back_populates=("status_history"))
+    ticket: Mapped["Ticket"] = relationship(back_populates="status_history")

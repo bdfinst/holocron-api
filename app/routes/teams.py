@@ -14,7 +14,6 @@ from app.middleware import (
     requires_team_access,
     requires_vs_access,
 )
-from app.models import Team
 from app.schemas import TeamSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
