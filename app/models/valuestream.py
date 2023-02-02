@@ -29,5 +29,8 @@ class Valuestream(MetadataBase, ModelBase):
     organization_id: Mapped[int] = mapped_column(
         ForeignKey("organizations.id"), index=True
     )
-    teams: Mapped[List["Team"]] = relationship()
-    users: Mapped[List["User"]] = relationship(secondary=association_table)
+
+    teams: Mapped[List["Team"]] = relationship(default_factory=list)
+    users: Mapped[List["User"]] = relationship(
+        secondary=association_table, default_factory=list
+    )

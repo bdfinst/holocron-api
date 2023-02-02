@@ -10,6 +10,7 @@ from app.crud import teams_crud
 from app.crud.teams import TeamValidationData, is_workflow_only
 from app.exceptions import HolocronIntegrityError
 from app.models import Repository, Team, TicketBoard
+from tests.testdata import create_repository, create_team, create_ticket_board
 from tests.utils import first_argument
 
 json1 = {
@@ -47,9 +48,7 @@ def mock_team_collector_targets(monkeypatch):
         collector_targets_crud,
         "get_entity",
         MagicMock(
-            return_value=TicketBoard(
-                collector_id=1,
-                url="https://test-board.com",
+            return_value=create_ticket_board(
                 id=21,
             )
         ),
@@ -61,13 +60,13 @@ def test_is_workflow_only(mock_session):
     test_cases = [
         (
             """Should return true if team only has ticketboards.""",
-            TeamValidationData(Team(id=1, collector_targets=[TicketBoard(id=1)]), {1}),
+            TeamValidationData(create_team(pipelines=[], repositories=[]), {1}),
             True,
         ),
         (
             """Should return false otherwise.""",
             TeamValidationData(
-                Team(id=1, collector_targets=[TicketBoard(id=1), Repository(id=2)]), {1}
+                create_team(pipelines=[], repositories=[create_repository(id=2)]), {1}
             ),
             False,
         ),
@@ -143,9 +142,7 @@ def test_create_entity_collector_targets_error(
             """should error on collector targets already in use.""",
             (
                 json1,
-                TicketBoard(
-                    collector_id=1,
-                    url="https://test-board.com",
+                create_ticket_board(
                     id=21,
                     team_id=42,
                 ),
@@ -156,9 +153,7 @@ def test_create_entity_collector_targets_error(
             """should error on response having no feature boards.""",
             (
                 json2,
-                Repository(
-                    collector_id=1,
-                    url="https://test-board.com",
+                create_repository(
                     id=22,
                     team_id=42,
                 ),
@@ -261,9 +256,7 @@ def test_update_entity_collector_targets_error(
             """should error on collector targets already in use.""",
             (
                 json1,
-                TicketBoard(
-                    collector_id=1,
-                    url="https://test-board.com",
+                create_ticket_board(
                     id=21,
                     team_id=42,
                 ),
@@ -274,9 +267,7 @@ def test_update_entity_collector_targets_error(
             """should error on response having no feature boards.""",
             (
                 json2,
-                Repository(
-                    collector_id=1,
-                    url="https://test-board.com",
+                create_repository(
                     id=22,
                     team_id=42,
                 ),

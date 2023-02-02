@@ -15,15 +15,16 @@ class CollectorTarget(MetadataBase, ModelBase):
     __table_args__ = (UniqueConstraint("collector_id", "url"),)
 
     url: Mapped[str]
-    is_deleted: Mapped[bool]
     name: Mapped[Optional[str]]
 
     collector_id: Mapped[int] = mapped_column(ForeignKey(Collector.id))
     last_collected: Mapped[Optional[int]] = mapped_column(BigInteger)
-    config: Mapped[List["ConfigItem"]] = relationship()
     team_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL")
     )
+    is_deleted: Mapped[bool] = mapped_column(default=False)
+
+    config: Mapped[List["ConfigItem"]] = relationship(default_factory=list)
 
 
 class ConfigItem(MetadataBase, ModelBase):

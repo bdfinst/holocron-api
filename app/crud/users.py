@@ -21,19 +21,29 @@ class UserCRUD(BaseCRUD[User]):
         user = session.scalars(
             select(User).where(User.sso_id == token.get("sub"))
         ).first()
-        if user is None:
-            user = User()
-        user.sso_id = token.get("sub")
+
         username = token.get(config.SSO_USERNAME_KEY)
         if not isinstance(username, str):
             raise HolocronError("Invalid username in JWT")
-        user.username = username
-
         groups = token.get(config.SSO_GROUPS_KEY)
         if not isinstance(groups, list):
             raise HolocronError("Invalid groups in JWT")
-        user.is_org_leadership = config.SSO_LEADERSHIP_GROUP in groups
-        user.is_admin = config.SSO_ADMIN_GROUP in groups
+
+        sso_id = token.get("sub")
+        is_org_leadership = config.SSO_LEADERSHIP_GROUP in groups
+        is_admin = config.SSO_ADMIN_GROUP in groups
+        if user is None:
+            user = User(
+                sso_id=sso_id,
+                username=username,
+                is_org_leadership=is_org_leadership,
+                is_admin=is_admin,
+            )
+        else:
+            user.sso_id = sso_id
+            user.username = username
+            user.is_org_leadership = is_org_leadership
+            user.is_admin = is_admin
 
         username_num = 0
         while True:

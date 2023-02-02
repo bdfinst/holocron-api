@@ -32,6 +32,7 @@ def test_get_last_activity_date(monkeypatch):
                 status=IN_PROGRESS_STATUS,
                 ticket_type="Feature",
                 priority="Highest",
+                super_ticket_id=None,
                 status_history=[
                     StatusHistory(
                         ticket_id=1,
@@ -56,6 +57,7 @@ def test_get_last_activity_date(monkeypatch):
                 status=TO_DO_STATUS,
                 ticket_type="Feature",
                 priority="Highest",
+                super_ticket_id=None,
                 status_history=[
                     StatusHistory(
                         ticket_id=1,
@@ -86,6 +88,7 @@ def test_get_last_activity_date(monkeypatch):
                 status=TO_DO_STATUS,
                 ticket_type="Feature",
                 priority="Highest",
+                super_ticket_id=None,
                 status_history=[
                     StatusHistory(
                         ticket_id=1,
@@ -136,6 +139,7 @@ def test_cumulative_flow(monkeypatch):
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -169,6 +173,7 @@ def test_cumulative_flow(monkeypatch):
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -207,6 +212,7 @@ def test_cumulative_flow(monkeypatch):
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -265,6 +271,7 @@ def test_cumulative_flow(monkeypatch):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -323,6 +330,7 @@ def test_cumulative_flow(monkeypatch):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -348,6 +356,7 @@ def test_cumulative_flow(monkeypatch):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -374,6 +383,7 @@ def test_cumulative_flow(monkeypatch):
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -396,6 +406,7 @@ def test_cumulative_flow(monkeypatch):
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -412,6 +423,7 @@ def test_cumulative_flow(monkeypatch):
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -467,6 +479,7 @@ def test_get_hist_stat_at_date():
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -501,6 +514,7 @@ def test_get_hist_stat_at_date():
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -535,6 +549,7 @@ def test_get_hist_stat_at_date():
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -568,6 +583,7 @@ def test_get_hist_stat_at_date():
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -596,6 +612,7 @@ def test_get_hist_stat_at_date():
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,

@@ -43,6 +43,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -68,6 +69,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=2,
@@ -93,6 +95,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Maintenance",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=3,
@@ -118,6 +121,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Unplanned",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=4,
@@ -156,6 +160,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -186,6 +191,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -229,6 +235,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -263,6 +270,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -303,6 +311,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     status=DONE_STATUS,
                     ticket_type="Feature",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,

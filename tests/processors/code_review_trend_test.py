@@ -12,11 +12,13 @@ def test_process_code_review_trend(monkeypatch):
             """should ignore GitRequests with no merged_at.""",
             [
                 GitRequest(
-                    id=1,
                     title="test",
+                    url="https://test.com",
                     is_open=True,
                     merged_at=None,
                     first_opened=datetime(year=2000, month=1, day=25),
+                    last_updated=datetime(year=2000, month=1, day=25),
+                    repository_id=1,
                 )
             ],
             {
@@ -30,35 +32,43 @@ def test_process_code_review_trend(monkeypatch):
             [
                 # ignored
                 GitRequest(
-                    id=1,
                     title="test",
+                    url="https://test.com",
                     is_open=True,
                     merged_at=None,
                     first_opened=datetime(year=2000, month=1, day=25),
+                    last_updated=datetime(year=2000, month=1, day=25),
+                    repository_id=1,
                 ),
                 # week { "2000_01": 5 }
                 GitRequest(
-                    id=2,
                     title="test2",
+                    url="https://test.com",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=9),
                     first_opened=datetime(year=2000, month=1, day=4),
+                    last_updated=datetime(year=2000, month=1, day=25),
+                    repository_id=1,
                 ),
                 # week { "2000_02": 11 }
                 GitRequest(
-                    id=3,
                     title="test3",
+                    url="https://test.com",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=15),
                     first_opened=datetime(year=2000, month=1, day=4),
+                    last_updated=datetime(year=2000, month=1, day=25),
+                    repository_id=1,
                 ),
                 # week { "2000_01": 0.5 }
                 GitRequest(
-                    id=4,
                     title="test4",
+                    url="https://test.com",
                     is_open=False,
                     merged_at=datetime(year=2000, month=1, day=5, hour=12),
                     first_opened=datetime(year=2000, month=1, day=5),
+                    last_updated=datetime(year=2000, month=1, day=25),
+                    repository_id=1,
                 ),
             ],
             {

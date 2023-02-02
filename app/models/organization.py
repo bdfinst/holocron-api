@@ -24,5 +24,8 @@ class Organization(MetadataBase, ModelBase):
     __tablename__ = "organizations"
 
     name: Mapped[str] = mapped_column(unique=True)
-    users: Mapped[List["User"]] = relationship(secondary=association_table)
-    valuestreams: Mapped[List["Valuestream"]] = relationship()
+
+    users: Mapped[List["User"]] = relationship(
+        secondary=association_table, default_factory=list
+    )
+    valuestreams: Mapped[List["Valuestream"]] = relationship(default_factory=list)
