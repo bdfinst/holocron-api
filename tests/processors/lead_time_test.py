@@ -67,6 +67,7 @@ def test_process_lead_time(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Task",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -88,6 +89,7 @@ def test_process_lead_time(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Epic",
                     priority="Dumpster Full",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,

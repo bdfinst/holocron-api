@@ -15,6 +15,7 @@ class Repository(CollectorTarget):
     trunk_branch: Mapped[Optional[str]]
 
     repository_id: Mapped[Optional[int]] = mapped_column(index=True)
-    branches: Mapped[List["Branch"]] = relationship()
-    commits: Mapped[List["Commit"]] = relationship()
-    git_requests: Mapped[List["GitRequest"]] = relationship()
+
+    branches: Mapped[List["Branch"]] = relationship(default_factory=list)
+    commits: Mapped[List["Commit"]] = relationship(default_factory=list)
+    git_requests: Mapped[List["GitRequest"]] = relationship(default_factory=list)

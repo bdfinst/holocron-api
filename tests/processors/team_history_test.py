@@ -3,38 +3,38 @@
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from app.crud.team_history import team_history_crud
-from app.crud.teams import teams_crud
-from app.models import Team, TeamHistory
+from app.models import TeamHistory
 from app.processors import team_history
 from app.processors.team_history import (
     delete_outdated_team_history,
     process_team_history,
 )
 from tests.mocks import MockDateTime
+from tests.testdata import create_team
 
 mock_dt = MockDateTime(datetime(year=2000, month=1, day=4))
+
+
+def create_team_history(team_id=1, team_size=1, created_at=datetime(2000, 1, 1)):
+    """Create mock team_history object with default values."""
+    team_history = TeamHistory(team_id=team_id, team_size=team_size)
+    team_history.created_at = created_at
+    return team_history
 
 
 def test_delete_outdated_team_history_old_team(monkeypatch, mock_session):
     """Testing the deletion of outdated team histories."""
     list_of_teams = [
-        Team(
-            name="Test1",
+        create_team(
             team_size=3,
-            id=1,
         )
     ]
     list_of_team_history = [
-        TeamHistory(
-            id=1,
-            team_id=1,
+        create_team_history(
             created_at=datetime(year=2000, month=1, day=3),
             team_size=3,
         ),
-        TeamHistory(
-            id=2,
-            team_id=1,
+        create_team_history(
             created_at=datetime(year=1998, month=1, day=3),
             team_size=3,
         ),
@@ -59,22 +59,16 @@ def test_delete_outdated_team_history_old_team(monkeypatch, mock_session):
 def test_delete_outdated_team_history_no_old_team(monkeypatch, mock_session):
     """Testing the deletion of outdated team histories with no old team."""
     list_of_teams = [
-        Team(
-            name="Test1",
+        create_team(
             team_size=3,
-            id=1,
         )
     ]
     list_of_team_history = [
-        TeamHistory(
-            id=1,
-            team_id=1,
+        create_team_history(
             created_at=datetime(year=2000, month=1, day=3),
             team_size=3,
         ),
-        TeamHistory(
-            id=2,
-            team_id=1,
+        create_team_history(
             created_at=datetime(year=2000, month=1, day=1),
             team_size=3,
         ),
@@ -101,19 +95,16 @@ def test_process_team_size():
         (
             "It should format the data of multiple team histories correctly",
             [
-                TeamHistory(
+                create_team_history(
                     team_size=3,
-                    team_id=1,
                     created_at=datetime(year=2000, month=1, day=5),
                 ),
-                TeamHistory(
+                create_team_history(
                     team_size=4,
-                    team_id=1,
                     created_at=datetime(year=2000, month=1, day=6),
                 ),
-                TeamHistory(
+                create_team_history(
                     team_size=5,
-                    team_id=1,
                     created_at=datetime(year=2000, month=1, day=10),
                 ),
             ],

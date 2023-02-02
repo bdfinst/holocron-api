@@ -11,4 +11,5 @@ class TicketBoard(CollectorTarget):
     """Model class."""
 
     board_id: Mapped[Optional[int]] = mapped_column(index=True)
-    tickets: Mapped[List["Ticket"]] = relationship()
+
+    tickets: Mapped[List["Ticket"]] = relationship(default_factory=list)

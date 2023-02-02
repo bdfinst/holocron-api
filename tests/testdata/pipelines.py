@@ -24,31 +24,34 @@ builds = [
     ),
 ]
 
-mock_pipelines = [
-    Pipeline(
-        collector_id=1,
-        url="https://test-pipeline.com",
+
+def create_pipeline(
+    id=1,
+    collector_id=1,
+    name="test",
+    url="https://test.com",
+    builds=builds,
+    last_collected=datetime(2020, 5, 17).timestamp(),
+    pipeline_id=1,
+    team_id=None,
+):
+    """Create mock pipeline object with default values."""
+    pipeline = Pipeline(
+        collector_id=collector_id,
+        name=name,
+        url=url,
         builds=builds,
-        last_collected=datetime(2020, 5, 17).timestamp(),
+        last_collected=last_collected,
+        pipeline_id=pipeline_id,
+        team_id=team_id,
     )
-]
+    pipeline.id = id
+    return pipeline
+
+
+mock_pipelines = [create_pipeline()]
 mock_pipelines_last_collected = [
-    Pipeline(
-        collector_id=1,
-        url="https://url1",
-        builds=[],
-        last_collected=datetime(1999, 1, 1).timestamp(),
-    ),
-    Pipeline(
-        collector_id=1,
-        url="https://url2",
-        builds=[],
-        last_collected=datetime(2010, 1, 1).timestamp(),
-    ),
-    Pipeline(
-        collector_id=1,
-        url="https://url3",
-        builds=[],
-        last_collected=datetime(2022, 1, 1).timestamp(),
-    ),
+    create_pipeline(builds=[], last_collected=datetime(1999, 1, 1).timestamp()),
+    create_pipeline(builds=[], last_collected=datetime(2010, 1, 1).timestamp()),
+    create_pipeline(builds=[], last_collected=datetime(2022, 1, 1).timestamp()),
 ]

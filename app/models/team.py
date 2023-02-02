@@ -27,18 +27,25 @@ class Team(MetadataBase, ModelBase):
 
     name: Mapped[str]
     team_size: Mapped[int]
-    is_workflow_only: Mapped[bool]
 
     valuestream_id: Mapped[int] = mapped_column(ForeignKey("valuestreams.id"))
-    collector_targets: Mapped[List["CollectorTarget"]] = relationship()
-    team_history: Mapped[List["TeamHistory"]] = relationship()
-    users: Mapped[List["User"]] = relationship(secondary=association_table)
-    pipelines: Mapped[List["Pipeline"]] = relationship(overlaps="collector_targets")
+    is_workflow_only: Mapped[bool] = mapped_column(default=False)
+
+    collector_targets: Mapped[List["CollectorTarget"]] = relationship(
+        default_factory=list
+    )
+    team_history: Mapped[List["TeamHistory"]] = relationship(default_factory=list)
+    users: Mapped[List["User"]] = relationship(
+        secondary=association_table, default_factory=list
+    )
+    pipelines: Mapped[List["Pipeline"]] = relationship(
+        overlaps="collector_targets", default_factory=list
+    )
     repositories: Mapped[List["Repository"]] = relationship(
-        overlaps="collector_targets"
+        overlaps="collector_targets", default_factory=list
     )
     ticket_boards: Mapped[List["TicketBoard"]] = relationship(
-        overlaps="collector_targets"
+        overlaps="collector_targets", default_factory=list
     )
 
 

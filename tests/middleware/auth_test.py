@@ -1,5 +1,4 @@
 """Authentication middleware tests."""
-from typing import List
 from unittest.mock import MagicMock
 
 from flask import Response
@@ -18,9 +17,9 @@ from app.middleware import (
     return_user,
     set_user,
 )
-from app.models import Organization, Team, User, Valuestream
 from tests.mocks import crud, request
-from tests.utils.utils import first_argument, second_argument
+from tests.testdata import create_organization, create_team, create_valuestream
+from tests.utils.utils import second_argument
 
 
 @fixture
@@ -119,10 +118,8 @@ def test_requires_org_leadership_403(mock_request, monkeypatch):
 def test_requires_vs_access_vs_admin(mock_request, monkeypatch):
     """Test requires vs access function with vs admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    valuestream = get_test_valuestream()
-    valuestream.users = [get_test_user()]
     valuestream_mock = MagicMock(
-        return_value=valuestream,
+        return_value=create_valuestream(),
     )
     monkeypatch.setattr(
         valuestreams_crud,
@@ -141,13 +138,11 @@ def test_requires_vs_access_vs_admin(mock_request, monkeypatch):
 def test_requires_vs_access_org_admin(mock_request, monkeypatch):
     """Test requires vs access function with org admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    organization = get_test_organization()
-    organization.users = [get_test_user()]
     organization_mock = MagicMock(
-        return_value=organization,
+        return_value=create_organization(),
     )
     valuestream_mock = MagicMock(
-        return_value=get_test_valuestream(),
+        return_value=create_valuestream(users=[]),
     )
     monkeypatch.setattr(
         organizations_crud,
@@ -174,10 +169,10 @@ def test_requires_vs_access_403(mock_request, monkeypatch):
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
 
     organization_mock = MagicMock(
-        return_value=get_test_organization(),
+        return_value=create_organization(users=[]),
     )
     valuestream_mock = MagicMock(
-        return_value=get_test_valuestream(),
+        return_value=create_valuestream(users=[]),
     )
     monkeypatch.setattr(
         organizations_crud,
@@ -204,10 +199,8 @@ def test_requires_vs_access_no_id(mock_request, monkeypatch):
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     mock_request.json = {"valuestreamId": "1"}
 
-    valuestream = get_test_valuestream()
-    valuestream.users = [get_test_user()]
     valuestream_mock = MagicMock(
-        return_value=valuestream,
+        return_value=create_valuestream(),
     )
     monkeypatch.setattr(
         valuestreams_crud,
@@ -224,10 +217,8 @@ def test_requires_vs_access_no_id(mock_request, monkeypatch):
 def test_requires_org_access_org_admin(mock_request, monkeypatch):
     """Test requires org access function with org admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    organization = get_test_organization()
-    organization.users = [get_test_user()]
     organization_mock = MagicMock(
-        return_value=organization,
+        return_value=create_organization(),
     )
     monkeypatch.setattr(
         organizations_crud,
@@ -245,9 +236,7 @@ def test_requires_org_access_no_id(mock_request, monkeypatch):
     """Test requires org access function with no org id input."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     mock_request.json = {"organizationId": "1"}
-    organization = get_test_organization()
-    organization.users = [get_test_user()]
-    organization_mock = MagicMock(return_value=organization)
+    organization_mock = MagicMock(return_value=create_organization())
     monkeypatch.setattr(organizations_crud, "get_entity", organization_mock)
 
     result = requires_security([requires_org_access])(wrapped_test_func)()
@@ -260,7 +249,7 @@ def test_requires_org_access_403(mock_request, monkeypatch):
     """Test requires org access function with 403 error."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     mock_request.json = {"organizationId": "1"}
-    organization_mock = MagicMock(return_value=get_test_organization())
+    organization_mock = MagicMock(return_value=create_organization(users=[]))
     monkeypatch.setattr(organizations_crud, "get_entity", organization_mock)
 
     result = requires_security([requires_org_access])(wrapped_test_func)(org_id=1)
@@ -272,11 +261,9 @@ def test_requires_org_access_403(mock_request, monkeypatch):
 def test_requires_team_access_org_admin(mock_request, monkeypatch):
     """Test requires team access function with org admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    organization = get_test_organization()
-    organization.users = [get_test_user()]
-    organizations_mock = MagicMock(return_value=organization)
-    valuestreams_mock = MagicMock(return_value=get_test_valuestream())
-    teams_mock = MagicMock(return_value=get_test_team())
+    organizations_mock = MagicMock(return_value=create_organization())
+    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    teams_mock = MagicMock(return_value=create_team(users=[]))
     monkeypatch.setattr(
         organizations_crud,
         "get_entity",
@@ -300,10 +287,8 @@ def test_requires_team_access_org_admin(mock_request, monkeypatch):
 def test_requires_team_access_valuestream_admin(mock_request, monkeypatch):
     """Test requires team access function with valuestream admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    valuestream = get_test_valuestream()
-    valuestream.users = [get_test_user()]
-    valuestream_mock = MagicMock(return_value=valuestream)
-    team_mock = MagicMock(return_value=get_test_team())
+    valuestream_mock = MagicMock(return_value=create_valuestream())
+    team_mock = MagicMock(return_value=create_team(users=[]))
     monkeypatch.setattr(
         valuestreams_crud,
         "get_entity",
@@ -325,9 +310,7 @@ def test_requires_team_access_valuestream_admin(mock_request, monkeypatch):
 def test_requires_team_access_team_admin(mock_request, monkeypatch):
     """Test requires team access function with team admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    team = get_test_team()
-    team.users = [get_test_user()]
-    team_mock = MagicMock(return_value=team)
+    team_mock = MagicMock(return_value=create_team())
     monkeypatch.setattr(
         teams_crud,
         "get_entity",
@@ -343,9 +326,9 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     """Test requires team access function with 403 error."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
 
-    organizations_mock = MagicMock(return_value=get_test_organization())
-    valuestreams_mock = MagicMock(return_value=get_test_valuestream())
-    teams_mock = MagicMock(return_value=get_test_team())
+    organizations_mock = MagicMock(return_value=create_organization(users=[]))
+    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    teams_mock = MagicMock(return_value=create_team(users=[]))
 
     monkeypatch.setattr(
         organizations_crud,
@@ -364,23 +347,3 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     assert second_argument(valuestreams_mock) == 1
     assert second_argument(teams_mock) == 1
     assert result == ("Invalid permissions", 403)
-
-
-def get_test_user() -> User:
-    """Create test user."""
-    return User(id=1)
-
-
-def get_test_team() -> Team:
-    """Create test team."""
-    return Team(id=1, name="team", valuestream_id=1, users=[])
-
-
-def get_test_valuestream() -> Valuestream:
-    """Create test valuesteam."""
-    return Valuestream(id=1, name="value", organization_id=1, users=[])
-
-
-def get_test_organization() -> Organization:
-    """Create test organization."""
-    return Organization(id=1, name="org", users=[])

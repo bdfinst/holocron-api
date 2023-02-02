@@ -11,4 +11,5 @@ class Pipeline(CollectorTarget):
     """Model class."""
 
     pipeline_id: Mapped[Optional[int]] = mapped_column(index=True)
-    builds: Mapped[List["Build"]] = relationship()
+
+    builds: Mapped[List["Build"]] = relationship(default_factory=list)

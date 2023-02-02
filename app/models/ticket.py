@@ -24,10 +24,11 @@ class Ticket(MetadataBase, ModelBase):
         ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
     super_ticket_id: Mapped[Optional[int]] = mapped_column(ForeignKey("tickets.id"))
+
     sub_tickets: Mapped[List["Ticket"]] = relationship(
-        backref=backref("super_ticket", remote_side="Ticket.id")
+        backref=backref("super_ticket", remote_side="Ticket.id"), default_factory=list
     )
-    status_history: Mapped[List["StatusHistory"]] = relationship()
+    status_history: Mapped[List["StatusHistory"]] = relationship(default_factory=list)
 
 
 class StatusHistory(MetadataBase, ModelBase):
@@ -40,4 +41,4 @@ class StatusHistory(MetadataBase, ModelBase):
     status: Mapped[str]
 
     ticket_id: Mapped[int] = mapped_column(ForeignKey(Ticket.id, ondelete="CASCADE"))
-    ticket: Mapped["Ticket"] = relationship(back_populates="status_history")
+    ticket: Mapped["Ticket"] = relationship(back_populates="status_history", init=False)

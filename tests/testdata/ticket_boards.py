@@ -35,6 +35,7 @@ tickets = [
         ticket_type="Bug",
         priority="Highest",
         status_history=all_status_history_types,
+        super_ticket_id=None,
     ),
     Ticket(
         board_id=2,
@@ -44,38 +45,41 @@ tickets = [
         ticket_type="Feature",
         priority="Lowest",
         status_history=in_progress_history_types,
+        super_ticket_id=None,
     ),
 ]
 
-mock_ticket_boards = [
-    TicketBoard(
-        collector_id=1,
-        name="mock_ticket_board",
-        url="https://jira.com/board",
+
+def create_ticket_board(
+    id=1,
+    collector_id=1,
+    name="mock_ticket_board",
+    url="https://test.com",
+    tickets=tickets,
+    last_collected=datetime(2020, 6, 17).timestamp(),
+    board_id=1,
+    team_id=None,
+):
+    """Create mock ticket_board object with default values."""
+    ticket_board = TicketBoard(
+        collector_id=collector_id,
+        name=name,
+        url=url,
         tickets=tickets,
-        last_collected=datetime(2020, 6, 17).timestamp(),
+        last_collected=last_collected,
+        board_id=board_id,
+        team_id=team_id,
     )
-]
+    ticket_board.id = id
+    return ticket_board
+
+
+mock_ticket_boards = [create_ticket_board()]
 mock_ticket_boards_last_collected = [
-    TicketBoard(
-        collector_id=2,
-        name="mock_ticket_board_lastCollected",
-        url="https://jira/1",
+    create_ticket_board(
         tickets=[],
         last_collected=datetime(1999, 2, 2).timestamp(),
     ),
-    TicketBoard(
-        collector_id=2,
-        name="mock_ticket_board_lastCollected",
-        url="https://jira/2",
-        tickets=[],
-        last_collected=datetime(2022, 2, 2).timestamp(),
-    ),
-    TicketBoard(
-        collector_id=2,
-        name="mock_ticket_board_lastCollected",
-        url="https://jira/2",
-        tickets=[],
-        last_collected=datetime(2010, 2, 2).timestamp(),
-    ),
+    create_ticket_board(tickets=[], last_collected=datetime(2022, 2, 2).timestamp()),
+    create_ticket_board(tickets=[], last_collected=datetime(2010, 2, 2).timestamp()),
 ]

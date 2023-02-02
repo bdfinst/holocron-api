@@ -69,6 +69,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Task",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -94,6 +95,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Highest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -119,6 +121,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="High",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -144,6 +147,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Medium",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -169,6 +173,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Low",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -194,6 +199,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Lowest",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
@@ -219,6 +225,7 @@ def test_process_cycle_time_defect(mock_config):
                     status=DONE_STATUS,
                     ticket_type="Bug",
                     priority="Dumpster Full",
+                    super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,

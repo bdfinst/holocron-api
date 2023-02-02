@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 from pytest import fixture
 
 from app.middleware import auth
-from app.models import Team
 from app.routes import teams
 from tests.mocks import crud, request, team_history_crud
+from tests.testdata import create_team
 
 
 @fixture
@@ -77,8 +77,13 @@ def test_create_team(client, mock_crud, monkeypatch, mock_admin):
         teams.teams_crud,
         "create_entity",
         MagicMock(
-            return_value=Team(
-                id=1, team_size=1, name="test", valuestream_id=1, is_workflow_only=False
+            return_value=create_team(
+                name="test",
+                team_size=1,
+                users=[],
+                pipelines=[],
+                repositories=[],
+                ticket_boards=[],
             )
         ),
     )
@@ -189,22 +194,19 @@ def test_update_team(client, mock_crud, monkeypatch, mock_admin):
     monkeypatch.setattr(
         teams.teams_crud,
         "get_entity",
-        MagicMock(
-            return_value=Team(
-                id=1, team_size=1, name="test", valuestream_id=1, is_workflow_only=False
-            )
-        ),
+        MagicMock(return_value=create_team(team_size=1)),
     )
     monkeypatch.setattr(
         teams.teams_crud,
         "update_entity",
         MagicMock(
-            return_value=Team(
-                id=1,
+            return_value=create_team(
                 team_size=1,
                 name="test2",
-                valuestream_id=1,
-                is_workflow_only=False,
+                pipelines=[],
+                repositories=[],
+                ticket_boards=[],
+                users=[],
             )
         ),
     )
@@ -275,10 +277,8 @@ def test_update_team_database_error(client, mock_crud, monkeypatch, mock_admin):
         teams.teams_crud,
         "get_entity",
         MagicMock(
-            return_value=Team(
+            return_value=create_team(
                 name="error",
-                valuestream_id=1,
-                team_size=1,
             )
         ),
     )
