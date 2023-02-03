@@ -22,7 +22,7 @@ class SchemaCache:
     schema: Schema
     crud: Union[BaseCRUD, Any]
     process_func: Callable
-    data: Dict[int, str] = field(default_factory=dict)
+    data: Dict[int, Dict] = field(default_factory=dict)
 
     def _get_ids(self) -> Generator[int, None, None]:
         """Retrieve the IDs of each entity."""
@@ -49,7 +49,7 @@ class SchemaCache:
         end = time.time()
         logging.info(f"---Finished cache run in {round(end - start, 2)} seconds.---")
 
-    def get_entity(self, id_: int) -> Optional[str]:
+    def get_entity(self, id_: int) -> Optional[Dict]:
         """Retrieve entity from cache."""
         with generate_session() as session:
             self.crud.get_entity(session, id_)
