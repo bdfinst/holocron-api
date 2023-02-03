@@ -15,7 +15,12 @@ class MockCache:
             raise HolocronIntegrityError("err", "err")
         if id == 42:
             raise SchemaCacheNotReady("oops.")
-        return {"id": id}
+        return result
 
 
 cache = MockCache()
+
+result = {
+    "name": "org_name_test",
+    "valuestreams": [{"name": "vs_name_test", "teams": [{"name": "team_name_test"}]}],
+}
