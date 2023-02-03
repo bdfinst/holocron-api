@@ -3,15 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import DateTime
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
-    MappedAsDataclass,
-    mapped_column,
-    registry,
-)
-
-reg = registry()
+from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column
+from sqlalchemy.sql.expression import func
 
 
 class MetadataBase(DeclarativeBase):
@@ -26,5 +19,9 @@ class ModelBase(MappedAsDataclass, kw_only=True):
         DateTime(timezone=True), server_default="NOW()", init=False
     )
     updated_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), server_onupdate="NOW()", init=False  # type: ignore
+        DateTime(timezone=True),
+        # false positive
+        # pylint: disable-next=not-callable
+        onupdate=func.current_timestamp(),
+        init=False,
     )
