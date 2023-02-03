@@ -1,15 +1,21 @@
 """Authentication middleware."""
 import json
+from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Union, cast
 
 import jwt
 from flask import Response, request
+from sqlalchemy.orm import Session
 
 from app.config import SSO_ENABLED
 from app.crud import organizations_crud, teams_crud, users_crud, valuestreams_crud
+from app.crud.organizations import OrganizationsCRUD
+from app.crud.teams import TeamsCRUD
+from app.crud.valuestreams import ValuestreamsCRUD
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.models import Team, Valuestream
 from app.schemas import UserSchema
 from app.security import log_security_event
 
@@ -51,14 +57,51 @@ def log_unpriviledge_user_access(user: Dict[str, Any], access_group: str):
     log_security_event(msg)
 
 
-def requires_org_leadership(**kwargs) -> Tuple[bool, Optional[str]]:
+def requires_org_leadership(**_) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to users with org leadership access."""
-    if not kwargs:
-        user = getattr(request, "user", {"isOrgLeadership": False})
-        if user["isOrgLeadership"]:
-            return True, None
+    user = getattr(request, "user", {"isOrgLeadership": False})
+    return (True, None) if user["isOrgLeadership"] else (False, "ORG_LEADERSHIP")
 
-    return False, "ORG_LEADERSHIP"
+
+class EntityType(Enum):
+    """Enum for team, valuestream, or organization."""
+
+    TEAM = "team"
+    VALUESTREAM = "valuestream"
+    ORGANIZATION = "organization"
+
+
+def check_entity_access(
+    entity_type: EntityType, entity_id: int, session: Session, user_id: int
+):
+    """Check if user has access to a given team, valuestream, or organization.
+
+    If not, recursively checks containing valuestream/organization as well.
+    """
+    crud: Union[TeamsCRUD, ValuestreamsCRUD, OrganizationsCRUD]
+    if entity_type == EntityType.TEAM:
+        crud = teams_crud
+    elif entity_type == EntityType.VALUESTREAM:
+        crud = valuestreams_crud
+    else:
+        crud = organizations_crud
+
+    entity = crud.get_entity(session, entity_id)
+
+    if any(entity_user.id == user_id for entity_user in entity.users):
+        return True
+
+    if entity_type == EntityType.TEAM:
+        entity = cast(Team, entity)
+        return check_entity_access(
+            EntityType.VALUESTREAM, entity.valuestream_id, session, user_id
+        )
+    if entity_type == EntityType.VALUESTREAM:
+        entity = cast(Valuestream, entity)
+        return check_entity_access(
+            EntityType.ORGANIZATION, entity.organization_id, session, user_id
+        )
+    return False
 
 
 def requires_org_access(**kwargs) -> Tuple[bool, Optional[str]]:
@@ -66,19 +109,15 @@ def requires_org_access(**kwargs) -> Tuple[bool, Optional[str]]:
     if not kwargs:
         data = request.json
         if data is not None:
-            current_org = (int)(data["organizationId"])
+            org_id = (int)(data["organizationId"])
         else:
             return False, "ORGANIZATION_ADMIN"
     else:
-        current_org = (int)(kwargs["org_id"])
+        org_id = (int)(kwargs["org_id"])
 
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
-        organization = organizations_crud.get_entity(session, current_org)
-        if any(
-            organization_user.id == user["id"]
-            for organization_user in organization.users
-        ):
+        if check_entity_access(EntityType.ORGANIZATION, org_id, session, user["id"]):
             return True, None
 
     return False, "ORGANIZATION_ADMIN"
@@ -89,27 +128,15 @@ def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
     if not kwargs:
         data = request.json
         if data is not None:
-            current_valuestream = (int)(data["valuestreamId"])
+            vs_id = (int)(data["valuestreamId"])
         else:
             return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
     else:
-        current_valuestream = (int)(kwargs["valuestream_id"])
+        vs_id = (int)(kwargs["valuestream_id"])
 
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
-        valuestream = valuestreams_crud.get_entity(session, current_valuestream)
-        if any(
-            valuestream_user.id == user["id"] for valuestream_user in valuestream.users
-        ):
-            return True, None
-
-        organization = organizations_crud.get_entity(
-            session, valuestream.organization_id
-        )
-        if any(
-            organization_user.id == user["id"]
-            for organization_user in organization.users
-        ):
+        if check_entity_access(EntityType.VALUESTREAM, vs_id, session, user["id"]):
             return True, None
 
     return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
@@ -117,26 +144,10 @@ def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
 
 def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to users with team access."""
-    current_team = (int)(kwargs["team_id"])
+    team_id = (int)(kwargs["team_id"])
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
-        team = teams_crud.get_entity(session, current_team)
-        if any(user["id"] == team_usr.id for team_usr in team.users):
-            return True, None
-
-        valuestream = valuestreams_crud.get_entity(session, team.valuestream_id)
-        if any(
-            valuestream_user.id == user["id"] for valuestream_user in valuestream.users
-        ):
-            return True, None
-
-        organization = organizations_crud.get_entity(
-            session, valuestream.organization_id
-        )
-        if any(
-            organization_user.id == user["id"]
-            for organization_user in organization.users
-        ):
+        if check_entity_access(EntityType.TEAM, team_id, session, user["id"]):
             return True, None
 
     return False, "TEAM_ADMIN OR VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
@@ -145,9 +156,7 @@ def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
 def requires_admin(**_) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to admins."""
     user = getattr(request, "user", {"isAdmin": False})
-    if not SSO_ENABLED or user["isAdmin"]:
-        return True, None
-    return False, "ADMIN"
+    return (True, None) if user["isAdmin"] or not SSO_ENABLED else (False, "ADMIN")
 
 
 def requires_security(arguments) -> Callable:
