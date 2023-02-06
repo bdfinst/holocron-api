@@ -12,7 +12,7 @@ function validate {
 
 function run_linters {
 	echo Running pylint...
-	poetry run pylint app
+	poetry run pylint --reports=y --recursive=y --persistent=n --verbose .
 	validate
   echo Running black...
   poetry run black . --check
