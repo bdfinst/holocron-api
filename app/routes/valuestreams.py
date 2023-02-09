@@ -86,7 +86,6 @@ def create_valuestream() -> Tuple[Any, int]:
 
 
 @router.route("/<valuestream_id>", methods=["GET"])
-@requires_security([requires_admin, requires_vs_access])
 def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Get valuestream by id route.
 

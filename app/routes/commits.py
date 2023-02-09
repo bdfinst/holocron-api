@@ -57,6 +57,7 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<commit_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_commit(commit_id: str) -> Tuple[Any, int]:
     """Get commit by id.
 

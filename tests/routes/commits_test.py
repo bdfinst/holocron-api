@@ -47,7 +47,7 @@ def test_list_commits_for_team_404(client, mock_crud):
     assert resp.status_code == 404
 
 
-def test_get_commit(client, mock_crud):
+def test_get_commit(client, mock_crud, mock_admin):
     """Test GET /api/v1/commits/:id endpoint."""
     expected = {"id": 1}
 
@@ -57,7 +57,7 @@ def test_get_commit(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_commit_404(client, mock_crud):
+def test_get_commit_404(client, mock_crud, mock_admin):
     """Test GET /api/v1/commits/:id endpoint."""
     expected = "Resource not found"
 

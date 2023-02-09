@@ -31,13 +31,6 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-@fixture
-def mock_non_admin(monkeypatch, mock_request):
-    """Mock a non admin user."""
-    monkeypatch.setattr(auth, "SSO_ENABLED", True)
-    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-
-
 def test_list_organizations(client, mock_crud):
     """Test GET /api/v1/organizations endpoint."""
     expected = {"result": []}
@@ -48,7 +41,7 @@ def test_list_organizations(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_organization(client, mock_crud, mock_admin):
+def test_get_organization(client, mock_crud):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
@@ -58,7 +51,7 @@ def test_get_organization(client, mock_crud, mock_admin):
     assert resp.status_code == 200
 
 
-def test_get_organization_404(client, mock_crud, mock_non_admin):
+def test_get_organization_404(client, mock_crud):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = "Resource not found"
 

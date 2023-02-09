@@ -56,6 +56,7 @@ def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<build_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_build(build_id: str) -> Tuple[Any, int]:
     """Get Build by id.
 

@@ -57,6 +57,7 @@ def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<ticket_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_ticket(ticket_id: str) -> Tuple[Any, int]:
     """Get ticket by id.
 
