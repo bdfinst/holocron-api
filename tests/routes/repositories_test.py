@@ -47,7 +47,7 @@ def test_list_repositories_for_team(client, mock_crud, mock_admin):
     assert resp.status_code == 200
 
 
-def test_list_repositories_for_team_404(client, mock_crud):
+def test_list_repositories_for_team_404(client, mock_crud, mock_admin):
     """Test GET /api/v1/repositories/team/:id endpoint."""
     expected = "Resource not found"
 

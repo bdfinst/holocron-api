@@ -47,7 +47,7 @@ def test_list_get_requests_for_team_404(client, mock_crud):
     assert resp.status_code == 404
 
 
-def test_get_git_request(client, mock_crud):
+def test_get_git_request(client, mock_crud, mock_admin):
     """Test GET /api/v1/gitrequests/:id endpoint."""
     expected = {"id": 1}
 
@@ -57,7 +57,7 @@ def test_get_git_request(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_git_request_404(client, mock_crud):
+def test_get_git_request_404(client, mock_crud, mock_admin):
     """Test GET /api/v1/gitrequests/:id endpoint."""
     expected = "Resource not found"
 

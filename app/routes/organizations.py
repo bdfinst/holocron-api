@@ -83,7 +83,6 @@ def create_organization() -> Tuple[Any, int]:
 
 
 @router.route("/<org_id>", methods=["GET"])
-@requires_security([requires_admin, requires_org_access])
 def get_organization(org_id: str) -> Tuple[Any, int]:
     """Get organization by id route.
 

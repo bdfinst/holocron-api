@@ -57,6 +57,7 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<branch_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_branch(branch_id: str) -> Tuple[Any, int]:
     """Get branch by id.
 

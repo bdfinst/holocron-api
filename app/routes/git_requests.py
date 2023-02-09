@@ -57,6 +57,7 @@ def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
 
 
 @router.route("/<git_request_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_git_request(git_request_id: str) -> Tuple[Any, int]:
     """Get git request by id.
 

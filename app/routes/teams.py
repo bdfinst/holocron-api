@@ -93,7 +93,6 @@ def create_team() -> Tuple[Any, int]:
 
 
 @router.route("/<team_id>", methods=["GET"])
-@requires_security([requires_admin, requires_team_access])
 def get_team(team_id: str) -> Tuple[Any, int]:
     """Get team by id route.
 
