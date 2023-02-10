@@ -20,6 +20,9 @@ from app.security import get_sanitized_id
 
 router = Blueprint("metrics", __name__, url_prefix="/metrics")
 
+RESOURCE_NOT_FOUND = "Resource not found"
+PROCCESSING_NOT_COMPLETED = "Processing not completed"
+
 
 @router.route("/<org_id>", methods=["GET"])
 def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
@@ -49,9 +52,9 @@ def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     try:
         result = organizations_cache.get_entity(get_sanitized_id(org_id))
     except HolocronIntegrityError:
-        return "Resource not found", 404
+        return RESOURCE_NOT_FOUND, 404
     except SchemaCacheNotReady:
-        return "Processing not completed", 202
+        return PROCCESSING_NOT_COMPLETED, 202
     return jsonify(result), 200
 
 
@@ -84,9 +87,9 @@ def get_organization_metrics_temp(org_id: str) -> Tuple[Any, int]:
     try:
         result = organizations_cache.get_entity(get_sanitized_id(org_id))
     except HolocronIntegrityError:
-        return "Resource not found", 404
+        return RESOURCE_NOT_FOUND, 404
     except SchemaCacheNotReady:
-        return "Processing not completed", 202
+        return PROCCESSING_NOT_COMPLETED, 202
     return jsonify(result), 200
 
 
@@ -125,14 +128,14 @@ def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
                 raw_valuestream.organization_id
             )
         except HolocronIntegrityError:
-            return "Resource not found", 404
+            return RESOURCE_NOT_FOUND, 404
         except SchemaCacheNotReady:
-            return "Processing not completed", 202
+            return PROCCESSING_NOT_COMPLETED, 202
     if organization_data is not None:
         for valuestream in organization_data["valuestreams"]:
             if valuestream["name"] == raw_valuestream.name:
                 return jsonify(valuestream), 200
-    return "Resource not found", 404
+    return RESOURCE_NOT_FOUND, 404
 
 
 @router.route("/team/<team_id>", methods=["GET"])
@@ -171,12 +174,12 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
                 raw_valuestream.organization_id
             )
         except HolocronIntegrityError:
-            return "Resource not found", 404
+            return RESOURCE_NOT_FOUND, 404
         except SchemaCacheNotReady:
-            return "Processing not completed", 202
+            return PROCCESSING_NOT_COMPLETED, 202
     if organization_data:
         for valuestream in organization_data["valuestreams"]:
             for team in valuestream["teams"]:
                 if team["name"] == raw_team.name:
                     return jsonify(team), 200
-    return "Resource not found", 404
+    return RESOURCE_NOT_FOUND, 404
