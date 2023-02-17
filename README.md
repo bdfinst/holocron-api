@@ -795,3 +795,4 @@ permissions.
 | Delete Their Org | Y| | Y| | | |
 | Delete Their VS | Y| | Y| Y| | |
 | Delete Their Team | Y| | Y| Y| Y| |
+| Delete Any User| Y| | | | | |
