@@ -770,29 +770,21 @@ just `package.json` which has the scripts command `npm run test:e2e-ci` which us
 The API has the following access control groups and
 permissions.
 
-| Permissions     | Admin | OrgLeadership     | Org admin | VS Admin | Team Admin |
-| :---        |    :----:   |          :----: | :----: | :----: | ---:|
-| Read Pay Rate | | Y | | | |
-| Read Any Org Aggregate | Y | | | | |
-| Read Any VS Aggregate | Y | | | | |
-| Read Any Team Data | Y | | | | |
-| Read Their Org Aggregate | Y| | Y| | |
-| Read Their VS Aggregate | Y| | Y| Y| |
-| Read Their Team Data | Y| | Y| Y| Y|
-| Create/Update Pay Rate | | Y| | | |
-| Create Org | Y| | | | |
-| Create VS | Y| | Y| | | |
-| Create Team | Y| | Y| Y| | |
-| Update Any Org | Y| | | | | |
-| Update Any VS | Y| | | | | |
-| Update Any Team | Y| | | | | |
-| Update Their Org | Y| | Y| | | |
-| Update Their VS | Y| | Y| Y| | |
-| Update Their Team | Y| | Y| Y| Y| |
-| Delete Any Org | Y| | | | | |
-| Delete Any VS | Y| | | | | |
-| Delete Any Team | Y| | | | | |
-| Delete Their Org | Y| | Y| | | |
-| Delete Their VS | Y| | Y| Y| | |
-| Delete Their Team | Y| | Y| Y| Y| |
-| Delete Any User| Y| | | | | |
+| Permissions     | Admin | Admin + OrgLeadership | Org admin | Org admin + OrgLeadership | VS Admin | VS Admin + OrgLeadership | Team Admin | Team Admin + OrgLeadership |
+| :--- | :----:  | :----: | :----: | :----: | :----: | :----: | :----: | ---:|
+Create Organization | **Y** | **Y** | | | | | | |
+Read Organization Metrics | **Y** | **Y** | if they are admin of Organization | if they are admin of Organization | | | | | |
+Read Organization Cost Metrics |  | **Y** |  | if they are admin of Organization | | | | |
+Update Organization |  **Y** | **Y** | if they are admin of Organization | if they are admin of Organization | | | | |
+Delete Organization | **Y** | **Y** | if they are admin of Organization | if they are admin of Organization | | | | |
+Create Value Stream | **Y** | **Y** | **Y** | **Y** | | | | |
+Read Value Stream Metrics | **Y** | **Y** | if the Value Stream falls under Organiztion they are admin of |  if the Value Stream falls under Organiztion they are admin of | if they are admin of Value Stream |  if they are admin of Value Stream | | |
+Read Value Stream Cost Metrics |  | **Y** | | if the Value Stream falls under Organization they are admin of | | if they are admin of Value Stream | | | |
+Update Value Stream | **Y** | **Y** | if the Value Stream falls under Organization they are admin of | if the Value Stream falls under Organization they are admin of | if they are Admin of Value Stream | if they are admin of Value Stream | | |
+Delete Value Stream | **Y** | **Y** | if the Value Stream falls under Organization they are admin of | if the Value Stream falls under Organization they are admin of | if they are Admin of Value Stream | if they are admin of Value Stream | | |
+Create Team | **Y** | **Y** | **Y** | **Y** | **Y** | **Y** | | |
+Read Team Metrics | **Y** | **Y** | if the Team falls under Organization they are admin of | if the Team falls under Organization they are admin of | if the Team falls under Value Stream they are admin of | if the Team falls under Value Stream they are admin of | if they are Team Admin | if they are Team Admin|
+Read Team Cost Metrics | | **Y** |  | if the Team falls under Organization they are admin of |  | if the Team falls under Value Stream they are admin of |  | if they are Team Admin|
+Update Team | **Y** | **Y** | if the Team falls under Organization they are admin of | if the Team falls under Organization they are admin of | if the Team falls under Value Stream they are admin of | if the Team falls under Value Stream they are admin of | if they are Team Admin | if they are Team Admin|
+Delete Team | **Y** | **Y** | if the Team falls under Organization they are admin of | if the Team falls under Organization they are admin of | if the Team falls under Value Stream they are admin of | if the Team falls under Value Stream they are admin of | if they are Team Admin | if they are Team Admin|
+Delete User | **Y** | **Y** | | | | | | |
