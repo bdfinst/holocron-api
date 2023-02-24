@@ -17,27 +17,25 @@ Cypress.Commands.add('apiGetUsers', () => {
 Cypress.Commands.add(
   'apiCreateValueStream',
   (valueStreamName, organizationId) =>
-  cy.apiGetUsers().then(resp => {
-    expect(resp.status).to.equal(200)
-    const { result: users } = resp.body
-    expect(users).length.gt(0)
-    const [firstUser] = users
-    cy
-      .request({
+    cy.apiGetUsers().then(resp => {
+      expect(resp.status).to.equal(200)
+      const { result: users } = resp.body
+      expect(users).length.gt(0)
+      const [firstUser] = users
+      cy.request({
         method: 'POST',
         url: `${apiV1Url}/valuestreams`,
         body: {
           name: valueStreamName,
           organizationId,
-          userIds: [firstUser.id]
+          userIds: [firstUser.id],
         },
         headers,
-      })
-      .then(resp => {
+      }).then(resp => {
         expect(resp.status).to.equal(201)
         cy.wrap({ valuestream: resp.body })
       })
-  }),
+    }),
 )
 
 Cypress.Commands.add('apiDeleteValueStream', vsId =>
@@ -78,10 +76,9 @@ Cypress.Commands.add('apiCreateOrganization', orgName =>
       url: `${apiV1Url}/organizations`,
       body: { name: orgName, userIds: [firstUser.id] },
       headers,
-    })
-    .then(resp => {
+    }).then(resp => {
       expect(resp.status).to.equal(201)
       cy.wrap({ organization: resp.body })
     })
-  })
+  }),
 )

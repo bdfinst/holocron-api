@@ -29,9 +29,10 @@ const baseUrl = Cypress.config('baseUrl')
 const timeout = 240000
 
 cy.utils = {
-  randomName: strLen => `cypress-${Math.round(36 ** (strLen + 1) - Math.random() * 36 ** strLen)
-    .toString(36)
-    .slice(1)}`
+  randomName: strLen =>
+    `cypress-${Math.round(36 ** (strLen + 1) - Math.random() * 36 ** strLen)
+      .toString(36)
+      .slice(1)}`,
 }
 
 Cypress.Commands.add('mockAuth', () => {
@@ -41,7 +42,6 @@ Cypress.Commands.add('mockAuth', () => {
     })
   }
 })
-
 
 Cypress.Commands.add('visitDashboard', () => {
   cy.intercept('GET', '**/api/v1/users').as('getUsers')
@@ -58,15 +58,9 @@ Cypress.Commands.add('visitAdminPage', () => {
   cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
   cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
   cy.visit(`${baseUrl}/admin`, { timeout })
-  cy.wait(
-    [
-      '@getUsers',
-      '@getTeams',
-      '@getValueStreams',
-      '@getOrganizations',
-    ],
-    { timeout },
-  )
+  cy.wait(['@getUsers', '@getTeams', '@getValueStreams', '@getOrganizations'], {
+    timeout,
+  })
 })
 
 Cypress.Commands.add('visitReportsPage', () => {
@@ -96,16 +90,8 @@ Cypress.Commands.add('waitForCollectorTargets', () => {
   cy.intercept('GET', '**/api/v1/ticketboards').as('getBoards')
   cy.intercept('GET', '**/api/v1/repositories').as('getRepos')
   cy.intercept('GET', '**/api/v1/pipelines').as('getPipelines')
-  cy.wait(
-    [
-      '@getBoards',
-      '@getRepos',
-      '@getPipelines',
-    ],
-    { timeout },
-  )
+  cy.wait(['@getBoards', '@getRepos', '@getPipelines'], { timeout })
 })
-
 
 Cypress.Commands.add('visitAddTeamPage', () => {
   cy.intercept('GET', '**/api/v1/users').as('getUsers')
@@ -160,17 +146,10 @@ Cypress.Commands.add('waitForAPIDataAfterUserChange', () => {
   cy.intercept('GET', '**/api/v1/teams').as('getTeams')
   cy.intercept('GET', '**/api/v1/valuestreams').as('getValueStreams')
   cy.intercept('GET', '**/api/v1/organizations').as('getOrganizations')
-  cy.wait(
-    [
-      '@getUsers',
-      '@getTeams',
-      '@getValueStreams',
-      '@getOrganizations',
-    ],
-    { timeout },
-  )
+  cy.wait(['@getUsers', '@getTeams', '@getValueStreams', '@getOrganizations'], {
+    timeout,
+  })
 })
-
 
 Cypress.Commands.add('pickOptionMUIAutocomplete', selector => {
   cy.get(selector).click({ force: true })

@@ -14,11 +14,22 @@ const setUp = (organizationName, valueStreamName) =>
   })
 
 const tearDown = (createdTeamId, organization, valueStream) => {
+  const teamWasCreated = !!createdTeamId
+  const vsWasCreated = !!valueStream
+  const orgWasCreated = !!organization
+  if (teamWasCreated && vsWasCreated && orgWasCreated) {
     cy.apiDeleteTeam(createdTeamId).then(() => {
       cy.apiDeleteValueStream(valueStream.id).then(() => {
         cy.apiDeleteOrganization(organization.id)
       })
     })
+  } else if (!teamWasCreated && vsWasCreated && orgWasCreated) {
+    cy.apiDeleteValueStream(valueStream.id).then(() => {
+      cy.apiDeleteOrganization(organization.id)
+    })
+  } else if (!teamWasCreated && !vsWasCreated && orgWasCreated) {
+    cy.apiDeleteOrganization(organization.id)
+  }
 }
 
 describe('Test team CRUD', () => {
@@ -72,7 +83,7 @@ describe('Test team CRUD', () => {
       })
       .its('response.statusCode')
       .should('eq', 201)
-    
+
     cy.waitForAPIDataAfterUserChange()
     // the update and delete button for the team should be visible if the team is created
     cy.get(`[aria-label="update-team-${teamName}"]`, {
@@ -99,12 +110,13 @@ describe('Test team CRUD', () => {
     cy.wait('@updateTeam')
       .its('response.statusCode')
       .should('eq', 200)
-      
+
     cy.waitForAPIDataAfterUserChange()
     cy.get('[aria-label="Search team by name"]').type(teamName)
     cy.get(`[aria-label="update-team-${teamName}"]`).click()
-    cy.get(`[id="update-the-number-of-members-in-your-team"]`)
-      .should('have.value', '2', { timeout: reactComponentUpdateTimeout })
+    cy.get(
+      `[id="update-the-number-of-members-in-your-team"]`,
+    ).should('have.value', '2', { timeout: reactComponentUpdateTimeout })
 
     cy.screenshot(`${screenshotFolderName}/can_update_a_team_done`)
   })
