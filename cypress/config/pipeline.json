@@ -1,6 +1,6 @@
 {
   "video": true,
-  "baseUrl": "https://hygieia.staging.dso.mil",
+  "baseUrl": "https://holocron.staging.dso.mil",
   "chromeWebSecurity": false,
   "pluginsFile": false,
   "mode": "pipeline",
