@@ -3,17 +3,17 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
-from app.middleware import auth
-from app.models import Team, Valuestream
+from app.middleware import auth, log
 from app.routes import metrics
 from tests.mocks import cache, crud, request
-from tests.testdata import create_organization, create_team, create_valuestream
+from tests.testdata import create_team, create_valuestream
 
 
 @fixture
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
     yield request
     request.reset()
 

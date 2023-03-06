@@ -1,7 +1,7 @@
 """TicketBoard route tests."""
 from pytest import fixture
 
-from app.middleware import auth
+from app.middleware import auth, log
 from app.routes import ticket_boards
 from tests.mocks import crud, request
 
@@ -10,6 +10,7 @@ from tests.mocks import crud, request
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
     yield request
     request.reset()
 
@@ -27,7 +28,7 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(ticket_boards, "ticket_boards_crud", crud)
 
 
-def test_list_ticket_boards(client, mock_crud):
+def test_list_ticket_boards(client, mock_crud, mock_request):
     """Test GET /api/v1/ticketboards endpoint."""
     expected = {"result": []}
 
@@ -57,7 +58,7 @@ def test_list_ticket_boards_for_team_404(client, mock_crud, mock_admin):
     assert resp.status_code == 404
 
 
-def test_get_ticket_board(client, mock_crud):
+def test_get_ticket_board(client, mock_crud, mock_request):
     """Test GET /api/v1/ticketboards/:id endpoint."""
     expected = {"id": 1}
 
@@ -67,7 +68,7 @@ def test_get_ticket_board(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_ticket_board_404(client, mock_crud):
+def test_get_ticket_board_404(client, mock_crud, mock_request):
     """Test GET /api/v1/ticketboards/:id endpoint."""
     expected = "Resource not found"
 

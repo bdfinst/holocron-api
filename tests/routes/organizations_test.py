@@ -1,10 +1,8 @@
 """Organization route tests."""
-from unittest.mock import MagicMock, patch
-
 from pytest import fixture
 
-from app.crud import organizations_crud
-from app.middleware import auth
+from app import security
+from app.middleware import auth, log
 from app.routes import organizations
 from tests.mocks import crud, request
 
@@ -13,6 +11,8 @@ from tests.mocks import crud, request
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(security, "request", request)
     yield request
     request.reset()
 
@@ -31,7 +31,7 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-def test_list_organizations(client, mock_crud):
+def test_list_organizations(client, mock_crud, mock_request):
     """Test GET /api/v1/organizations endpoint."""
     expected = {"result": []}
 
@@ -41,7 +41,7 @@ def test_list_organizations(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_organization(client, mock_crud):
+def test_get_organization(client, mock_crud, mock_request):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
@@ -51,7 +51,7 @@ def test_get_organization(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_organization_404(client, mock_crud):
+def test_get_organization_404(client, mock_crud, mock_request):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = "Resource not found"
 

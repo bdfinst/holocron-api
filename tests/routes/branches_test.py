@@ -1,7 +1,7 @@
 """Branch route tests."""
 from pytest import fixture
 
-from app.middleware import auth
+from app.middleware import auth, log
 from app.routes import branches
 from tests.mocks import crud, request
 
@@ -16,6 +16,7 @@ def mock_crud(monkeypatch):
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
     yield request
     request.reset()
 
@@ -37,7 +38,7 @@ def test_list_branches_for_team(client, mock_crud, mock_admin):
     assert resp.status_code == 200
 
 
-def test_list_branches_for_team_404(client, mock_crud):
+def test_list_branches_for_team_404(client, mock_crud, mock_request):
     """Test GET /api/v1/branches/team/:id endpoint."""
     expected = "Resource not found"
 

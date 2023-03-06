@@ -22,6 +22,8 @@ SWAGGER = {
 MAX_CONTENT_LENGTH = 100 * 1000
 MODE = os.environ.get("MODE", "production")
 
+REQUEST_IP_HEADER = os.environ.get("REQUEST_IP_HEADER", "X-Forwarded-For")
+
 JIRA_TICKET_TYPE_BUCKETS: Dict[str, List[str]] = {
     "defect_effort": ["Bug", "Anomaly"],
     "unplanned": ["Unplanned"],

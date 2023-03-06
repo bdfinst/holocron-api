@@ -3,7 +3,8 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
-from app.middleware import auth
+from app import security
+from app.middleware import auth, log
 from app.routes import teams
 from tests.mocks import crud, request, team_history_crud
 from tests.testdata import create_team
@@ -21,6 +22,8 @@ def mock_crud(monkeypatch):
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(security, "request", request)
     yield request
     request.reset()
 
@@ -42,7 +45,7 @@ def test_list_teams(client, mock_request, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_team(client, mock_crud):
+def test_get_team(client, mock_crud, mock_request):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = {"id": 1}
 
@@ -52,7 +55,7 @@ def test_get_team(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_team_404(client, mock_crud):
+def test_get_team_404(client, mock_crud, mock_request):
     """Test GET /api/v1/teams/:id endpoint."""
     expected = "Resource not found"
 
