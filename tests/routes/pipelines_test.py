@@ -1,7 +1,7 @@
 """Pipeline route tests."""
 from pytest import fixture
 
-from app.middleware import auth
+from app.middleware import auth, log
 from app.routes import pipelines
 from tests.mocks import crud, request
 
@@ -16,6 +16,7 @@ def mock_crud(monkeypatch):
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
     yield request
     request.reset()
 
@@ -27,7 +28,7 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-def test_list_pipelines(client, mock_crud):
+def test_list_pipelines(client, mock_crud, mock_request):
     """Test GET /api/v1/pipelines endpoint."""
     expected = {"result": []}
 
@@ -57,7 +58,7 @@ def test_list_pipelines_for_team_404(client, mock_crud, mock_admin):
     assert resp.status_code == 404
 
 
-def test_get_pipeline(client, mock_crud):
+def test_get_pipeline(client, mock_crud, mock_request):
     """Test GET /api/v1/pipelines/:id endpoint."""
     expected = {"id": 1}
 
@@ -67,7 +68,7 @@ def test_get_pipeline(client, mock_crud):
     assert resp.status_code == 200
 
 
-def test_get_pipeline_404(client, mock_crud):
+def test_get_pipeline_404(client, mock_crud, mock_request):
     """Test GET /api/v1/pipelines/:id endpoint."""
     expected = "Resource not found"
 

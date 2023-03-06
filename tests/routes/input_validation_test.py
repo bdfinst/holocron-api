@@ -1,9 +1,10 @@
 """Input validaton test for route schemas."""
 from pytest import fixture
 
-from app import config, security
+from app import security
+from app.middleware import log
 from app.routes import organizations
-from tests.mocks import crud
+from tests.mocks import crud, request
 
 
 @fixture
@@ -13,7 +14,14 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(security, "MAX_INPUT_CHAR_LEN", 50)
 
 
-def test_input_validators(client, mock_crud):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(security, "request", request)
+
+
+def test_input_validators(client, mock_crud, mock_request):
     """Test POST /api/v1/organizations for schema input validation."""
     test_cases = [
         (

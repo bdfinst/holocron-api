@@ -4,6 +4,8 @@ from typing import Callable, List, Optional, Union
 
 from flask import request
 
+from app import config
+
 # Security Settings that are configurable
 # The default rate limits provided to the rate limiter
 DEFAULT_LIMITS: Optional[List[Union[str, Callable[[], str]]]] = ["300/day", "50/hour"]
@@ -24,7 +26,10 @@ SQL_INJECTION = "POSSIBLE SQL INJECTION ATTACK"
 
 def log_security_event(event_description: str):
     """Log security critical event."""
-    msg = f"{request.remote_addr} - {request.path} - {event_description}"
+    msg = (
+        f"{request.headers[config.REQUEST_IP_HEADER]} "
+        + f"- {request.path} - {event_description}"
+    )
     logging.critical(msg)
 
 
