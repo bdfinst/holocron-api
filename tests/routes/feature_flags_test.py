@@ -1,9 +1,20 @@
 """FeatureFlags route tests."""
+from pytest import fixture
+
 from app.config import FEATURE_FLAGS
+from app.middleware import log
 from tests.mocks import request
 
 
-def test_list_feature_flags(client):
+@fixture
+def mock_request(monkeypatch):
+    """Mock request object."""
+    monkeypatch.setattr(log, "request", request)
+    yield request
+    request.reset()
+
+
+def test_list_feature_flags(client, mock_request):
     """Test GET /api/v1/featureflags."""
     expected = FEATURE_FLAGS
 
