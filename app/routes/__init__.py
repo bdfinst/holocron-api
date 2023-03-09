@@ -4,6 +4,7 @@ from flask import Blueprint
 from .branches import router as branch_router
 from .builds import router as build_router
 from .commits import router as commit_router
+from .feature_flags import router as feature_flags_router
 from .git_requests import router as git_request_router
 from .metrics import router as metrics_router
 from .organizations import router as organization_router
@@ -31,3 +32,4 @@ router.register_blueprint(ticket_board_router)
 router.register_blueprint(ticket_router)
 router.register_blueprint(user_router)
 router.register_blueprint(valuestream_router)
+router.register_blueprint(feature_flags_router)
