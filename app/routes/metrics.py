@@ -24,43 +24,9 @@ RESOURCE_NOT_FOUND = "Resource not found"
 PROCCESSING_NOT_COMPLETED = "Processing not completed"
 
 
-@router.route("/<org_id>", methods=["GET"])
-def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
-    """Get organization metrics by id route.
-
-    ---
-    get:
-      description: Get organization metrics in format for easy chart consumption
-      parameters:
-        - in: path
-          name: org_id
-          schema:
-            type: integer
-          required: true
-          description: ID of the organization
-      responses:
-        200:
-          description: Get organization metrics
-          content:
-            application/json:
-              schema: MetricsSchema
-        202:
-          description: Metrics are still being processed
-        404:
-          description: Organization not found
-    """
-    try:
-        result = organizations_cache.get_entity(get_sanitized_id(org_id))
-    except HolocronIntegrityError:
-        return RESOURCE_NOT_FOUND, 404
-    except SchemaCacheNotReady:
-        return PROCCESSING_NOT_COMPLETED, 202
-    return jsonify(result), 200
-
-
 @router.route("/organization/<org_id>", methods=["GET"])
 @requires_security([requires_admin, requires_org_access, requires_org_leadership])
-def get_organization_metrics_temp(org_id: str) -> Tuple[Any, int]:
+def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
 
     ---
