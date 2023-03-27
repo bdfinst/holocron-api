@@ -8,6 +8,7 @@ import jwt
 from flask import Response, request
 from sqlalchemy.orm import Session
 
+from app import config
 from app.config import SSO_ENABLED
 from app.crud import organizations_crud, teams_crud, users_crud, valuestreams_crud
 from app.crud.organizations import OrganizationsCRUD
@@ -23,6 +24,7 @@ schema = UserSchema()
 
 
 INVALID_PERMISSIONS = "Invalid permissions"
+FEATURE_NOT_PERMITTED = "Feature not yet permitted"
 
 
 def set_user():
@@ -178,6 +180,21 @@ def requires_security(arguments) -> Callable:
             result = " OR ".join(permission_names)
             log_unpriviledge_user_access(user, result)
             return INVALID_PERMISSIONS, 403
+
+        return wrapper
+
+    return decorator
+
+
+def requires_feature_access(feature_name: str) -> Callable:
+    """Restrict access to endpoint based on the feature flag value."""
+
+    def decorator(original_func):
+        @wraps(original_func)
+        def wrapper(*args, **kwargs):
+            if config.FEATURE_FLAGS[feature_name]:
+                return original_func(*args, **kwargs)
+            return FEATURE_NOT_PERMITTED, 404
 
         return wrapper
 

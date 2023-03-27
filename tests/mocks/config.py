@@ -10,6 +10,10 @@ class MockConfig:
     SSO_LEADERSHIP_GROUP = "leadership"
     MIN_EXPECTED_CYCLE_TIME_HOURS = 1
     REQUEST_IP_HEADER = "X-Forwarded-For"
+    FEATURE_FLAGS = {
+        "FALSE_FEATURE": False,
+        "TRUE_FEATURE": True,
+    }
 
     def reset(self):
         """Cleanup mock function."""
@@ -19,6 +23,10 @@ class MockConfig:
         self.SSO_LEADERSHIP_GROUP = "leadership"
         self.MIN_EXPECTED_CYCLE_TIME_HOURS = 1
         self.REQUEST_IP_HEADER = "X-Forwarded-For"
+        self.FEATURE_FLAGS = {
+            "FALSE_FEATURE": False,
+            "TRUE_FEATURE": True,
+        }
 
 
 config = MockConfig()
