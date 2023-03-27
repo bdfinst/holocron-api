@@ -9,6 +9,7 @@ from app.crud import organizations_crud, teams_crud, valuestreams_crud
 from app.middleware import (
     auth,
     requires_admin,
+    requires_feature_access,
     requires_org_access,
     requires_org_leadership,
     requires_security,
@@ -17,7 +18,7 @@ from app.middleware import (
     return_user,
     set_user,
 )
-from tests.mocks import crud, request
+from tests.mocks import config, crud, request
 from tests.testdata import create_organization, create_team, create_valuestream
 from tests.utils.utils import second_argument
 
@@ -29,6 +30,12 @@ def mock_request(monkeypatch):
     monkeypatch.setattr(security, "request", request)
     yield request
     request.reset()
+
+
+@fixture
+def mock_config(monkeypatch):
+    """Mock configuration."""
+    monkeypatch.setattr(auth, "config", config)
 
 
 def test_set_user(mock_request, monkeypatch):
@@ -347,3 +354,17 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     assert second_argument(valuestreams_mock) == 1
     assert second_argument(teams_mock) == 1
     assert result == ("Invalid permissions", 403)
+
+
+def test_requires_feature_access(mock_config):
+    """Test requires feature access method."""
+    new_feature = "TRUE_FEATURE"
+    result = requires_feature_access(new_feature)(wrapped_test_func)()
+    assert result == "success"
+
+
+def test_requires_feature_access_404(mock_config):
+    """Test requires feature access method."""
+    new_feature = "FALSE_FEATURE"
+    result = requires_feature_access(new_feature)(wrapped_test_func)()
+    assert result == ("Feature not yet permitted", 404)
