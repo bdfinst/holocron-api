@@ -61,6 +61,7 @@ show_missing = true
 disable = ["R0903", "R0801", "W1203"]
 max-line-length = 88
 ignore = ["tests", "alembic", ".cache"]
+good-names = ["id"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

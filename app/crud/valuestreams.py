@@ -1,6 +1,6 @@
 """BaseCRUD extension and instance for Valuestream model."""
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Sequence
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -14,6 +14,37 @@ from .users import users_crud
 
 class ValuestreamsCRUD(BaseCRUD[Valuestream]):
     """Base CRUD extension for Valuestream model."""
+
+    def get_entity_without_team_views(self, session: Session, id_: int) -> Valuestream:
+        """Get valuestream by id without team views."""
+        valuestream: Valuestream = self.get_entity(session, id_)
+        result = Valuestream(
+            name=valuestream.name,
+            organization_id=valuestream.organization_id,
+            users=valuestream.users,
+            teams=[team for team in valuestream.teams if team.view_owner_id is None],
+        )
+        result.id = valuestream.id
+        return result
+
+    def get_entities_without_team_views(
+        self, session: Session
+    ) -> Sequence[Valuestream]:
+        """Get all valuestreams without team views."""
+        valuestreams: Sequence[Valuestream] = self.get_entities(session)
+        result = []
+        for valuestream in valuestreams:
+            new_vs = Valuestream(
+                name=valuestream.name,
+                organization_id=valuestream.organization_id,
+                users=valuestream.users,
+                teams=[
+                    team for team in valuestream.teams if team.view_owner_id is None
+                ],
+            )
+            new_vs.id = valuestream.id
+            result.append(new_vs)
+        return result
 
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Valuestream:
@@ -45,7 +76,7 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
         self, session: Session, json: Dict[str, Any], id_: int
     ) -> Valuestream:
         """Update valuestream in database."""
-        valuestream = self.get_entity(session, id_)
+        valuestream: Valuestream = self.get_entity(session, id_)
         valuestream.name = json["name"]
         valuestream.organization_id = json["organization_id"]
 
@@ -65,7 +96,15 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
-        return valuestream
+        vs_no_team_views = Valuestream(
+            name=valuestream.name,
+            organization_id=valuestream.organization_id,
+            users=valuestream.users,
+            teams=[team for team in valuestream.teams if team.view_owner_id is None],
+        )
+        vs_no_team_views.id = valuestream.id
+
+        return vs_no_team_views
 
 
 valuestreams_crud = ValuestreamsCRUD(Valuestream)

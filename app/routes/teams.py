@@ -42,7 +42,7 @@ def list_teams() -> Tuple[Any, int]:
                       $ref: '#/components/schemas/ExistingTeam'
     """
     with generate_session() as session:
-        raw_teams = teams_crud.get_entities(session)
+        raw_teams = teams_crud.get_entities_without_team_views(session)
         teams = [schema.dump(team) for team in raw_teams]
     result = {"result": teams}
     return jsonify(result), 200

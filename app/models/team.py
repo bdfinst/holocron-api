@@ -1,5 +1,5 @@
 """Holocron team model."""
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Column, ForeignKey, Integer, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -23,7 +23,7 @@ class Team(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "teams"
-    __table_args__ = (UniqueConstraint("name", "valuestream_id"),)
+    __table_args__ = (UniqueConstraint("name", "valuestream_id", "view_owner_id"),)
 
     name: Mapped[str]
     team_size: Mapped[int]
@@ -46,6 +46,10 @@ class Team(MetadataBase, ModelBase):
     )
     ticket_boards: Mapped[List["TicketBoard"]] = relationship(
         overlaps="collector_targets", default_factory=list
+    )
+    view_owner_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("teams.id", ondelete="CASCADE"),
+        default=None,
     )
 
 

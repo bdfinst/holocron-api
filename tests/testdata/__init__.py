@@ -8,6 +8,6 @@ from .repositories import (
     git_requests,
     mock_repositories,
 )
-from .teams import create_team, mock_teams
+from .teams import create_team, create_team_view, mock_teams
 from .ticket_boards import create_ticket_board, mock_ticket_boards, tickets
 from .valuestreams import create_valuestream, mock_valuestreams
