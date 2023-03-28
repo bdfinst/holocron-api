@@ -42,7 +42,9 @@ def test_delete_outdated_team_history_old_team(monkeypatch, mock_session):
 
     delete_cb = MagicMock()
     monkeypatch.setattr(
-        team_history.teams_crud, "get_entities", MagicMock(return_value=list_of_teams)
+        team_history.teams_crud,
+        "get_entities_without_team_views",
+        MagicMock(return_value=list_of_teams),
     )
     monkeypatch.setattr(
         team_history.team_history_crud,
@@ -75,7 +77,9 @@ def test_delete_outdated_team_history_no_old_team(monkeypatch, mock_session):
     ]
     delete_cb = MagicMock()
     monkeypatch.setattr(
-        team_history.teams_crud, "get_entities", MagicMock(return_value=list_of_teams)
+        team_history.teams_crud,
+        "get_entities_without_team_views",
+        MagicMock(return_value=list_of_teams),
     )
     monkeypatch.setattr(
         team_history.team_history_crud,

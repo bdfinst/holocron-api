@@ -10,6 +10,7 @@ from app.crud import teams_crud
 from app.crud.teams import TeamValidationData, is_workflow_only
 from app.exceptions import HolocronIntegrityError
 from app.models import Repository, Team, TicketBoard
+from tests.mocks import mock_select
 from tests.testdata import create_repository, create_team, create_ticket_board
 from tests.utils import first_argument
 
@@ -28,6 +29,12 @@ json2 = {
     "collector_target_ids": [22],
     "valuestream_id": 1,
 }
+
+
+@fixture
+def mock_sqlalchemy(monkeypatch):
+    """Patch sqlalchemy."""
+    monkeypatch.setattr(teams_crud_mod, "select", mock_select)
 
 
 @fixture
@@ -74,6 +81,13 @@ def test_is_workflow_only(mock_session):
     for test_case in test_cases:
         description, input_value, expected = test_case
         assert expected == is_workflow_only(input_value), description
+
+
+def test_get_entities_without_team_views(mock_session, mock_sqlalchemy):
+    """Test get_entities_without_team_views method method."""
+    expected = "SELECT * FROM teams " + "WHERE teams.view_owner_id IS NULL"
+    result = teams_crud.get_entities_without_team_views(mock_session)
+    assert result[0].statement == expected
 
 
 def test_create_entity(
@@ -194,6 +208,26 @@ def test_create_entity_unknown_error(
 
 
 def test_update_entity(
+    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+):
+    """Test update_entity method."""
+    expected = "SELECT * FROM teams WHERE teams.id = :id_1"
+
+    result = teams_crud.update_entity(mock_session, json1, 1)
+    team = first_argument(mock_session.add)
+    expected_feature_board_id = 21
+
+    assert team.name == "test"
+    assert team.team_size == 1
+    assert team.users == []
+    assert len(team.collector_targets) == 1
+    assert team.collector_targets[0].id == expected_feature_board_id
+    assert team.valuestream_id == 1
+    assert first_argument(mock_session.scalars).statement == expected
+    assert result == team
+
+
+def test_update_entity_filter_team_views(
     mock_session, mock_get_team_validation_data, mock_team_collector_targets
 ):
     """Test update_entity method."""

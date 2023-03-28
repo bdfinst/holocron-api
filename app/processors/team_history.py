@@ -16,7 +16,7 @@ from .utils import values_by_week
 def delete_outdated_team_history() -> None:
     """Delete outdated team history data."""
     with generate_session() as session:
-        teams = teams_crud.get_entities(session)
+        teams = teams_crud.get_entities_without_team_views(session)
         for team in teams:
             team_history = team_history_crud.get_entities_for_team(session, team.id)
             for history in team_history:

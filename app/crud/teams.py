@@ -1,7 +1,7 @@
 """BaseCRUD extension and instance for Team model."""
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Set
+from typing import Any, Dict, Sequence, Set
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -97,6 +97,10 @@ def is_workflow_only(team_validation_data: TeamValidationData) -> bool:
 class TeamsCRUD(BaseCRUD[Team]):
     """Base CRUD extension for Team model."""
 
+    def get_entities_without_team_views(self, session: Session) -> Sequence[Team]:
+        """Get all teams without team views."""
+        return session.scalars(select(Team).where(Team.view_owner_id.is_(None))).all()
+
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Team:
         """Insert team in database."""
@@ -132,7 +136,7 @@ class TeamsCRUD(BaseCRUD[Team]):
 
     def update_entity(self, session: Session, json: Dict[str, Any], id_: int) -> Team:
         """Update team in database."""
-        team = self.get_entity(session, id_)
+        team: Team = self.get_entity(session, id_)
         team.name = json["name"]
         team.team_size = json["team_size"]
         team.valuestream_id = json["valuestream_id"]
