@@ -4,6 +4,7 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import TicketBoard
 
 from ._base import BaseCRUD
@@ -12,6 +13,19 @@ from .teams import teams_crud
 
 class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
     """Base CRUD extension for TicketBoard model."""
+
+    def get_entity(self, session, id_: int) -> TicketBoard:
+        """Override get_entity to return only ticket board."""
+        result = session.scalars(
+            select(TicketBoard)
+            .where(TicketBoard.board_id.is_not(None))
+            .where(TicketBoard.id == id_)
+        ).first()
+        if result is None:
+            raise HolocronIntegrityError(
+                f"{TicketBoard.__name__} id", f"Invalid id: {id_}"
+            )
+        return result
 
     def get_entities(self, session: Session) -> Sequence[TicketBoard]:
         """Override get_entities to return only ticket boards."""
