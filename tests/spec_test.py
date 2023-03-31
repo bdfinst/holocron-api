@@ -5,7 +5,7 @@ from flask import Flask
 from openapi_spec_validator import decorators, validate_v3_spec, validators
 
 from app import config
-from app.routes import router
+from app.routes import router_factory
 from app.spec import generate_spec
 
 
@@ -16,7 +16,7 @@ def test_spec_is_valid(monkeypatch):
 
     app = Flask(__name__)
     app.config.from_object(config)
-    app.register_blueprint(router)
+    app.register_blueprint(router_factory())
     spec = generate_spec(app)
 
     assert validate_v3_spec(spec.to_dict()) is None

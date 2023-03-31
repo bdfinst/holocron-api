@@ -118,7 +118,7 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
           schema:
             type: integer
           required: true
-          description: ID of the team
+          description: ID of the team or team view to get metrics for
       responses:
         200:
           description: Get team metrics

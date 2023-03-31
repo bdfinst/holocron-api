@@ -4,7 +4,9 @@ from typing import Any, Tuple
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
+from app.config import FEATURE_FLAGS
 from app.crud.team_history import team_history_crud
+from app.crud.team_views import team_views_crud
 from app.crud.teams import teams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
@@ -14,15 +16,15 @@ from app.middleware import (
     requires_team_access,
     requires_vs_access,
 )
-from app.schemas import TeamSchema
+from app.schemas import TeamSchema, TeamViewSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
 router = Blueprint("teams", __name__, url_prefix="/teams")
 
 schema = TeamSchema()
+schema_view = TeamViewSchema()
 
 
-@router.route("", methods=["GET"])
 def list_teams() -> Tuple[Any, int]:
     """List teams route.
 
@@ -42,13 +44,16 @@ def list_teams() -> Tuple[Any, int]:
                       $ref: '#/components/schemas/ExistingTeam'
     """
     with generate_session() as session:
-        raw_teams = teams_crud.get_entities_without_team_views(session)
+        raw_teams = (
+            teams_crud.get_entities_without_team_views(session)
+            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
+            else teams_crud.get_entities(session)
+        )
         teams = [schema.dump(team) for team in raw_teams]
     result = {"result": teams}
     return jsonify(result), 200
 
 
-@router.route("", methods=["POST"])
 @requires_security([requires_admin, requires_vs_access])
 def create_team() -> Tuple[Any, int]:
     """Create team route.
@@ -92,7 +97,6 @@ def create_team() -> Tuple[Any, int]:
     return jsonify(result), 201
 
 
-@router.route("/<team_id>", methods=["GET"])
 def get_team(team_id: str) -> Tuple[Any, int]:
     """Get team by id route.
 
@@ -117,14 +121,17 @@ def get_team(team_id: str) -> Tuple[Any, int]:
     """
     with generate_session() as session:
         try:
-            raw_team = teams_crud.get_entity(session, get_sanitized_id(team_id))
+            raw_team = (
+                teams_crud.get_entity_no_team_view(session, get_sanitized_id(team_id))
+                if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
+                else teams_crud.get_entity(session, get_sanitized_id(team_id))
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_team)
     return jsonify(result), 200
 
 
-@router.route("/<team_id>", methods=["PUT"])
 @requires_security([requires_admin, requires_team_access])
 def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
@@ -182,7 +189,6 @@ def update_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<team_id>", methods=["DELETE"])
 @requires_security([requires_admin, requires_team_access])
 def delete_team(team_id: str) -> Tuple[Any, int]:
     """Delete team route.
@@ -204,3 +210,189 @@ def delete_team(team_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         teams_crud.delete_entity(session, get_sanitized_id(team_id))
     return "", 204
+
+
+def list_team_views() -> Tuple[Any, int]:
+    """List team views route.
+
+    ---
+    get:
+      description: List team views
+      responses:
+        200:
+          description: List team views
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExistingTeamView'
+    """
+    with generate_session() as session:
+        raw_teams = team_views_crud.get_entities(session)
+        teams = [schema_view.dump(team) for team in raw_teams]
+    result = {"result": teams}
+    return jsonify(result), 200
+
+
+@requires_security([requires_admin, requires_team_access])
+def create_team_view() -> Tuple[Any, int]:
+    """Create team view route.
+
+    ---
+    post:
+      description: Create team view
+      requestBody:
+        content:
+          application/json:
+            schema: NewTeamViewSchema
+      responses:
+        201:
+          description: The team view was successfully created
+          content:
+            application/json:
+              schema: ExistingTeamViewSchema
+        400:
+          description: Failure due to an invalid request
+          content:
+            application/json:
+              schema: ValidationErrorSchema
+    """
+    try:
+        data = schema_view.load(request.json)
+    except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
+        return err.messages, 400
+    with generate_session() as session:
+        try:
+            raw_team_view = team_views_crud.create_entity(session, data)
+        except HolocronIntegrityError as err:
+            return err.messages, 400
+        result = schema_view.dump(raw_team_view)
+
+    return jsonify(result), 201
+
+
+def get_team_view(team_view_id: str) -> Tuple[Any, int]:
+    """Get team view by id route.
+
+    ---
+    get:
+      description: Get team view
+      parameters:
+        - in: path
+          name: team_view_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the team view
+      responses:
+        200:
+          description: Get team view
+          content:
+            application/json:
+              schema: ExistingTeamViewSchema
+        404:
+          description: Team not found
+    """
+    with generate_session() as session:
+        try:
+            raw_team_view = team_views_crud.get_entity(
+                session, get_sanitized_id(team_view_id)
+            )
+        except HolocronIntegrityError:
+            return "Resource not found", 404
+        result = schema_view.dump(raw_team_view)
+    return jsonify(result), 200
+
+
+@requires_security([requires_admin, requires_team_access])
+def update_team_view(team_view_id: str) -> Tuple[Any, int]:
+    """Update team route.
+
+    ---
+    put:
+      description: Update team view
+      parameters:
+        - in: path
+          name: team_view_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the team view
+      requestBody:
+        content:
+          application/json:
+            schema: NewTeamViewSchema
+      responses:
+        200:
+          description: The team view was successfully updated
+          content:
+            application/json:
+              schema: ExistingTeamViewSchema
+        400:
+          description: Failure due to an invalid request
+          content:
+            application/json:
+              schema: ValidationErrorSchema
+    """
+    try:
+        data = schema_view.load(request.json)
+    except ValidationError as err:
+        log_security_event(MALFORMED_REQ_PARAMS_MSG)
+        return err.messages, 400
+    with generate_session() as session:
+        db_team_view_id = get_sanitized_id(team_view_id)
+        try:
+            raw_team_view = team_views_crud.update_entity(
+                session, data, db_team_view_id
+            )
+        except HolocronIntegrityError as err:
+            return err.messages, 400
+        result = schema_view.dump(raw_team_view)
+    return jsonify(result), 200
+
+
+@requires_security([requires_admin, requires_team_access])
+def delete_team_view(team_view_id: str) -> Tuple[Any, int]:
+    """Delete team route.
+
+    ---
+    delete:
+      description: Delete team view
+      parameters:
+        - in: path
+          name: team_view_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the team view
+      responses:
+        204:
+          description: The team was successfully deleted
+    """
+    with generate_session() as session:
+        team_views_crud.delete_entity(session, get_sanitized_id(team_view_id))
+    return "", 204
+
+
+def router_factory() -> Blueprint:
+    """Return factory based router."""
+    team_id_route = "/<team_id>"
+    teams_router = Blueprint("teams", __name__, url_prefix="/teams")
+    teams_router.route("", methods=["GET"])(list_teams)
+    teams_router.route("", methods=["POST"])(create_team)
+    teams_router.route(team_id_route, methods=["GET"])(get_team)
+    teams_router.route(team_id_route, methods=["PUT"])(update_team)
+    teams_router.route(team_id_route, methods=["DELETE"])(delete_team)
+
+    if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]:
+        team_view_id_route = "/views/<team_view_id>"
+        teams_router.route("/views", methods=["GET"])(list_team_views)
+        teams_router.route("/views", methods=["POST"])(create_team_view)
+        teams_router.route(team_view_id_route, methods=["GET"])(get_team_view)
+        teams_router.route(team_view_id_route, methods=["PUT"])(update_team_view)
+        teams_router.route(team_view_id_route, methods=["DELETE"])(delete_team_view)
+    return teams_router

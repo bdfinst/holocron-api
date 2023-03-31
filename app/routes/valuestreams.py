@@ -4,6 +4,7 @@ from typing import Any, Tuple
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
+from app.config import FEATURE_FLAGS
 from app.crud import valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
@@ -41,7 +42,11 @@ def list_valuestreams() -> Tuple[Any, int]:
                       $ref: '#/components/schemas/ExistingValuestream'
     """
     with generate_session() as session:
-        raw_valuestreams = valuestreams_crud.get_entities(session)
+        raw_valuestreams = (
+            valuestreams_crud.get_entities_without_team_views(session)
+            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
+            else valuestreams_crud.get_entities(session)
+        )
         valuestreams = [schema.dump(valuestream) for valuestream in raw_valuestreams]
     result = {"result": valuestreams}
     return jsonify(result), 200
@@ -110,8 +115,14 @@ def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.get_entity(
-                session, get_sanitized_id(valuestream_id)
+            raw_valuestream = (
+                valuestreams_crud.get_entity_without_team_views(
+                    session, get_sanitized_id(valuestream_id)
+                )
+                if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
+                else valuestreams_crud.get_entity(
+                    session, get_sanitized_id(valuestream_id)
+                )
             )
         except HolocronIntegrityError:
             return "Resource not found", 404

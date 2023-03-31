@@ -48,17 +48,17 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
 
     ---
     get:
-      description: Get repositories belonging to a team
+      description: Get repositories belonging to a team or team view
       parameters:
         - in: path
           name: team_id
           schema:
             type: integer
           required: true
-          description: ID of the team to get repositories for
+          description: ID of the team or team view to get repositories for
       responses:
         200:
-          description: Get repositories belonging to a team
+          description: Get repositories belonging to a team or team view
           content:
             application/json:
               schema:
@@ -68,7 +68,7 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/Repository'
         404:
-          description: Team not found
+          description: Team or team view not found
     """
     with generate_session() as session:
         try:

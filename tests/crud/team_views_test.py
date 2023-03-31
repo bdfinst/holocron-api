@@ -72,6 +72,29 @@ def mock_sqlalchemy(monkeypatch):
     monkeypatch.setattr(teams_view_crud_mod, "select", mock_select)
 
 
+def test_get_entity(mock_session, mock_sqlalchemy):
+    """Test get_entity method."""
+    expected = (
+        "SELECT * FROM teams "
+        + "WHERE teams.view_owner_id IS NOT NULL "
+        + "WHERE teams.id = :id_1"
+    )
+
+    result = team_views_crud.get_entity(mock_session, 1)
+
+    assert result.statement == expected
+
+
+def test_get_entity_error(mock_session, mock_sqlalchemy):
+    """Test get_entity method error."""
+    mock_scalars_return = MagicMock(first=lambda *_, **__: None)
+    mock_session.scalars = MagicMock(return_value=mock_scalars_return)
+
+    with raises(HolocronIntegrityError) as e:
+        team_views_crud.get_entity(mock_session, 1)
+    assert "Invalid id" in str(e.value)
+
+
 def test_get_entities(mock_session, mock_sqlalchemy):
     """Test get_entities method."""
     expected = "SELECT * FROM teams " + "WHERE teams.view_owner_id IS NOT NULL"

@@ -1,7 +1,10 @@
 """Valuestream route tests."""
+from unittest.mock import MagicMock, Mock, NonCallableMagicMock, create_autospec
+
 from pytest import fixture
 
 from app import security
+from app.exceptions import HolocronIntegrityError
 from app.middleware import auth, log
 from app.routes import valuestreams
 from tests.mocks import crud, request
@@ -31,7 +34,21 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-def test_list_valuestreams(client, mock_crud, mock_request):
+@fixture
+def mock_feature_team_views_true(monkeypatch):
+    """Mock FEATURE_TEAM_VIEWS as true."""
+    monkeypatch.setattr(valuestreams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
+
+
+@fixture
+def mock_feature_team_views_false(monkeypatch):
+    """Mock FEATURE_TEAM_VIEWS as false."""
+    monkeypatch.setattr(valuestreams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
+
+
+def test_list_valuestreams(
+    client, mock_crud, mock_request, mock_feature_team_views_false
+):
     """Test GET /api/v1/valuestreams endpoint."""
     expected = {"result": []}
 
@@ -41,7 +58,28 @@ def test_list_valuestreams(client, mock_crud, mock_request):
     assert resp.status_code == 200
 
 
-def test_get_valuestream(client, mock_crud, mock_request):
+def test_list_valuestreams_team_views(
+    client, mock_request, monkeypatch, mock_feature_team_views_true
+):
+    """Test GET /api/v1/valuestreams endpoint team view feature."""
+    expected = {"result": []}
+    get_entities_without_team_views = MagicMock(return_value=[])
+    monkeypatch.setattr(
+        valuestreams.valuestreams_crud,
+        "get_entities_without_team_views",
+        get_entities_without_team_views,
+    )
+
+    resp = client.get("/api/v1/valuestreams")
+
+    assert resp.json == expected
+    assert resp.status_code == 200
+    get_entities_without_team_views.assert_called_once()
+
+
+def test_get_valuestream(
+    client, mock_crud, mock_request, mock_feature_team_views_false
+):
     """Test GET /api/v1/valuestreams/:id endpoint."""
     expected = {"id": 1}
 
@@ -51,15 +89,56 @@ def test_get_valuestream(client, mock_crud, mock_request):
     assert resp.status_code == 200
 
 
-def test_get_valuestream_404(client, mock_crud, mock_request):
+def test_get_valuestream_404(
+    client, mock_crud, mock_request, mock_feature_team_views_false
+):
     """Test GET /api/v1/valuestreams/:id endpoint."""
     expected = "Resource not found"
 
-    # did not mock admin, we want requires_vs_access to catch this error
     resp = client.get("/api/v1/valuestreams/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
+
+
+def test_get_valuestream_feature_team_views(
+    client, mock_request, mock_feature_team_views_true, monkeypatch
+):
+    """Test GET /api/v1/valuestreams/:id endpoint feature team views."""
+    expected = {"id": 1}
+    get_entity_without_team_views = MagicMock(return_value=expected)
+    monkeypatch.setattr(
+        valuestreams.valuestreams_crud,
+        "get_entity_without_team_views",
+        get_entity_without_team_views,
+    )
+
+    resp = client.get("/api/v1/valuestreams/1")
+
+    assert resp.json == expected
+    assert resp.status_code == 200
+    get_entity_without_team_views.assert_called_once()
+
+
+def test_get_valuestream_404_feature_team_views(
+    client, mock_request, mock_feature_team_views_true, monkeypatch
+):
+    """Test GET /api/v1/valuestreams/:id endpoint feature team views."""
+    expected = "Resource not found"
+    get_entity_without_team_views = MagicMock(
+        side_effect=HolocronIntegrityError("foo", "bar")
+    )
+    monkeypatch.setattr(
+        valuestreams.valuestreams_crud,
+        "get_entity_without_team_views",
+        get_entity_without_team_views,
+    )
+
+    resp = client.get("/api/v1/valuestreams/-1")
+
+    assert resp.text == expected
+    assert resp.status_code == 404
+    get_entity_without_team_views.assert_called_once()
 
 
 def test_create_valuestream(client, mock_crud, mock_admin):

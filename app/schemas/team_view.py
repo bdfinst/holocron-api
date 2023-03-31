@@ -1,0 +1,67 @@
+"""Schema for Team model."""
+from typing import Any, Dict
+
+from marshmallow import fields, validate
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+
+from app.models import Team
+from app.utils.input_validation import input_name_validator
+
+from ._base import SchemaBase
+
+
+class ExistingTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
+    """Existing team schema."""
+
+    class Meta:
+        """Configuration."""
+
+        model = Team
+        include_relationships = True
+        exclude = (
+            "pipelines",
+            "repositories",
+            "ticket_boards",
+            "users",
+            "team_history",
+            "team_size",
+        )
+
+    collector_targets = auto_field()
+    view_owner_id = auto_field()
+
+
+class NewTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
+    """New team schema."""
+
+    class Meta:
+        """Configuration."""
+
+        model = Team
+        exclude = (
+            "is_workflow_only",
+            "team_size",
+        )
+
+    name = fields.Str(required=True, validate=input_name_validator)
+    collector_target_ids = fields.List(
+        fields.Int(), required=True, validate=validate.Length(min=1)
+    )
+    view_owner_id = fields.Int(required=True)
+
+
+class TeamViewSchema:
+    """Contain both existing and new schemas."""
+
+    def __init__(self):
+        """Initialize."""
+        self.existing_schema = ExistingTeamViewSchema()
+        self.new_schema = NewTeamViewSchema()
+
+    def dump(self, data) -> Dict[str, Any]:
+        """Dump using the existing schema."""
+        return self.existing_schema.dump(data)
+
+    def load(self, data) -> Dict[str, Any]:
+        """Load using the new schema."""
+        return self.new_schema.load(data)

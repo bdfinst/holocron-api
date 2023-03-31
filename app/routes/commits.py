@@ -22,17 +22,17 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
 
     ---
     get:
-      description: Get commits belonging to a team
+      description: Get commits belonging to a team or team view
       parameters:
         - in: path
           name: team_id
           schema:
             type: integer
           required: true
-          description: ID of the team to get commits for
+          description: ID of the team or team view to get commits for
       responses:
         200:
-          description: Get commits belonging to a team
+          description: Get commits belonging to a team or team view
           content:
             application/json:
               schema:
@@ -42,7 +42,7 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/Commit'
         404:
-          description: Team not found
+          description: Team or team view not found
     """
     with generate_session() as session:
         try:

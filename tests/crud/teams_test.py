@@ -83,8 +83,29 @@ def test_is_workflow_only(mock_session):
         assert expected == is_workflow_only(input_value), description
 
 
+def test_get_entity_no_team_view(mock_session, mock_sqlalchemy):
+    """Test get_entity_no_team_view method."""
+    expected = (
+        "SELECT * FROM teams "
+        + "WHERE teams.view_owner_id IS NULL "
+        + "WHERE teams.id = :id_1"
+    )
+    result = teams_crud.get_entity_no_team_view(mock_session, 1)
+    assert result.statement == expected
+
+
+def test_get_entity_no_team_view_error(mock_session, mock_sqlalchemy):
+    """Test get_entity_no_team_view method error."""
+    mock_scalars_return = MagicMock(first=lambda *_, **__: None)
+    mock_session.scalars = MagicMock(return_value=mock_scalars_return)
+
+    with raises(HolocronIntegrityError) as e:
+        teams_crud.get_entity_no_team_view(mock_session, 1)
+    assert "Invalid id" in str(e.value)
+
+
 def test_get_entities_without_team_views(mock_session, mock_sqlalchemy):
-    """Test get_entities_without_team_views method method."""
+    """Test get_entities_without_team_views method."""
     expected = "SELECT * FROM teams " + "WHERE teams.view_owner_id IS NULL"
     result = teams_crud.get_entities_without_team_views(mock_session)
     assert result[0].statement == expected
