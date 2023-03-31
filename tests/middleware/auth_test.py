@@ -5,11 +5,10 @@ from flask import Response
 from pytest import fixture
 
 from app import security
-from app.crud import organizations_crud, teams_crud, valuestreams_crud
+from app.crud import organizations_crud, team_views_crud, teams_crud, valuestreams_crud
 from app.middleware import (
     auth,
     requires_admin,
-    requires_feature_access,
     requires_org_access,
     requires_org_leadership,
     requires_security,
@@ -19,7 +18,12 @@ from app.middleware import (
     set_user,
 )
 from tests.mocks import config, crud, request
-from tests.testdata import create_organization, create_team, create_valuestream
+from tests.testdata import (
+    create_organization,
+    create_team,
+    create_team_view,
+    create_valuestream,
+)
 from tests.utils.utils import second_argument
 
 
@@ -36,6 +40,12 @@ def mock_request(monkeypatch):
 def mock_config(monkeypatch):
     """Mock configuration."""
     monkeypatch.setattr(auth, "config", config)
+
+
+@fixture
+def mock_config_feature_team_views(monkeypatch):
+    """Mock configuration feature flag FEATURE_TEAM_VIEWS."""
+    monkeypatch.setattr(auth, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
 
 
 def test_set_user(mock_request, monkeypatch):
@@ -356,15 +366,77 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     assert result == ("Invalid permissions", 403)
 
 
-def test_requires_feature_access(mock_config):
-    """Test requires feature access method."""
-    new_feature = "TRUE_FEATURE"
-    result = requires_feature_access(new_feature)(wrapped_test_func)()
+def test_requires_team_access_update_delete_team_feature_team_views(
+    mock_request, mock_config_feature_team_views, monkeypatch
+):
+    """Test requires team access with update/delete team with feature flag on."""
+    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
+    team_mock = MagicMock(return_value=create_team())
+    monkeypatch.setattr(
+        teams_crud,
+        "get_entity",
+        team_mock,
+    )
+    result = requires_security([requires_team_access])(wrapped_test_func)(team_id=1)
+
+    assert second_argument(team_mock) == 1
     assert result == "success"
 
 
-def test_requires_feature_access_404(mock_config):
-    """Test requires feature access method."""
-    new_feature = "FALSE_FEATURE"
-    result = requires_feature_access(new_feature)(wrapped_test_func)()
-    assert result == ("Feature not yet permitted", 404)
+def test_requires_team_access_update_or_delete_team_view(
+    mock_request, mock_config_feature_team_views, monkeypatch
+):
+    """Test requires team access with update/delete team view."""
+    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
+
+    monkeypatch.setattr(
+        team_views_crud, "get_entity", MagicMock(return_value=create_team_view())
+    )
+    monkeypatch.setattr(teams_crud, "get_entity", MagicMock(return_value=create_team()))
+    result = requires_security([requires_team_access])(wrapped_test_func)(
+        team_view_id=1
+    )
+    assert result == "success"
+
+
+def test_requires_team_access_create_team_view(
+    mock_request, mock_config_feature_team_views, monkeypatch
+):
+    """Test requires team access with create team view."""
+    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
+    mock_request.json = {"viewOwnerId": "1"}
+
+    monkeypatch.setattr(teams_crud, "get_entity", MagicMock(return_value=create_team()))
+    result = requires_security([requires_team_access])(wrapped_test_func)()
+    assert result == "success"
+
+
+def test_requires_team_access_update_delete_team_view_403(
+    mock_request, mock_config_feature_team_views, monkeypatch
+):
+    """Test requires team access update/delete team view 403."""
+    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
+    mock_request.json = {"viewOwnerId": "1"}
+
+    organizations_mock = MagicMock(return_value=create_organization(users=[]))
+    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    teams_mock = MagicMock(return_value=create_team(users=[]))
+    team_view_mock = MagicMock(return_value=create_team_view(users=[]))
+
+    monkeypatch.setattr(
+        organizations_crud,
+        "get_entity",
+        organizations_mock,
+    )
+    monkeypatch.setattr(valuestreams_crud, "get_entity", valuestreams_mock)
+    monkeypatch.setattr(
+        teams_crud,
+        "get_entity",
+        teams_mock,
+    )
+    monkeypatch.setattr(team_views_crud, "get_entity", team_view_mock)
+
+    result = requires_security([requires_team_access])(wrapped_test_func)(
+        team_view_id=1
+    )
+    assert result == ("Invalid permissions", 403)

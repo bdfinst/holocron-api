@@ -23,6 +23,15 @@ from .teams import (
 class TeamViewsCRUD(BaseCRUD[Team]):
     """Base CRUD extension for Team views model."""
 
+    def get_entity(self, session: Session, id_: int) -> Team:
+        """Get team view."""
+        team_view = session.scalars(
+            select(Team).where(Team.view_owner_id.is_not(None)).where(Team.id == id_)
+        ).first()
+        if team_view is None:
+            raise HolocronIntegrityError(f"{Team.__name__} id", f"Invalid id: {id_}")
+        return team_view
+
     def get_entities(self, session: Session) -> Sequence[Team]:
         """Get all team views."""
         return session.scalars(

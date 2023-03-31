@@ -8,9 +8,14 @@ import jwt
 from flask import Response, request
 from sqlalchemy.orm import Session
 
-from app import config
-from app.config import SSO_ENABLED
-from app.crud import organizations_crud, teams_crud, users_crud, valuestreams_crud
+from app.config import FEATURE_FLAGS, SSO_ENABLED
+from app.crud import (
+    organizations_crud,
+    team_views_crud,
+    teams_crud,
+    users_crud,
+    valuestreams_crud,
+)
 from app.crud.organizations import OrganizationsCRUD
 from app.crud.teams import TeamsCRUD
 from app.crud.valuestreams import ValuestreamsCRUD
@@ -144,11 +149,30 @@ def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
     return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
 
 
+def get_team_id_for_team_access_feature_team_views(session: Session, **kwargs) -> int:
+    """Get team id for requires_team_access for feature team views."""
+    if kwargs:
+        if "team_view_id" not in kwargs:
+            # team_id in kwargs (update/delete team method)
+            return (int)(kwargs["team_id"])
+        # (update/delete team view)
+        team_view_id = (int)(kwargs["team_view_id"])
+        team_view = team_views_crud.get_entity(session, team_view_id)
+        return team_view.view_owner_id if team_view.view_owner_id is not None else -1
+    # creating team view
+    data = request.json
+    return (int)(data["viewOwnerId"]) if data is not None else -1
+
+
 def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to users with team access."""
-    team_id = (int)(kwargs["team_id"])
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
+        team_id = (
+            get_team_id_for_team_access_feature_team_views(session, **kwargs)
+            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
+            else (int)(kwargs["team_id"])
+        )
         if check_entity_access(EntityType.TEAM, team_id, session, user["id"]):
             return True, None
 
@@ -180,21 +204,6 @@ def requires_security(arguments) -> Callable:
             result = " OR ".join(permission_names)
             log_unpriviledge_user_access(user, result)
             return INVALID_PERMISSIONS, 403
-
-        return wrapper
-
-    return decorator
-
-
-def requires_feature_access(feature_name: str) -> Callable:
-    """Restrict access to endpoint based on the feature flag value."""
-
-    def decorator(original_func):
-        @wraps(original_func)
-        def wrapper(*args, **kwargs):
-            if config.FEATURE_FLAGS[feature_name]:
-                return original_func(*args, **kwargs)
-            return FEATURE_NOT_PERMITTED, 404
 
         return wrapper
 

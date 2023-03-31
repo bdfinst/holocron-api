@@ -10,6 +10,7 @@ from .pay_rate import MultiplePayRateSchema, PayRateSchema
 from .pipelines import PipelineSchema
 from .repository import RepositorySchema
 from .team import TeamSchema
+from .team_view import TeamViewSchema
 from .ticket import TicketSchema
 from .ticket_board import TicketBoardSchema
 from .user import UserSchema

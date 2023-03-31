@@ -29,10 +29,10 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
           schema:
             type: integer
           required: true
-          description: ID of the team to get branches for
+          description: ID of the team or team view to get branches for
       responses:
         200:
-          description: Get branches belonging to a team
+          description: Get branches belonging to a team or team view
           content:
             application/json:
               schema:
@@ -42,7 +42,7 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/Branch'
         404:
-          description: Team not found
+          description: Team or team view not found
     """
     with generate_session() as session:
         try:

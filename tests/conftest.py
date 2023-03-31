@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 import app
-from tests.mocks import mock_delete, mock_select, session
+from tests.mocks import config, mock_delete, mock_select, session
 
 
 @fixture(scope="session")
@@ -38,6 +38,7 @@ def application(monkeypatch):
     monkeypatch.setattr(app.app, "set_user", MagicMock())
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
+    monkeypatch.setattr(app.routes.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
     application = app.create_app()
     application.config.update({"TESTING": True})
     return application

@@ -97,6 +97,15 @@ def is_workflow_only(team_validation_data: TeamValidationData) -> bool:
 class TeamsCRUD(BaseCRUD[Team]):
     """Base CRUD extension for Team model."""
 
+    def get_entity_no_team_view(self, session: Session, id_: int) -> Team:
+        """Get team that is not team view."""
+        team = session.scalars(
+            select(Team).where(Team.view_owner_id.is_(None)).where(Team.id == id_)
+        ).first()
+        if team is None:
+            raise HolocronIntegrityError(f"{Team.__name__} id", f"Invalid id: {id_}")
+        return team
+
     def get_entities_without_team_views(self, session: Session) -> Sequence[Team]:
         """Get all teams without team views."""
         return session.scalars(select(Team).where(Team.view_owner_id.is_(None))).all()

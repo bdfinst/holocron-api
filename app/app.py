@@ -19,7 +19,7 @@ from app.middleware import (
     validate_text,
 )
 from app.processors import team_history
-from app.routes import router
+from app.routes import router_factory
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
 
@@ -64,7 +64,7 @@ def create_app():
         app.before_request(set_user)
         app.after_request(return_user)
 
-    app.register_blueprint(router)
+    app.register_blueprint(router_factory())
     spec = generate_spec(app)
     serve_spec(app, spec)
     limiter.init_app(app)
