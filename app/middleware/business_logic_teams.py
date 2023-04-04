@@ -130,12 +130,11 @@ def requires_valid_team_data(original_func) -> Callable:
     @wraps(original_func)
     def wrapper(*args, **kwargs):
         try:
-            validate_func = (
-                is_valid_team_data_for_update
+            is_valid, invalid_msg = (
+                is_valid_team_data_for_update(*args, **kwargs)
                 if kwargs
-                else is_valid_team_data_for_create
+                else is_valid_team_data_for_create(*args, **kwargs)
             )
-            is_valid, invalid_msg = validate_func(*args, **kwargs)
         except HolocronIntegrityError:
             return "Resource not found", 404
         return original_func(*args, **kwargs) if is_valid else (invalid_msg, 400)
@@ -208,12 +207,11 @@ def requires_valid_team_view_data(original_func) -> Callable:
     @wraps(original_func)
     def wrapper(*args, **kwargs):
         try:
-            validate_func = (
-                is_valid_team_view_data_for_update
+            is_valid, invalid_msg = (
+                is_valid_team_view_data_for_update(*args, **kwargs)
                 if kwargs
-                else is_valid_team_view_data_for_create
+                else is_valid_team_view_data_for_create(*args, **kwargs)
             )
-            is_valid, invalid_msg = validate_func(*args, **kwargs)
         except HolocronIntegrityError:
             return "Resource not found", 404
         return original_func(*args, **kwargs) if is_valid else (invalid_msg, 400)

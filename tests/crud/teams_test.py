@@ -7,26 +7,18 @@ from sqlalchemy.exc import IntegrityError
 from app.crud import collector_targets_crud
 from app.crud import teams as teams_crud_mod
 from app.crud import teams_crud
-from app.crud.teams import TeamValidationData, is_workflow_only
+from app.crud.teams import is_workflow_only
 from app.exceptions import HolocronIntegrityError
-from app.models import Repository, Team, TicketBoard
+from app.models import Team, TicketBoard
 from tests.mocks import mock_select
 from tests.testdata import create_repository, create_team, create_ticket_board
 from tests.utils import first_argument
 
-json1 = {
+json = {
     "name": "test",
     "team_size": 1,
     "user_ids": [],
     "collector_target_ids": [21],
-    "valuestream_id": 1,
-}
-
-json2 = {
-    "name": "test",
-    "team_size": 1,
-    "user_ids": [],
-    "collector_target_ids": [22],
     "valuestream_id": 1,
 }
 
@@ -35,17 +27,6 @@ json2 = {
 def mock_sqlalchemy(monkeypatch):
     """Patch sqlalchemy."""
     monkeypatch.setattr(teams_crud_mod, "select", mock_select)
-
-
-@fixture
-def mock_get_team_validation_data(monkeypatch):
-    """Mock get_team_validation_data in app.crud.teams."""
-    all_ticket_board_ids = {21}
-    monkeypatch.setattr(
-        teams_crud_mod,
-        "get_team_validation_data",
-        lambda _, team: TeamValidationData(team, all_ticket_board_ids),
-    )
 
 
 @fixture
@@ -62,25 +43,30 @@ def mock_team_collector_targets(monkeypatch):
     )
 
 
+@fixture
+def mock_is_workflow_only(monkeypatch):
+    """Mock to satisfy is workflow only."""
+    monkeypatch.setattr(teams_crud_mod, "is_workflow_only", lambda *_, **__: False)
+
+
 def test_is_workflow_only(mock_session):
     """Test is_workflow_only method."""
     test_cases = [
         (
             """Should return true if team only has ticketboards.""",
-            TeamValidationData(create_team(pipelines=[], repositories=[]), {1}),
+            MagicMock(first=lambda *_, **__: create_ticket_board()),
             True,
         ),
         (
             """Should return false otherwise.""",
-            TeamValidationData(
-                create_team(pipelines=[], repositories=[create_repository(id=2)]), {1}
-            ),
+            MagicMock(first=lambda *_, **__: None),
             False,
         ),
     ]
     for test_case in test_cases:
-        description, input_value, expected = test_case
-        assert expected == is_workflow_only(input_value), description
+        description, mock_scalars_first, expected = test_case
+        mock_session.scalars = MagicMock(return_value=mock_scalars_first)
+        assert expected == is_workflow_only(mock_session, create_team()), description
 
 
 def test_get_entity_no_team_view(mock_session, mock_sqlalchemy):
@@ -113,11 +99,11 @@ def test_get_entities_without_team_views(mock_session, mock_sqlalchemy):
 
 def test_create_entity(
     mock_session,
-    mock_get_team_validation_data,
     mock_team_collector_targets,
+    mock_is_workflow_only,
 ):
     """Test create_entity method."""
-    result = teams_crud.create_entity(mock_session, json1)
+    result = teams_crud.create_entity(mock_session, json)
     team = first_argument(mock_session.add)
     mock_team_feature_board_id = 21
 
@@ -132,8 +118,8 @@ def test_create_entity(
 
 def test_create_entity_valuestream_id_error(
     mock_session,
-    mock_get_team_validation_data,
     mock_team_collector_targets,
+    mock_is_workflow_only,
 ):
     """Test create_entity method with invalid valuestream id."""
 
@@ -144,13 +130,13 @@ def test_create_entity_valuestream_id_error(
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json1)
+        teams_crud.create_entity(mock_session, json)
 
     assert expected == str(e.value)
 
 
 def test_create_entity_unique_error(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test create_entity method with uniqueness violation."""
 
@@ -161,58 +147,13 @@ def test_create_entity_unique_error(
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json1)
+        teams_crud.create_entity(mock_session, json)
 
     assert expected == str(e.value)
 
 
-def test_create_entity_collector_targets_error(
-    mock_session,
-    mock_get_team_validation_data,
-    monkeypatch,
-):
-    """Test create_entity with collector targets error."""
-    test_cases = [
-        (
-            """should error on collector targets already in use.""",
-            (
-                json1,
-                create_ticket_board(
-                    id=21,
-                    team_id=42,
-                ),
-            ),
-            "collectorTargetIds - already in use",
-        ),
-        (
-            """should error on response having no feature boards.""",
-            (
-                json2,
-                create_repository(
-                    id=22,
-                    team_id=42,
-                ),
-            ),
-            "collectorTargetIds - team needs at least one feature board",
-        ),
-    ]
-    for test_case in test_cases:
-        description, input_values, expected_msg = test_case
-        team_json, collector_target_crud_entity = input_values
-        monkeypatch.setattr(
-            collector_targets_crud,
-            "get_entity",
-            MagicMock(
-                return_value=collector_target_crud_entity,
-            ),
-        )
-        with raises(HolocronIntegrityError) as e:
-            teams_crud.create_entity(mock_session, team_json)
-        assert expected_msg == str(e.value), description
-
-
 def test_create_entity_unknown_error(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test create_entity with an unknown error."""
 
@@ -223,18 +164,18 @@ def test_create_entity_unknown_error(
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.create_entity(mock_session, json1)
+        teams_crud.create_entity(mock_session, json)
 
     assert expected == str(e.value)
 
 
 def test_update_entity(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test update_entity method."""
     expected = "SELECT * FROM teams WHERE teams.id = :id_1"
 
-    result = teams_crud.update_entity(mock_session, json1, 1)
+    result = teams_crud.update_entity(mock_session, json, 1)
     team = first_argument(mock_session.add)
     expected_feature_board_id = 21
 
@@ -249,12 +190,12 @@ def test_update_entity(
 
 
 def test_update_entity_filter_team_views(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test update_entity method."""
     expected = "SELECT * FROM teams WHERE teams.id = :id_1"
 
-    result = teams_crud.update_entity(mock_session, json1, 1)
+    result = teams_crud.update_entity(mock_session, json, 1)
     team = first_argument(mock_session.add)
     expected_feature_board_id = 21
 
@@ -269,7 +210,7 @@ def test_update_entity_filter_team_views(
 
 
 def test_update_entity_valuestream_id_error(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test update_entity method with invalid valuestream id."""
 
@@ -280,13 +221,13 @@ def test_update_entity_valuestream_id_error(
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json1, 1)
+        teams_crud.update_entity(mock_session, json, 1)
 
     assert expected == str(e.value)
 
 
 def test_update_entity_unique_error(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test update_entity method with uniqueness violation."""
 
@@ -297,56 +238,13 @@ def test_update_entity_unique_error(
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json1, 1)
+        teams_crud.update_entity(mock_session, json, 1)
 
     assert expected == str(e.value)
 
 
-def test_update_entity_collector_targets_error(
-    mock_session, mock_get_team_validation_data, monkeypatch
-):
-    """Test update_entity with collector targets error."""
-    test_cases = [
-        (
-            """should error on collector targets already in use.""",
-            (
-                json1,
-                create_ticket_board(
-                    id=21,
-                    team_id=42,
-                ),
-            ),
-            "collectorTargetIds - already in use",
-        ),
-        (
-            """should error on response having no feature boards.""",
-            (
-                json2,
-                create_repository(
-                    id=22,
-                    team_id=42,
-                ),
-            ),
-            "collectorTargetIds - team needs at least one feature board",
-        ),
-    ]
-    for test_case in test_cases:
-        description, input_values, expected_msg = test_case
-        team_json, collector_target_crud_entity = input_values
-        monkeypatch.setattr(
-            collector_targets_crud,
-            "get_entity",
-            MagicMock(
-                return_value=collector_target_crud_entity,
-            ),
-        )
-        with raises(HolocronIntegrityError) as e:
-            teams_crud.update_entity(mock_session, team_json, 1)
-        assert expected_msg == str(e.value), description
-
-
 def test_update_entity_unknown_error(
-    mock_session, mock_get_team_validation_data, mock_team_collector_targets
+    mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
     """Test update_entity with an unknown error."""
 
@@ -357,6 +255,6 @@ def test_update_entity_unknown_error(
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
-        teams_crud.update_entity(mock_session, json1, 1)
+        teams_crud.update_entity(mock_session, json, 1)
 
     assert expected == str(e.value)
