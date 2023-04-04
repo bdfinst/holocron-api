@@ -11,7 +11,6 @@ from app.middleware import (
     organizations_cache,
     requires_admin,
     requires_org_access,
-    requires_org_leadership,
     requires_security,
     requires_team_access,
     requires_vs_access,
@@ -25,7 +24,7 @@ PROCCESSING_NOT_COMPLETED = "Processing not completed"
 
 
 @router.route("/organization/<org_id>", methods=["GET"])
-@requires_security([requires_admin, requires_org_access, requires_org_leadership])
+@requires_security([requires_admin, requires_org_access])
 def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
 

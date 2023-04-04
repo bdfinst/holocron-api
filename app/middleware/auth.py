@@ -23,7 +23,7 @@ from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.models import Team, Valuestream
 from app.schemas import UserSchema
-from app.security import log_security_event
+from app.security import get_sanitized_id, log_security_event
 
 schema = UserSchema()
 
@@ -116,11 +116,11 @@ def requires_org_access(**kwargs) -> Tuple[bool, Optional[str]]:
     if not kwargs:
         data = request.json
         if data is not None:
-            org_id = (int)(data["organizationId"])
+            org_id = get_sanitized_id(data["organizationId"])
         else:
             return False, "ORGANIZATION_ADMIN"
     else:
-        org_id = (int)(kwargs["org_id"])
+        org_id = get_sanitized_id(kwargs["org_id"])
 
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
@@ -135,11 +135,11 @@ def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
     if not kwargs:
         data = request.json
         if data is not None:
-            vs_id = (int)(data["valuestreamId"])
+            vs_id = get_sanitized_id(data["valuestreamId"])
         else:
             return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
     else:
-        vs_id = (int)(kwargs["valuestream_id"])
+        vs_id = get_sanitized_id(kwargs["valuestream_id"])
 
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
@@ -154,14 +154,14 @@ def get_team_id_for_team_access_feature_team_views(session: Session, **kwargs) -
     if kwargs:
         if "team_view_id" not in kwargs:
             # team_id in kwargs (update/delete team method)
-            return (int)(kwargs["team_id"])
+            return get_sanitized_id(kwargs["team_id"])
         # (update/delete team view)
-        team_view_id = (int)(kwargs["team_view_id"])
+        team_view_id = get_sanitized_id(kwargs["team_view_id"])
         team_view = team_views_crud.get_entity(session, team_view_id)
         return team_view.view_owner_id if team_view.view_owner_id is not None else -1
     # creating team view
     data = request.json
-    return (int)(data["viewOwnerId"]) if data is not None else -1
+    return get_sanitized_id(data["viewOwnerId"]) if data is not None else -1
 
 
 def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
@@ -171,7 +171,7 @@ def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
         team_id = (
             get_team_id_for_team_access_feature_team_views(session, **kwargs)
             if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else (int)(kwargs["team_id"])
+            else get_sanitized_id(kwargs["team_id"])
         )
         if check_entity_access(EntityType.TEAM, team_id, session, user["id"]):
             return True, None
