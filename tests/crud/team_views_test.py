@@ -6,36 +6,18 @@ from pytest import fixture, raises
 from app.crud import collector_targets_crud
 from app.crud import team_views as teams_view_crud_mod
 from app.crud import team_views_crud, teams_crud
-from app.crud.teams import TeamValidationData
 from app.exceptions import HolocronIntegrityError
 from tests.mocks import mock_select
 from tests.testdata import create_team, create_team_view, create_ticket_board
 from tests.utils import first_argument
 
 json = {"name": "test", "collector_target_ids": [21], "view_owner_id": 1}
-json2 = {"name": "new_test", "collector_target_ids": [22], "view_owner_id": 1}
 
 
 @fixture
 def mock_teams_crud_helper_functions(monkeypatch):
     """Mock get_team_validation_data in app.crud.teams."""
-    all_ticket_board_ids = {21}
-    monkeypatch.setattr(
-        teams_view_crud_mod,
-        "get_team_validation_data",
-        lambda _, team: TeamValidationData(team, all_ticket_board_ids),
-    )
-    monkeypatch.setattr(teams_view_crud_mod, "is_workflow_only", lambda _: False)
-    monkeypatch.setattr(
-        teams_view_crud_mod,
-        "validate_business_logic_create",
-        lambda *args: None,
-    )
-    monkeypatch.setattr(
-        teams_view_crud_mod,
-        "validate_business_logic_update",
-        lambda *args: None,
-    )
+    monkeypatch.setattr(teams_view_crud_mod, "is_workflow_only", lambda *_, **__: False)
 
 
 @fixture
@@ -128,15 +110,15 @@ def test_update_entity(
         "get_entity",
         MagicMock(
             return_value=create_ticket_board(
-                id=22,
+                id=21,
             )
         ),
     )
-    result = team_views_crud.update_entity(mock_session, json2, create_team_view().id)
+    result = team_views_crud.update_entity(mock_session, json, create_team_view().id)
     team_view = first_argument(mock_session.add)
 
-    assert team_view.name == json2["name"]
-    assert team_view.view_owner_id == json2["view_owner_id"]
+    assert team_view.name == json["name"]
+    assert team_view.view_owner_id == json["view_owner_id"]
     assert len(team_view.collector_targets) == 1
-    assert team_view.collector_targets[0].id == json2["collector_target_ids"][0]
+    assert team_view.collector_targets[0].id == json["collector_target_ids"][0]
     assert result == team_view

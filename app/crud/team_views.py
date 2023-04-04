@@ -11,13 +11,7 @@ from app.models import Team
 
 from ._base import BaseCRUD
 from .collector_targets import collector_targets_crud
-from .teams import (
-    get_team_validation_data,
-    is_workflow_only,
-    teams_crud,
-    validate_business_logic_create,
-    validate_business_logic_update,
-)
+from .teams import is_workflow_only, teams_crud
 
 
 class TeamViewsCRUD(BaseCRUD[Team]):
@@ -49,10 +43,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             collector_targets_crud.get_entity(session, target_id)
             for target_id in json["collector_target_ids"]
         ]
-        team_validation_data = get_team_validation_data(session, team_view)
-        team_view.is_workflow_only = is_workflow_only(team_validation_data)
-        validate_business_logic_update(team_validation_data)
-
+        team_view.is_workflow_only = is_workflow_only(session, team_view)
         try:
             session.add(team_view)
             session.commit()
@@ -86,10 +77,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             for target_id in json["collector_target_ids"]
         ]
 
-        team_validation_data = get_team_validation_data(session, new_team_view)
-        new_team_view.is_workflow_only = is_workflow_only(team_validation_data)
-        validate_business_logic_create(team_validation_data)
-
+        new_team_view.is_workflow_only = is_workflow_only(session, new_team_view)
         try:
             session.add(new_team_view)
             session.commit()

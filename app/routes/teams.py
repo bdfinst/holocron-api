@@ -14,6 +14,8 @@ from app.middleware import (
     requires_admin,
     requires_security,
     requires_team_access,
+    requires_valid_team_data,
+    requires_valid_team_view_data,
     requires_vs_access,
 )
 from app.schemas import TeamSchema, TeamViewSchema
@@ -55,6 +57,7 @@ def list_teams() -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_vs_access])
+@requires_valid_team_data
 def create_team() -> Tuple[Any, int]:
     """Create team route.
 
@@ -133,6 +136,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
+@requires_valid_team_data
 def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
 
@@ -238,6 +242,7 @@ def list_team_views() -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
+@requires_valid_team_view_data
 def create_team_view() -> Tuple[Any, int]:
     """Create team view route.
 
@@ -309,6 +314,7 @@ def get_team_view(team_view_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
+@requires_valid_team_view_data
 def update_team_view(team_view_id: str) -> Tuple[Any, int]:
     """Update team route.
 

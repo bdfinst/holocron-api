@@ -5,7 +5,7 @@ from pytest import fixture
 
 from app import security
 from app.exceptions import HolocronIntegrityError
-from app.middleware import auth, log
+from app.middleware import auth, business_logic_teams, log
 from app.routes import teams
 from tests.mocks import crud, request, team_history_crud
 from tests.testdata import create_team, create_team_view
@@ -35,6 +35,36 @@ def mock_admin(monkeypatch, mock_request):
     """Mock an admin user."""
     monkeypatch.setattr(auth, "SSO_ENABLED", True)
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
+
+
+@fixture
+def mock_requires_valid_team_data(monkeypatch):
+    """Mock requires_valid_team_data decorator."""
+    monkeypatch.setattr(
+        business_logic_teams,
+        "is_valid_team_data_for_create",
+        lambda *_, **__: (True, ""),
+    )
+    monkeypatch.setattr(
+        business_logic_teams,
+        "is_valid_team_data_for_update",
+        lambda *_, **__: (True, ""),
+    )
+
+
+@fixture
+def mock_requires_valid_team_view_data(monkeypatch):
+    """Mock requires_valid_team_view_data decorator."""
+    monkeypatch.setattr(
+        business_logic_teams,
+        "is_valid_team_view_data_for_create",
+        lambda *_, **__: (True, ""),
+    )
+    monkeypatch.setattr(
+        business_logic_teams,
+        "is_valid_team_view_data_for_update",
+        lambda *_, **__: (True, ""),
+    )
 
 
 def test_list_teams(client, mock_request, mock_crud):
@@ -120,7 +150,9 @@ def test_get_team_404_feature_team_views(client, mock_request, monkeypatch):
     get_entity_no_team_view.assert_called_once()
 
 
-def test_create_team(client, mock_crud, monkeypatch, mock_admin):
+def test_create_team(
+    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+):
     """Test POST /api/v1/teams endpoint."""
     json = {
         "name": "test",
@@ -164,7 +196,9 @@ def test_create_team(client, mock_crud, monkeypatch, mock_admin):
     assert resp.status_code == 201
 
 
-def test_create_team_validation_error(client, mock_crud, mock_admin):
+def test_create_team_validation_error(
+    client, mock_crud, mock_admin, mock_requires_valid_team_data
+):
     """Test POST /api/v1/teams endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
     UNKNOWN_FIELD_MSG = "Unknown field."
@@ -209,7 +243,9 @@ def test_create_team_validation_error(client, mock_crud, mock_admin):
         assert resp.status_code == 400, description
 
 
-def test_create_team_database_error(client, mock_crud, mock_admin):
+def test_create_team_database_error(
+    client, mock_crud, mock_admin, mock_requires_valid_team_data
+):
     """Test POST /api/v1/teams endpoint."""
     json = {
         "name": "error",
@@ -226,7 +262,9 @@ def test_create_team_database_error(client, mock_crud, mock_admin):
     assert resp.status_code == 400
 
 
-def test_update_team(client, mock_crud, monkeypatch, mock_admin):
+def test_update_team(
+    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {
         "name": "test2",
@@ -274,7 +312,9 @@ def test_update_team(client, mock_crud, monkeypatch, mock_admin):
     assert resp.status_code == 200
 
 
-def test_update_team_validation_error(client, mock_crud, mock_admin):
+def test_update_team_validation_error(
+    client, mock_crud, mock_admin, mock_requires_valid_team_data
+):
     """Test PUT /api/v1/teams/1 endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
     UNKNOWN_FIELD_MSG = "Unknown field."
@@ -319,7 +359,9 @@ def test_update_team_validation_error(client, mock_crud, mock_admin):
         assert resp.status_code == 400, description
 
 
-def test_update_team_database_error(client, mock_crud, monkeypatch, mock_admin):
+def test_update_team_database_error(
+    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {
         "name": "error",
@@ -396,7 +438,14 @@ def test_get_team_view_404(
     assert resp.status_code == 404
 
 
-def test_create_team_view(client, mock_crud, monkeypatch, mock_admin, mock_request):
+def test_create_team_view(
+    client,
+    mock_crud,
+    monkeypatch,
+    mock_admin,
+    mock_request,
+    mock_requires_valid_team_view_data,
+):
     """Test POST /api/v1/teams/views endpoint."""
     json = {"name": "test_view", "collectorTargetIds": [1], "viewOwnerId": 1}
 
@@ -435,10 +484,7 @@ def test_create_team_view(client, mock_crud, monkeypatch, mock_admin, mock_reque
 
 
 def test_create_team_view_database_error(
-    client,
-    mock_crud,
-    mock_admin,
-    mock_request,
+    client, mock_crud, mock_admin, mock_request, mock_requires_valid_team_view_data
 ):
     """Test POST /api/v1/teams/views endpoint."""
     json = {
@@ -455,10 +501,7 @@ def test_create_team_view_database_error(
 
 
 def test_update_team_view(
-    client,
-    mock_crud,
-    monkeypatch,
-    mock_admin,
+    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_view_data
 ):
     """Test PUT /api/v1/teams/1 endpoint."""
     json = {"name": "test_view2", "collectorTargetIds": [1], "viewOwnerId": 1}
@@ -493,9 +536,7 @@ def test_update_team_view(
 
 
 def test_update_team_view_validation_error(
-    client,
-    mock_crud,
-    mock_admin,
+    client, mock_crud, mock_admin, mock_requires_valid_team_view_data
 ):
     """Test PUT /api/v1/teams/views/1 endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
@@ -537,10 +578,7 @@ def test_update_team_view_validation_error(
 
 
 def test_update_team_view_database_error(
-    client,
-    mock_crud,
-    monkeypatch,
-    mock_admin,
+    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_view_data
 ):
     """Test PUT /api/v1/teams/views/1 endpoint."""
     json = {"name": "error", "collectorTargetIds": [1], "viewOwnerId": 1}
