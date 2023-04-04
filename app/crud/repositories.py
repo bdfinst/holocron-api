@@ -4,6 +4,7 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.exceptions import HolocronIntegrityError
 from app.models import Repository
 
 from ._base import BaseCRUD
@@ -12,6 +13,19 @@ from .teams import teams_crud
 
 class RepositoriesCRUD(BaseCRUD[Repository]):
     """Base CRUD extension for Repository model."""
+
+    def get_entity(self, session, id_: int) -> Repository:
+        """Override get_entity to return only repository."""
+        result = session.scalars(
+            select(Repository)
+            .where(Repository.repository_id.is_not(None))
+            .where(Repository.id == id_)
+        ).first()
+        if result is None:
+            raise HolocronIntegrityError(
+                f"{Repository.__name__} id", f"Invalid id: {id_}"
+            )
+        return result
 
     def get_entities(self, session: Session) -> Sequence[Repository]:
         """Override get_entities to return only repositories."""
