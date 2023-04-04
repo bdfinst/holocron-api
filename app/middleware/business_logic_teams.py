@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.crud import collector_targets_crud, ticket_boards_crud, valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.security import get_sanitized_id
 
 USED_COLLECTOR_TARGET_MSG = "collectorTargetIds - already in use"
 NO_TICKET_BOARDS_MSG = "collectorTargetIds - team needs at least one ticket board"
@@ -47,7 +48,7 @@ def is_valid_team_data_for_create(*_, **__) -> Tuple[bool, str]:
     collector_target_ids = []
     if data is not None:
         name = (str)(data["name"])
-        valuestream_id = (int)(data["valuestreamId"])
+        valuestream_id = get_sanitized_id(data["valuestreamId"])
         collector_target_ids = data["collectorTargetIds"]
 
     with generate_session() as session:
@@ -81,14 +82,14 @@ def is_valid_team_data_for_create(*_, **__) -> Tuple[bool, str]:
 
 def is_valid_team_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
     """Validate business logic when updating a team."""
-    team_id = (int)(kwargs["team_id"])
+    team_id = get_sanitized_id(kwargs["team_id"])
     data = request.json
     name = ""
     valuestream_id = -1
     collector_target_ids = []
     if data is not None:
         name = (str)(data["name"])
-        valuestream_id = (int)(data["valuestreamId"])
+        valuestream_id = get_sanitized_id(data["valuestreamId"])
         collector_target_ids = data["collectorTargetIds"]
 
     with generate_session() as session:
@@ -173,7 +174,7 @@ def is_valid_team_view_data_for_create(*_, **___) -> Tuple[bool, str]:
 
 def is_valid_team_view_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
     """Validate business logic when updating a team view."""
-    team_view_id = (int)(kwargs["team_view_id"])
+    team_view_id = get_sanitized_id(kwargs["team_view_id"])
     data = request.json
     collector_target_ids = data["collectorTargetIds"] if data is not None else []
 
