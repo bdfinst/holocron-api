@@ -68,15 +68,6 @@ In addition to the fields below, all models have the following fields.
 |name|string|Collector name, unique and non-nullable.|
 |target|string|The URL of the resource to collect from.|
 
-**collector_kv_pairs** - Key value pairs attached to collectors for any additional info required by the application.
-
-|Field|Type|Description|
-|-----|----|-----------|
-|collector_id|integer|Foreign key to `collectors.id`, non-nullable.*|
-|key|string|The key, non-nullable.*|
-|value|string|The associated value to the key, non-nullable.|
-
-\*Combined unique constraint.
 
 **collector_targets** - The top level objects that the collectors collect. Currently this includes repositories, pipelines, and ticket boards.
 
