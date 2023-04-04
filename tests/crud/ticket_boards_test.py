@@ -27,16 +27,10 @@ def test_get_entity(mock_sqlalchemy, mock_session):
 
 
 def test_get_entity_invalid_ticket_board(mock_session):
-    """Test get_entities method 404."""
-
-    class ReturnScaler:
-        """Mock class for scalars return."""
-
-        def first(self):
-            """Mock first method."""
-            return None
-
-    mock_session.scalars = MagicMock(return_value=ReturnScaler())
+    """Test get_entity method 404."""
+    mock_session.scalars = MagicMock(
+        return_value=MagicMock(first=lambda *_, **__: None)
+    )
 
     with raises(HolocronIntegrityError) as e:
         ticket_boards_crud.get_entity(mock_session, 1)

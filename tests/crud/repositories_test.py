@@ -1,7 +1,10 @@
 """Repositories CRUD tests."""
-from pytest import fixture
+from unittest.mock import MagicMock
+
+from pytest import fixture, raises
 
 from app.crud import repositories, repositories_crud
+from app.exceptions import HolocronIntegrityError
 from tests.mocks import mock_select
 
 
@@ -9,6 +12,29 @@ from tests.mocks import mock_select
 def mock_sqlalchemy(monkeypatch):
     """Patch sqlalchemy."""
     monkeypatch.setattr(repositories, "select", mock_select)
+
+
+def test_get_entity(mock_sqlalchemy, mock_session):
+    """Test get_entity method."""
+    expected = (
+        "SELECT * FROM collector_targets "
+        + "WHERE collector_targets.repository_id IS NOT NULL "
+        + "WHERE collector_targets.id = :id_1"
+    )
+    result = repositories_crud.get_entity(mock_session, 1)
+
+    assert result.statement == expected
+
+
+def test_get_entity_invalid_repository(mock_session):
+    """Test get_entity method 404."""
+    mock_session.scalars = MagicMock(
+        return_value=MagicMock(first=lambda *_, **__: None)
+    )
+
+    with raises(HolocronIntegrityError) as e:
+        repositories_crud.get_entity(mock_session, 1)
+    assert "Invalid id" in str(e.value)
 
 
 def test_get_entities(mock_sqlalchemy, mock_session):
