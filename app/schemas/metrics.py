@@ -1,6 +1,6 @@
 """Metric schema objects."""
 from marshmallow import Schema
-from marshmallow.fields import Dict, Field, Int, List, Nested, Number, String
+from marshmallow.fields import Boolean, Dict, Field, Int, List, Nested, Number, String
 
 from ._base import camelcase
 from .branch import BranchSchema
@@ -102,6 +102,7 @@ class TeamMetricsSchema(MetricsSchemaBase):
     data_quality_issues = Dict(keys=String(), values=String())
     last_updated = Dict(keys=String(), values=Int())
     weekly_data = Dict(keys=String(), values=Nested(WeeklyDataSchema))
+    is_view = Boolean()
 
 
 class ValuestreamMetricsSchema(MetricsSchemaBase):

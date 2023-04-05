@@ -141,6 +141,7 @@ def test_process_organization(monkeypatch):
                 "feature": datetime(2020, 6, 17).timestamp(),
                 "scm": datetime(2020, 7, 17).timestamp(),
             },
+            is_view=False,
         )
     ]
     expected = OrganizationMetrics(
