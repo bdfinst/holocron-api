@@ -17,12 +17,9 @@ from app.middleware import (
 from app.schemas import ValuestreamSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
-
 schema = ValuestreamSchema()
 
 
-@router.route("", methods=["GET"])
 def list_valuestreams() -> Tuple[Any, int]:
     """List valuestreams route.
 
@@ -52,7 +49,6 @@ def list_valuestreams() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("", methods=["POST"])
 @requires_security([requires_admin, requires_org_access])
 def create_valuestream() -> Tuple[Any, int]:
     """Create valuestream route.
@@ -90,7 +86,6 @@ def create_valuestream() -> Tuple[Any, int]:
     return jsonify(result), 201
 
 
-@router.route("/<valuestream_id>", methods=["GET"])
 def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Get valuestream by id route.
 
@@ -130,7 +125,6 @@ def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<valuestream_id>", methods=["PUT"])
 @requires_security([requires_admin, requires_vs_access])
 def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Update valuestream route.
@@ -177,7 +171,6 @@ def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<valuestream_id>", methods=["DELETE"])
 @requires_security([requires_admin, requires_vs_access])
 def delete_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     """Delete valuestream route.
@@ -199,3 +192,15 @@ def delete_valuestream(valuestream_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         valuestreams_crud.delete_entity(session, get_sanitized_id(valuestream_id))
     return "", 204
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    valuestream_id_route = "/<valuestream_id>"
+    router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
+    router.route("", methods=["GET"])(list_valuestreams)
+    router.route("", methods=["POST"])(create_valuestream)
+    router.route(valuestream_id_route, methods=["GET"])(get_valuestream)
+    router.route(valuestream_id_route, methods=["PUT"])(update_valuestream)
+    router.route(valuestream_id_route, methods=["DELETE"])(delete_valuestream)
+    return router

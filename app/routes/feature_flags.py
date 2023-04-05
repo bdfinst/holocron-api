@@ -5,10 +5,7 @@ from flask import Blueprint, jsonify
 
 from app.config import FEATURE_FLAGS
 
-router = Blueprint("featureflags", __name__, url_prefix="/featureflags")
 
-
-@router.route("", methods=["GET"])
 def list_feature_flags() -> Tuple[Any, int]:
     """Get all feature flags.
 
@@ -26,3 +23,10 @@ def list_feature_flags() -> Tuple[Any, int]:
                     type: boolean
     """
     return jsonify(FEATURE_FLAGS), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("featureflags", __name__, url_prefix="/featureflags")
+    router.route("", methods=["GET"])(list_feature_flags)
+    return router

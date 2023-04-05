@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import PipelineSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("pipelines", __name__, url_prefix="/pipelines")
-
 schema = PipelineSchema()
 
 
-@router.route("", methods=["GET"])
 def list_pipelines() -> Tuple[Any, int]:
     """Get pipelines.
 
@@ -41,7 +38,6 @@ def list_pipelines() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_pipelines_for_team(team_id: str) -> Tuple[Any, int]:
     """Get pipelines for a given team id.
@@ -82,7 +78,6 @@ def list_pipelines_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<pipeline_id>", methods=["GET"])
 def get_pipeline(pipeline_id: str) -> Tuple[Any, int]:
     """Get pipeline by id.
 
@@ -114,3 +109,12 @@ def get_pipeline(pipeline_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_pipeline)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("pipelines", __name__, url_prefix="/pipelines")
+    router.route("", methods=["GET"])(list_pipelines)
+    router.route("/team/<team_id>", methods=["GET"])(list_pipelines_for_team)
+    router.route("/<pipeline_id>", methods=["GET"])(get_pipeline)
+    return router

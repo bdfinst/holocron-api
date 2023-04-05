@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import CommitSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("commits", __name__, url_prefix="/commits")
-
 schema = CommitSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
     """Get commits for a given team id.
@@ -56,7 +53,6 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<commit_id>", methods=["GET"])
 @requires_security([requires_admin])
 def get_commit(commit_id: str) -> Tuple[Any, int]:
     """Get commit by id.
@@ -87,3 +83,11 @@ def get_commit(commit_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_commit)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("commits", __name__, url_prefix="/commits")
+    router.route("/team/<team_id>", methods=["GET"])(list_commits_for_team)
+    router.route("/<commit_id>", methods=["GET"])(get_commit)
+    return router

@@ -12,12 +12,9 @@ from app.middleware import requires_admin, requires_org_access, requires_securit
 from app.schemas import OrganizationSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-router = Blueprint("organizations", __name__, url_prefix="/organizations")
-
 schema = OrganizationSchema()
 
 
-@router.route("", methods=["GET"])
 def list_organizations() -> Tuple[Any, int]:
     """List organizations route.
 
@@ -49,7 +46,6 @@ def list_organizations() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("", methods=["POST"])
 @requires_security([requires_admin])
 def create_organization() -> Tuple[Any, int]:
     """Create organization route.
@@ -87,7 +83,6 @@ def create_organization() -> Tuple[Any, int]:
     return jsonify(result), 201
 
 
-@router.route("/<org_id>", methods=["GET"])
 def get_organization(org_id: str) -> Tuple[Any, int]:
     """Get organization by id route.
 
@@ -125,7 +120,6 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<org_id>", methods=["PUT"])
 @requires_security([requires_admin, requires_org_access])
 def update_organization(org_id: str) -> Tuple[Any, int]:
     """Update organization route.
@@ -172,7 +166,6 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<org_id>", methods=["DELETE"])
 @requires_security([requires_admin, requires_org_access])
 def delete_organization(org_id: str) -> Tuple[Any, int]:
     """Delete organization route.
@@ -194,3 +187,15 @@ def delete_organization(org_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         organizations_crud.delete_entity(session, get_sanitized_id(org_id))
     return "", 204
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    organization_id_route = "/<org_id>"
+    router = Blueprint("organizations", __name__, url_prefix="/organizations")
+    router.route("", methods=["GET"])(list_organizations)
+    router.route("", methods=["POST"])(create_organization)
+    router.route(organization_id_route, methods=["GET"])(get_organization)
+    router.route(organization_id_route, methods=["PUT"])(update_organization)
+    router.route(organization_id_route, methods=["DELETE"])(delete_organization)
+    return router

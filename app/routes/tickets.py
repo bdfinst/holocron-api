@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import TicketSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("tickets", __name__, url_prefix="/tickets")
-
 schema = TicketSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
     """Get tickets for a given team id.
@@ -56,7 +53,6 @@ def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<ticket_id>", methods=["GET"])
 @requires_security([requires_admin])
 def get_ticket(ticket_id: str) -> Tuple[Any, int]:
     """Get ticket by id.
@@ -87,3 +83,11 @@ def get_ticket(ticket_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_ticket)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("tickets", __name__, url_prefix="/tickets")
+    router.route("/team/<team_id>", methods=["GET"])(list_tickets_for_team)
+    router.route("/<ticket_id>", methods=["GET"])(get_ticket)
+    return router

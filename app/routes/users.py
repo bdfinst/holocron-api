@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security
 from app.schemas import UserSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("users", __name__, url_prefix="/users")
-
 schema = UserSchema()
 
 
-@router.route("", methods=["GET"])
 def list_users() -> Tuple[Any, int]:
     """List users route.
 
@@ -41,7 +38,6 @@ def list_users() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<user_id>", methods=["GET"])
 def get_user(user_id: str) -> Tuple[Any, int]:
     """Get user by id route.
 
@@ -73,7 +69,6 @@ def get_user(user_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<user_id>", methods=["DELETE"])
 @requires_security([requires_admin])
 def delete_user(user_id: str) -> Tuple[Any, int]:
     """Delete user route.
@@ -95,3 +90,12 @@ def delete_user(user_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         users_crud.delete_entity(session, get_sanitized_id(user_id))
     return "", 204
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("users", __name__, url_prefix="/users")
+    router.route("", methods=["GET"])(list_users)
+    router.route("/<user_id>", methods=["GET"])(get_user)
+    router.route("/<user_id>", methods=["DELETE"])(delete_user)
+    return router

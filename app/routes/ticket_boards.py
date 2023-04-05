@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import TicketBoardSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("ticketboards", __name__, url_prefix="/ticketboards")
-
 schema = TicketBoardSchema()
 
 
-@router.route("", methods=["GET"])
 def list_ticket_boards() -> Tuple[Any, int]:
     """Get ticket_boards.
 
@@ -41,7 +38,6 @@ def list_ticket_boards() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_ticket_boards_for_team(team_id: str) -> Tuple[Any, int]:
     """Get ticket_boards for a given team id.
@@ -82,7 +78,6 @@ def list_ticket_boards_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<board_id>", methods=["GET"])
 def get_ticket_board(board_id: str) -> Tuple[Any, int]:
     """Get ticket_board by id.
 
@@ -114,3 +109,12 @@ def get_ticket_board(board_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_ticket_board)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("ticketboards", __name__, url_prefix="/ticketboards")
+    router.route("", methods=["GET"])(list_ticket_boards)
+    router.route("/team/<team_id>", methods=["GET"])(list_ticket_boards_for_team)
+    router.route("/<board_id>", methods=["GET"])(get_ticket_board)
+    return router

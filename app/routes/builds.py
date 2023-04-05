@@ -10,11 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import BuildSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("builds", __name__, url_prefix="/builds")
 schema = BuildSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
     """Get builds for a given team id.
@@ -55,7 +53,6 @@ def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<build_id>", methods=["GET"])
 @requires_security([requires_admin])
 def get_build(build_id: str) -> Tuple[Any, int]:
     """Get Build by id.
@@ -86,3 +83,11 @@ def get_build(build_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_build)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("builds", __name__, url_prefix="/builds")
+    router.route("/team/<team_id>", methods=["GET"])(list_builds_for_team)
+    router.route("/<build_id>", methods=["GET"])(get_build)
+    return router

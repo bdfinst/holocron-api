@@ -10,13 +10,10 @@ from app.middleware import requires_org_leadership, requires_security
 from app.schemas import MultiplePayRateSchema, PayRateSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 
-router = Blueprint("payrates", __name__, url_prefix="/payrates")
-
 schema = PayRateSchema()
 many_schema = MultiplePayRateSchema()
 
 
-@router.route("", methods=["GET"])
 @requires_security([requires_org_leadership])
 def list_pay_rates() -> Tuple[Any, int]:
     """List pay rates route.
@@ -43,7 +40,6 @@ def list_pay_rates() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("", methods=["POST"])
 @requires_security([requires_org_leadership])
 def upsert_pay_rates() -> Tuple[Any, int]:
     """Upsert pay rates route.
@@ -84,3 +80,11 @@ def upsert_pay_rates() -> Tuple[Any, int]:
         )
         result = {"result": [schema.dump(rate) for rate in upserted_rates]}
     return jsonify(result), 201
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("payrates", __name__, url_prefix="/payrates")
+    router.route("", methods=["GET"])(list_pay_rates)
+    router.route("", methods=["POST"])(upsert_pay_rates)
+    return router

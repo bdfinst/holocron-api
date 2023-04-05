@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import RepositorySchema
 from app.security import get_sanitized_id
 
-router = Blueprint("repositories", __name__, url_prefix="/repositories")
-
 schema = RepositorySchema()
 
 
-@router.route("", methods=["GET"])
 def list_repositories() -> Tuple[Any, int]:
     """Get repositories.
 
@@ -41,7 +38,6 @@ def list_repositories() -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
     """Get repositories for a given team id.
@@ -82,7 +78,6 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<repo_id>", methods=["GET"])
 def get_repository(repo_id: str) -> Tuple[Any, int]:
     """Get repository by id.
 
@@ -114,3 +109,12 @@ def get_repository(repo_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_repository)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("repositories", __name__, url_prefix="/repositories")
+    router.route("", methods=["GET"])(list_repositories)
+    router.route("/team/<team_id>", methods=["GET"])(list_repositories_for_team)
+    router.route("/<repo_id>", methods=["GET"])(get_repository)
+    return router
