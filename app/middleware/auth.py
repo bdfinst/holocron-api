@@ -2,7 +2,7 @@
 import json
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import jwt
 from flask import Response, request
@@ -32,9 +32,9 @@ INVALID_PERMISSIONS = "Invalid permissions"
 FEATURE_NOT_PERMITTED = "Feature not yet permitted"
 
 
-def set_user():
+def set_user() -> None:
     """Set current user as property of the request."""
-    token = request.headers.get("Authorization").split(" ")[-1]
+    token = request.headers.get("Authorization", "").split(" ")[-1]
     decoded_token = jwt.decode(token, options={"verify_signature": False})
     with generate_session() as session:
         current_user = users_crud.upsert_sso_user(session, decoded_token)
@@ -80,7 +80,7 @@ class EntityType(Enum):
 
 def check_entity_access(
     entity_type: EntityType, entity_id: int, session: Session, user_id: int
-):
+) -> bool:
     """Check if user has access to a given team, valuestream, or organization.
 
     If not, recursively checks containing valuestream/organization as well.
@@ -185,7 +185,7 @@ def requires_admin(**_) -> Tuple[bool, Optional[str]]:
     return (True, None) if user["isAdmin"] or not SSO_ENABLED else (False, "ADMIN")
 
 
-def requires_security(arguments) -> Callable:
+def requires_security(security_functions: List[Callable]) -> Callable:
     """Restrict access based on the required groups."""
 
     def decorator(original_func):
@@ -193,7 +193,7 @@ def requires_security(arguments) -> Callable:
         def wrapper(*args, **kwargs):
             user = getattr(request, "user", None)
             permission_names = []
-            for security_func in arguments:
+            for security_func in security_functions:
                 try:
                     success, name = security_func(**kwargs)
                 except HolocronIntegrityError:

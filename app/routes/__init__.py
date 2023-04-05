@@ -18,7 +18,7 @@ from .users import router as user_router
 from .valuestreams import router as valuestream_router
 
 
-def router_factory():
+def router_factory() -> Blueprint:
     """Return router."""
     router = Blueprint("v1", __name__, url_prefix="/api/v1")
     router.register_blueprint(branch_router)

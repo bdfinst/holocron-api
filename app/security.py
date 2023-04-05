@@ -1,6 +1,6 @@
 """Security middlewares."""
 import logging
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from flask import request
 
@@ -42,7 +42,7 @@ def get_sanitized_id(id_: str) -> int:
         raise err
 
 
-def on_unexpected_http_methods(_):
+def on_unexpected_http_methods(_) -> Tuple[str, int]:
     """Log on unexpected HTTP methods or commands."""
     log_security_event(METHOD_NOT_ALLOWED_MSG)
     return "Method Not Allowed", 405

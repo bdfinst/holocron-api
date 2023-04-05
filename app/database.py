@@ -1,6 +1,6 @@
 """Establish database connection."""
 from contextlib import contextmanager
-from typing import Optional
+from typing import Generator, Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app import config
 
 
-def build_connection_string():
+def build_connection_string() -> str:
     """Build database connection string."""
     ssl = "require" if config.MODE == "production" else "prefer"
     return (
@@ -24,13 +24,13 @@ class Database:
     engine: Optional[Engine] = None
 
     @classmethod
-    def establish_connection(cls):
+    def establish_connection(cls) -> None:
         """Create database connection."""
         cls.engine = create_engine(build_connection_string())
 
 
 @contextmanager
-def generate_session():
+def generate_session() -> Generator[Session, None, None]:
     """Generate database session."""
     session = Session(Database.engine)
     try:

@@ -124,7 +124,7 @@ def is_valid_team_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
     return True, ""
 
 
-def requires_valid_team_data(original_func) -> Callable:
+def requires_valid_team_data(original_func: Callable) -> Callable:
     """Restrict team data type middleware."""
 
     @wraps(original_func)
@@ -201,7 +201,7 @@ def is_valid_team_view_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
     return True, ""
 
 
-def requires_valid_team_view_data(original_func) -> Callable:
+def requires_valid_team_view_data(original_func: Callable) -> Callable:
     """Restrict team view data type middleware."""
 
     @wraps(original_func)
