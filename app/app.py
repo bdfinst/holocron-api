@@ -24,7 +24,7 @@ from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
 
 
-def register_background_tasks():
+def register_background_tasks() -> None:
     """Create and start background tasks for app to run."""
     scheduler = BackgroundScheduler()
     # adding metrics calculation job for the scheduler
@@ -49,7 +49,7 @@ def register_background_tasks():
     atexit.register(on_scheduler_shutdown)
 
 
-def create_app():
+def create_app() -> Flask:
     """Application factory."""
     app = Flask(__name__)
     app.config.from_object(config)
