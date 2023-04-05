@@ -70,14 +70,15 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
 
         try:
             session.add(new_organization)
-            session.commit()
-            session.refresh(new_organization)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
+        session.commit()
+        session.refresh(new_organization)
         return new_organization
 
     def update_entity(
@@ -93,13 +94,15 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
 
         try:
             session.add(organization)
-            session.commit()
-            session.refresh(organization)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
+
+        session.commit()
+        session.refresh(organization)
 
         org_no_team_views = Organization(
             name=organization.name,

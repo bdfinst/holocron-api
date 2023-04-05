@@ -61,6 +61,7 @@ class MockDatabase:
         self.commit = MagicMock()
         self.refresh = MagicMock()
         self.close = MagicMock()
+        self.rollback = MagicMock()
 
 
 session = MockDatabase()

@@ -46,9 +46,8 @@ class TeamViewsCRUD(BaseCRUD[Team]):
         team_view.is_workflow_only = is_workflow_only(session, team_view)
         try:
             session.add(team_view)
-            session.commit()
-            session.refresh(team_view)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError(
                     "valuestream_id or view_owner_id", "not found"
@@ -58,6 +57,8 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
+        session.commit()
+        session.refresh(team_view)
         return team_view
 
     def create_entity(self, session: Session, json: Dict[str, Any]) -> Team:
@@ -80,9 +81,8 @@ class TeamViewsCRUD(BaseCRUD[Team]):
         new_team_view.is_workflow_only = is_workflow_only(session, new_team_view)
         try:
             session.add(new_team_view)
-            session.commit()
-            session.refresh(new_team_view)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError(
                     "valuestream_id or view_owner_id", "not found"
@@ -91,6 +91,9 @@ class TeamViewsCRUD(BaseCRUD[Team]):
                 raise HolocronIntegrityError("name", "already in use") from err
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
+
+        session.commit()
+        session.refresh(new_team_view)
         return new_team_view
 
 

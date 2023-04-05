@@ -123,10 +123,10 @@ def test_create_entity_valuestream_id_error(
 ):
     """Test create_entity method with invalid valuestream id."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.ForeignKeyViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
@@ -140,10 +140,10 @@ def test_create_entity_unique_error(
 ):
     """Test create_entity method with uniqueness violation."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.UniqueViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
@@ -157,10 +157,10 @@ def test_create_entity_unknown_error(
 ):
     """Test create_entity with an unknown error."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("unknown", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
@@ -214,10 +214,10 @@ def test_update_entity_valuestream_id_error(
 ):
     """Test update_entity method with invalid valuestream id."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.ForeignKeyViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "valuestream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
@@ -231,10 +231,10 @@ def test_update_entity_unique_error(
 ):
     """Test update_entity method with uniqueness violation."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.UniqueViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
@@ -248,10 +248,10 @@ def test_update_entity_unknown_error(
 ):
     """Test update_entity with an unknown error."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("unknown", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
