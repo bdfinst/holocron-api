@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import BranchSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("branches", __name__, url_prefix="/branches")
-
 schema = BranchSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
     """Get branches for a given team id.
@@ -56,7 +53,6 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<branch_id>", methods=["GET"])
 @requires_security([requires_admin])
 def get_branch(branch_id: str) -> Tuple[Any, int]:
     """Get branch by id.
@@ -87,3 +83,11 @@ def get_branch(branch_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_branch)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("branches", __name__, url_prefix="/branches")
+    router.route("/team/<team_id>", methods=["GET"])(list_branches_for_team)
+    router.route("/<branch_id>", methods=["GET"])(get_branch)
+    return router

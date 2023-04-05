@@ -10,12 +10,9 @@ from app.middleware import requires_admin, requires_security, requires_team_acce
 from app.schemas import GitRequestSchema
 from app.security import get_sanitized_id
 
-router = Blueprint("gitrequests", __name__, url_prefix="/gitrequests")
-
 schema = GitRequestSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
     """Get git requests for a given team id.
@@ -56,7 +53,6 @@ def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/<git_request_id>", methods=["GET"])
 @requires_security([requires_admin])
 def get_git_request(git_request_id: str) -> Tuple[Any, int]:
     """Get git request by id.
@@ -89,3 +85,11 @@ def get_git_request(git_request_id: str) -> Tuple[Any, int]:
             return "Resource not found", 404
         result = schema.dump(raw_git_request)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("gitrequests", __name__, url_prefix="/gitrequests")
+    router.route("/team/<team_id>", methods=["GET"])(list_git_requests_for_team)
+    router.route("/<git_request_id>", methods=["GET"])(get_git_request)
+    return router

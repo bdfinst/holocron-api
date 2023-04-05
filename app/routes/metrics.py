@@ -17,13 +17,10 @@ from app.middleware import (
 )
 from app.security import get_sanitized_id
 
-router = Blueprint("metrics", __name__, url_prefix="/metrics")
-
 RESOURCE_NOT_FOUND = "Resource not found"
 PROCCESSING_NOT_COMPLETED = "Processing not completed"
 
 
-@router.route("/organization/<org_id>", methods=["GET"])
 @requires_security([requires_admin, requires_org_access])
 def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
@@ -58,7 +55,6 @@ def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     return jsonify(result), 200
 
 
-@router.route("/valuestream/<valuestream_id>", methods=["GET"])
 @requires_security([requires_admin, requires_vs_access])
 def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
@@ -103,7 +99,6 @@ def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
     return RESOURCE_NOT_FOUND, 404
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 @requires_security([requires_admin, requires_team_access])
 def get_team_metrics(team_id: str) -> Tuple[Any, int]:
     """Get team metrics by id route.
@@ -148,3 +143,14 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
                 if team["name"] == raw_team.name:
                     return jsonify(team), 200
     return RESOURCE_NOT_FOUND, 404
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("metrics", __name__, url_prefix="/metrics")
+    router.route("/organization/<org_id>", methods=["GET"])(get_organization_metrics)
+    router.route("/valuestream/<valuestream_id>", methods=["GET"])(
+        get_valuestream_metrics
+    )
+    router.route("/team/<team_id>", methods=["GET"])(get_team_metrics)
+    return router

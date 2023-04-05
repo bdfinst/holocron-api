@@ -21,8 +21,6 @@ from app.middleware import (
 from app.schemas import TeamSchema, TeamViewSchema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-router = Blueprint("teams", __name__, url_prefix="/teams")
-
 schema = TeamSchema()
 schema_view = TeamViewSchema()
 
@@ -384,21 +382,21 @@ def delete_team_view(team_view_id: str) -> Tuple[Any, int]:
     return "", 204
 
 
-def router_factory() -> Blueprint:
-    """Return factory based router."""
+def create_router() -> Blueprint:
+    """Router factory."""
     team_id_route = "/<team_id>"
-    teams_router = Blueprint("teams", __name__, url_prefix="/teams")
-    teams_router.route("", methods=["GET"])(list_teams)
-    teams_router.route("", methods=["POST"])(create_team)
-    teams_router.route(team_id_route, methods=["GET"])(get_team)
-    teams_router.route(team_id_route, methods=["PUT"])(update_team)
-    teams_router.route(team_id_route, methods=["DELETE"])(delete_team)
+    router = Blueprint("teams", __name__, url_prefix="/teams")
+    router.route("", methods=["GET"])(list_teams)
+    router.route("", methods=["POST"])(create_team)
+    router.route(team_id_route, methods=["GET"])(get_team)
+    router.route(team_id_route, methods=["PUT"])(update_team)
+    router.route(team_id_route, methods=["DELETE"])(delete_team)
 
     if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]:
         team_view_id_route = "/views/<team_view_id>"
-        teams_router.route("/views", methods=["GET"])(list_team_views)
-        teams_router.route("/views", methods=["POST"])(create_team_view)
-        teams_router.route(team_view_id_route, methods=["GET"])(get_team_view)
-        teams_router.route(team_view_id_route, methods=["PUT"])(update_team_view)
-        teams_router.route(team_view_id_route, methods=["DELETE"])(delete_team_view)
-    return teams_router
+        router.route("/views", methods=["GET"])(list_team_views)
+        router.route("/views", methods=["POST"])(create_team_view)
+        router.route(team_view_id_route, methods=["GET"])(get_team_view)
+        router.route(team_view_id_route, methods=["PUT"])(update_team_view)
+        router.route(team_view_id_route, methods=["DELETE"])(delete_team_view)
+    return router
