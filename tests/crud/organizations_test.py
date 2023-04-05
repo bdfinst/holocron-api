@@ -78,10 +78,10 @@ def test_create_entity(mock_session):
 def test_create_entity_unique_error(mock_session):
     """Test create_entity method with uniqueness violation."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.UniqueViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
@@ -93,10 +93,10 @@ def test_create_entity_unique_error(mock_session):
 def test_create_entity_unknown_error(mock_session):
     """Test create_entity with an unknown error."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("unknown", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:
@@ -128,10 +128,10 @@ def test_update_entity(mock_session, mock_organizations_crud):
 def test_update_entity_unique_error(mock_session):
     """Test update_entity method with uniqueness violation."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.UniqueViolation", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "name - already in use"
 
     with raises(HolocronIntegrityError) as e:
@@ -143,10 +143,10 @@ def test_update_entity_unique_error(mock_session):
 def test_update_entity_unknown_error(mock_session):
     """Test update_entity with an unknown error."""
 
-    def commit_error():
+    def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("unknown", None, None)
 
-    mock_session.commit = MagicMock(side_effect=commit_error)
+    mock_session.add = MagicMock(side_effect=raise_integrity_error)
     expected = "unknown - unknown, see logs"
 
     with raises(HolocronIntegrityError) as e:

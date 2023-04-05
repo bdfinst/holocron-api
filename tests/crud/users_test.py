@@ -46,7 +46,7 @@ def test_upsert_sso_user(mock_sqlalchemy, mock_session, mock_config):
 
 def test_upsert_sso_user_username_conflict(mock_sqlalchemy, mock_session, mock_config):
     """Test upsert_sso_user method."""
-    mock_session.commit = MagicMock(side_effect=raise_error)
+    mock_session.add = MagicMock(side_effect=lambda x: raise_error())
     token = {"sub": "1", "username": "test", "groups": ["admin"]}
 
     result = users_crud.upsert_sso_user(mock_session, token)

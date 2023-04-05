@@ -63,9 +63,8 @@ class TeamsCRUD(BaseCRUD[Team]):
         new_team.is_workflow_only = is_workflow_only(session, new_team)
         try:
             session.add(new_team)
-            session.commit()
-            session.refresh(new_team)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError("valuestream_id", "not found") from err
             if "psycopg2.errors.UniqueViolation" in str(err):
@@ -73,6 +72,8 @@ class TeamsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
+        session.commit()
+        session.refresh(new_team)
         return new_team
 
     def update_entity(self, session: Session, json: Dict[str, Any], id_: int) -> Team:
@@ -92,9 +93,8 @@ class TeamsCRUD(BaseCRUD[Team]):
         team.is_workflow_only = is_workflow_only(session, team)
         try:
             session.add(team)
-            session.commit()
-            session.refresh(team)
         except IntegrityError as err:
+            session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError("valuestream_id", "not found") from err
             if "psycopg2.errors.UniqueViolation" in str(err):
@@ -102,6 +102,8 @@ class TeamsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
+        session.commit()
+        session.refresh(team)
         return team
 
 
