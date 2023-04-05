@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 import app
-from tests.mocks import config, mock_delete, mock_select, session
+from tests.mocks import mock_delete, mock_select, session
 
 
 @fixture(scope="session")
