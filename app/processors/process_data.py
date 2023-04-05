@@ -51,6 +51,7 @@ class TeamMetrics(NamedTuple):
     weekly_data: Dict[str, Dict[str, Dict[str, List[int]]]]
     data_quality_issues: Dict[str, Any]
     last_updated: Dict[str, Any]
+    is_view: bool
 
 
 class ValuestreamMetrics(NamedTuple):
@@ -206,6 +207,7 @@ def process_team(team: Team) -> TeamMetrics:
                 ]
             ),
         },
+        team.view_owner_id is not None,
     )
 
 
