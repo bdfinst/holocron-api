@@ -211,7 +211,6 @@ def test_create_team_validation_error(
             {
                 "name": [MISSING_DATA_MSG],
                 "userIds": [MISSING_DATA_MSG],
-                "collectorTargetIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
@@ -228,7 +227,6 @@ def test_create_team_validation_error(
             {
                 "name": ["String does not match expected pattern."],
                 "userIds": ["Shorter than minimum length 1."],
-                "collectorTargetIds": ["Shorter than minimum length 1."],
                 "teamSize": ["Must be greater than or equal to 1."],
                 "valuestreamId": [MISSING_DATA_MSG],
             },
@@ -327,7 +325,6 @@ def test_update_team_validation_error(
             {
                 "name": [MISSING_DATA_MSG],
                 "userIds": [MISSING_DATA_MSG],
-                "collectorTargetIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
@@ -344,7 +341,6 @@ def test_update_team_validation_error(
             {
                 "name": ["String does not match expected pattern."],
                 "userIds": ["Shorter than minimum length 1."],
-                "collectorTargetIds": ["Shorter than minimum length 1."],
                 "teamSize": ["Must be greater than or equal to 1."],
                 "valuestreamId": [MISSING_DATA_MSG],
             },
@@ -549,7 +545,6 @@ def test_update_team_view_validation_error(
             },
             {
                 "name": [MISSING_DATA_MSG],
-                "collectorTargetIds": [MISSING_DATA_MSG],
                 "viewOwnerId": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
             },
@@ -563,7 +558,6 @@ def test_update_team_view_validation_error(
             },
             {
                 "name": ["String does not match expected pattern."],
-                "collectorTargetIds": ["Shorter than minimum length 1."],
                 "viewOwnerId": ["Not a valid integer."],
             },
         ),
