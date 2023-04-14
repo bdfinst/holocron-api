@@ -122,17 +122,6 @@ def test_requires_valid_team_data_create_invalid(mock_request, monkeypatch):
             ("collectorTargetIds - already in use", 400),
         ),
         (
-            """should send 400 on response having no feature boards.""",
-            (
-                MagicMock(return_value=create_repository(id=22)),
-                MagicMock(side_effect=HolocronIntegrityError("id", "id not found")),
-                MagicMock(
-                    return_value=create_valuestream(teams=[create_team(name="foo-bar")])
-                ),
-            ),
-            ("collectorTargetIds - team needs at least one ticket board", 400),
-        ),
-        (
             """should send 400 on team name already in use.""",
             (
                 MagicMock(return_value=create_ticket_board()),
@@ -201,17 +190,6 @@ def test_requires_valid_team_data_update_invalid(mock_request, monkeypatch):
                 ),
             ),
             ("collectorTargetIds - already in use", 400),
-        ),
-        (
-            """should send 400 on request having no ticket boards.""",
-            (
-                MagicMock(return_value=create_repository(id=22)),
-                MagicMock(side_effect=HolocronIntegrityError("id", "oops.")),
-                MagicMock(
-                    return_value=create_valuestream(teams=[create_team(name="foo-bar")])
-                ),
-            ),
-            ("collectorTargetIds - team needs at least one ticket board", 400),
         ),
         (
             """should send 400 on team name already in use.""",
@@ -294,14 +272,6 @@ def test_requires_valid_team_view_data_create_invalid(mock_request, monkeypatch)
             ),
             ("collectorTargetIds - already in use", 400),
         ),
-        (
-            """should send 400 on response having no feature boards.""",
-            (
-                MagicMock(return_value=create_repository(id=22)),
-                MagicMock(side_effect=HolocronIntegrityError("id", "id not found")),
-            ),
-            ("collectorTargetIds - team needs at least one ticket board", 400),
-        ),
     ]
     for test_case in test_cases:
         description, input_case, expected = test_case
@@ -351,14 +321,6 @@ def test_requires_valid_team_view_data_update_invalid(mock_request, monkeypatch)
                 MagicMock(return_value=create_ticket_board(id=21, team_id=42)),
             ),
             ("collectorTargetIds - already in use", 400),
-        ),
-        (
-            """should send 400 on request having no ticket boards.""",
-            (
-                MagicMock(return_value=create_repository(id=22)),
-                MagicMock(side_effect=HolocronIntegrityError("foo", "bar")),
-            ),
-            ("collectorTargetIds - team needs at least one ticket board", 400),
         ),
     ]
     for test_case in test_cases:

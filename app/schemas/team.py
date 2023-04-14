@@ -37,9 +37,7 @@ class NewTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
 
     name = fields.Str(required=True, validate=input_name_validator)
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
-    collector_target_ids = fields.List(
-        fields.Int(), required=True, validate=validate.Length(min=1)
-    )
+    collector_target_ids = fields.List(fields.Int())
     team_size = fields.Int(required=True, validate=validate.Range(min=1))
     valuestream_id = auto_field()
 

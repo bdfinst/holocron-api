@@ -11,7 +11,6 @@ from app.exceptions import HolocronIntegrityError
 from app.security import get_sanitized_id
 
 USED_COLLECTOR_TARGET_MSG = "collectorTargetIds - already in use"
-NO_TICKET_BOARDS_MSG = "collectorTargetIds - team needs at least one ticket board"
 TEAM_NAME_ALREADY_EXISTS_MSG = "name - already exists"
 
 
@@ -65,13 +64,6 @@ def is_valid_team_data_for_create(*_, **__) -> Tuple[bool, str]:
                 ),
                 USED_COLLECTOR_TARGET_MSG,
             ),
-            (
-                all(
-                    not is_ticket_board(session, ct_id)
-                    for ct_id in collector_target_ids
-                ),
-                NO_TICKET_BOARDS_MSG,
-            ),
         ]
         for validator in validators:
             is_invalid, invalid_msg = validator
@@ -108,13 +100,6 @@ def is_valid_team_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
                     for ct_id in collector_target_ids
                 ),
                 USED_COLLECTOR_TARGET_MSG,
-            ),
-            (
-                all(
-                    not is_ticket_board(session, ct_id)
-                    for ct_id in collector_target_ids
-                ),
-                NO_TICKET_BOARDS_MSG,
             ),
         ]
         for validator in validators:
@@ -156,13 +141,6 @@ def is_valid_team_view_data_for_create(*_, **___) -> Tuple[bool, str]:
                 ),
                 USED_COLLECTOR_TARGET_MSG,
             ),
-            (
-                all(
-                    not is_ticket_board(session, ct_id)
-                    for ct_id in collector_target_ids
-                ),
-                NO_TICKET_BOARDS_MSG,
-            ),
         ]
         for validator in validators:
             is_invalid, invalid_msg = validator
@@ -185,13 +163,6 @@ def is_valid_team_view_data_for_update(*_, **kwargs) -> Tuple[bool, str]:
                     for ct_id in collector_target_ids
                 ),
                 USED_COLLECTOR_TARGET_MSG,
-            ),
-            (
-                all(
-                    not is_ticket_board(session, ct_id)
-                    for ct_id in collector_target_ids
-                ),
-                NO_TICKET_BOARDS_MSG,
             ),
         ]
         for validator in validators:
