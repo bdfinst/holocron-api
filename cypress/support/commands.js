@@ -152,11 +152,8 @@ Cypress.Commands.add('waitForAPIDataAfterUserChange', () => {
 })
 
 Cypress.Commands.add('pickOptionMUIAutocomplete', selector => {
-  cy.get(selector).click({ force: true })
   // select the first item in the autocomplete
   // and make sure options exist otherwise the tests will fail
-  cy.get(`li[data-option-index="0"]`).should('exist')
-  cy.get(selector).blur()
   cy.get(selector).click({ force: true })
   cy.get(`li[data-option-index="0"]`).click({ force: true })
 })
