@@ -1,5 +1,4 @@
 const apiV1Url = `${Cypress.config('baseUrl')}/api/v1`
-
 const headers = { authorization: Cypress.env('TOKEN') }
 
 Cypress.Commands.add('apiGetValueStreams', () =>
@@ -12,6 +11,10 @@ Cypress.Commands.add('apiGetTeams', () =>
 
 Cypress.Commands.add('apiGetUsers', () => {
   cy.request({ url: `${apiV1Url}/users`, headers })
+})
+
+Cypress.Commands.add('apiGetTicketBoards', () => {
+  cy.request({ url: `${apiV1Url}/ticketboards`, headers })
 })
 
 Cypress.Commands.add(
@@ -82,3 +85,63 @@ Cypress.Commands.add('apiCreateOrganization', orgName =>
     })
   }),
 )
+Cypress.Commands.add('apiCreateTeam', (teamName,collectorTargetIds, teamSize, valuestreamId) =>
+  cy.apiGetUsers().then(resp => {
+    expect(resp.status).to.equal(200)
+    const { result: users } = resp.body
+    expect(users).length.gt(0)
+    const [firstUser] = users
+    cy.request({
+      method: 'POST',
+      url: `${apiV1Url}/teams`,
+      body: { name: teamName, userIds: [firstUser.id], collectorTargetIds: collectorTargetIds, teamSize:teamSize, valuestreamId: valuestreamId},
+      headers,
+    }).then(resp => {
+      expect(resp.status).to.equal(201)
+      cy.wrap({ team: resp.body })
+    })
+  }),
+)
+
+Cypress.Commands.add('apiUpdateTeam', (teamName,collectorTargetIds, teamSize, valuestreamId, teamId) =>
+  cy.apiGetUsers().then(resp => {
+    expect(resp.status).to.equal(200)
+    const { result: users } = resp.body
+    expect(users).length.gt(0)
+    const [firstUser] = users
+    cy.request({
+      method: 'PUT',
+      url: `${apiV1Url}/teams/${teamId}`,
+      body: { name: teamName, userIds: [firstUser.id], collectorTargetIds: collectorTargetIds, teamSize:teamSize, valuestreamId: valuestreamId},
+      headers,
+    }).then(resp => {
+      expect(resp.status).to.equal(200)
+      cy.wrap({ team: resp.body })
+    })
+  }),
+)
+
+Cypress.Commands.add('apiGetAvailableTicketBoard', () => {
+  cy.apiGetTeams().then(resp => {
+    expect(resp.status).to.equal(200)
+    const { result: teams } = resp.body
+    expect(teams).length.gt(0)
+
+    var activeCollectorTargets = []
+    teams.forEach((team) => {
+      activeCollectorTargets.push(...team.collectorTargets);
+    });
+
+    cy.apiGetTicketBoards().then(resp =>{
+      expect(resp.status).to.equal(200)
+      const { result: ticketBoards } = resp.body
+      expect(ticketBoards).length.gt(0)
+      var allBoards = []
+      ticketBoards.forEach((board) => {
+        allBoards.push(board.id);
+      });
+      const id = allBoards.find(boardId => !activeCollectorTargets.includes(boardId))
+      cy.wrap({ id: id})
+    })
+  })
+})
