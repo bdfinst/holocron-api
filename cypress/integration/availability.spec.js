@@ -1,11 +1,11 @@
-describe('Test page availability', () => {
+describe('Test api availability', () => {
   beforeEach(cy.mockAuth)
 
   const screenshotFolderName = 'test_page_availability'
 
-  it('can reach the frontend', () => {
-    cy.visitDashboard()
-    cy.get(`[aria-label='Holocron Logo']`).should('be.visible')
-    cy.screenshot(`${screenshotFolderName}/can_reach_the_frontend`)
+  it('can reach the backend', () => {
+    cy.visitAPI()
+    cy.get("h2.title").first().should('have.text', 'Holocron 1.0.0 OAS3')
+    cy.screenshot(`${screenshotFolderName}/can_reach_api_docs`)
   })
 })
