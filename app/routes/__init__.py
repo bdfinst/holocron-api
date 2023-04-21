@@ -1,6 +1,8 @@
 """Routes."""
 from flask import Blueprint
 
+from app.config import FEATURE_FLAGS
+
 from .branches import create_router as create_branch_router
 from .builds import create_router as create_build_router
 from .commits import create_router as create_commit_router
@@ -28,7 +30,8 @@ def create_router() -> Blueprint:
     router.register_blueprint(create_git_request_router())
     router.register_blueprint(create_metrics_router())
     router.register_blueprint(create_organization_router())
-    router.register_blueprint(create_pay_rate_router())
+    if FEATURE_FLAGS["FEATURE_COST_METRICS"]:
+        router.register_blueprint(create_pay_rate_router())
     router.register_blueprint(create_pipeline_router())
     router.register_blueprint(create_repository_router())
     router.register_blueprint(create_team_router())

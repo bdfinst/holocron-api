@@ -2,6 +2,8 @@
 from marshmallow import Schema
 from marshmallow.fields import Boolean, Dict, Field, Int, List, Nested, Number, String
 
+from app import config
+
 from ._base import camelcase
 from .branch import BranchSchema
 from .build import BuildSchema
@@ -80,7 +82,8 @@ class WeeklyDataSchema(MetricsSchemaBase):
     """Schema for weekly data of team metrics."""
 
     effort_hours = Nested(EffortSchema)
-    effort_costs = Nested(EffortSchema)
+    if config.FEATURE_FLAGS["FEATURE_COST_METRICS"]:
+        effort_costs = Nested(EffortSchema)
     lead_time_throughput = Nested(LeadTimeThroughPutSchema)
     cycle_time_defect = Nested(CycleTimeDefectSchema)
     integration_frequency = Nested(IntegrationFrequencySchema)

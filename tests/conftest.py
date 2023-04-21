@@ -39,6 +39,7 @@ def application(monkeypatch):
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
     monkeypatch.setattr(app.routes.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
+    monkeypatch.setattr(app.routes, "FEATURE_FLAGS", {"FEATURE_COST_METRICS": True})
     application = app.create_app()
     application.config.update({"TESTING": True})
     return application
