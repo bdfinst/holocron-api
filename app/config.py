@@ -56,5 +56,7 @@ PIPLINE_PASSED_STATUS = "success"
 
 FEATURE_FLAGS = {
     "FEATURE_TEAM_VIEWS": os.environ.get("FEATURE_TEAM_VIEWS", "false").lower()
-    == "true"
+    == "true",
+    "FEATURE_COST_METRICS": os.environ.get("FEATURE_COST_METRICS", "false").lower()
+    == "true",
 }
