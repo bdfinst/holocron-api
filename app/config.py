@@ -59,4 +59,8 @@ FEATURE_FLAGS = {
     == "true",
     "FEATURE_COST_METRICS": os.environ.get("FEATURE_COST_METRICS", "false").lower()
     == "true",
+    "FEATURE_DEPLOY_FREQUENCY": os.environ.get(
+        "FEATURE_DEPLOY_FREQUENCY", "false"
+    ).lower()
+    == "true",
 }

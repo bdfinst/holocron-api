@@ -1,6 +1,7 @@
 """Process metrics data."""
 from typing import Any, Dict, List, NamedTuple
 
+from app.config import FEATURE_FLAGS
 from app.models import (
     Branch,
     Build,
@@ -152,7 +153,11 @@ def process_team(team: Team) -> TeamMetrics:
     git_requests = flat_map(team.repositories, lambda repo: repo.git_requests)
 
     cumulative_flow = process_cumulative_flow(tickets)
-    deploy_frequency = process_deploy_frequency(builds)
+    deploy_frequency = (
+        process_deploy_frequency(builds)
+        if FEATURE_FLAGS["FEATURE_DEPLOY_FREQUENCY"]
+        else {}
+    )
     effort = process_effort(tickets)
     lead_time = process_lead_time(tickets)
     repo_builds = get_latest_builds(team.pipelines)

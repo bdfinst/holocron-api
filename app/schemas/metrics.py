@@ -88,7 +88,8 @@ class WeeklyDataSchema(MetricsSchemaBase):
     cycle_time_defect = Nested(CycleTimeDefectSchema)
     integration_frequency = Nested(IntegrationFrequencySchema)
     cumulative_flow = Nested(CumulativeFlowSchema)
-    deploy_frequency = Nested(DeployFrequencySchema)
+    if config.FEATURE_FLAGS["FEATURE_DEPLOY_FREQUENCY"]:
+        deploy_frequency = Nested(DeployFrequencySchema)
     code_review_trend = Nested(CodeReviewTrendSchema)
     team_history = Nested(TeamHistorySchema)
 

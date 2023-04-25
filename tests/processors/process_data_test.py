@@ -40,6 +40,9 @@ def test_process_organization(monkeypatch):
     """Integration testing for the overall process organization."""
     monkeypatch.setattr(cumulative_flow, "datetime", mock_dt)
     monkeypatch.setattr(effort, "datetime", mock_dt)
+    monkeypatch.setattr(
+        process_data, "FEATURE_FLAGS", {"FEATURE_DEPLOY_FREQUENCY": True}
+    )
     org, vs, team = mock_organizations[0], mock_valuestreams[0], mock_teams[0]
     expected_team_metrics = [
         TeamMetrics(
