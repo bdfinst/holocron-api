@@ -25,6 +25,7 @@ class ExistingTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
             "users",
             "team_history",
             "team_size",
+            "members",
         )
 
     collector_targets = auto_field()
