@@ -10,7 +10,7 @@ flasgger_inline_style_hashes = [
 
 DEFAULT_SRC = "default-src 'self';"
 CONNECT_SRC = "connect-src 'self';"
-SCRIPT_SRC = "script-src 'self' 'sha256-Flo+NY5/6INO/qTghsf/MoWXP0cYUKAAkF/vcuUqwU4=';"
+SCRIPT_SRC = "script-src 'self' 'sha256-txrSP/AT5SJ8pKSlYt1LR/a8kXKc0Wjviyc4p3+g4jw=';"
 FORM_ACTION = "form-action 'self';"
 STYLE_SRC = (
     "style-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com "
