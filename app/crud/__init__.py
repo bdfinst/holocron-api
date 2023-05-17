@@ -4,6 +4,7 @@ from .builds import builds_crud
 from .collector_targets import collector_targets_crud
 from .commits import commits_crud
 from .git_requests import git_requests_crud
+from .members import members_crud, teams_members_crud
 from .organizations import organizations_crud
 from .pay_rates import pay_rates_crud
 from .pipelines import pipelines_crud

@@ -32,6 +32,14 @@ class MockCRUD:
             raise HolocronIntegrityError(err, err)
         return json
 
+    def create_entities(self, session, json, id):
+        """Mock create_entities method."""
+        if (err := json[0].get("name")) == "error":
+            raise HolocronIntegrityError(err, err)
+        if id == -1:
+            raise HolocronIntegrityError("err", "err")
+        return json
+
     def update_entity(self, session, json, id):
         """Mock update_entity method."""
         if (err := json.get("name")) == "error":

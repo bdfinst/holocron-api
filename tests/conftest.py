@@ -1,4 +1,5 @@
 """Test fixtures and configuration."""
+import warnings
 from unittest.mock import MagicMock
 
 from pytest import MonkeyPatch, fixture
@@ -33,13 +34,18 @@ def mock_session():
 @fixture
 def application(monkeypatch):
     """Run application factory."""
+    warnings.filterwarnings("ignore", message="Multiple schemas resolved to the name")
     monkeypatch.setattr(app.app.Database, "establish_connection", MagicMock())
     monkeypatch.setattr(app.app, "organizations_cache", MagicMock())
     monkeypatch.setattr(app.app, "set_user", MagicMock())
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
     monkeypatch.setattr(app.routes.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
-    monkeypatch.setattr(app.routes, "FEATURE_FLAGS", {"FEATURE_COST_METRICS": True})
+    monkeypatch.setattr(
+        app.routes,
+        "FEATURE_FLAGS",
+        {"FEATURE_COST_METRICS": True, "FEATURE_EXTERNAL_CONTRIBUTORS": True},
+    )
     application = app.create_app()
     application.config.update({"TESTING": True})
     return application

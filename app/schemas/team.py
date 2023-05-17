@@ -4,10 +4,12 @@ from typing import Any, Dict
 from marshmallow import fields, validate
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
+from app import config
 from app.models import Team
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
+from .member import TeamMemberSchema
 from .user import UserSchema
 
 
@@ -21,6 +23,8 @@ class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
         exclude = ("pipelines", "repositories", "ticket_boards", "members")
 
+    if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+        members = fields.Nested(TeamMemberSchema, many=True, exclude=("team",))
     users = fields.Nested(UserSchema, many=True)
     collector_targets = auto_field()
     valuestream_id = auto_field()

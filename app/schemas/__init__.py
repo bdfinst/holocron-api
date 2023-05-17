@@ -3,6 +3,7 @@ from .branch import BranchSchema
 from .build import BuildSchema
 from .commit import CommitSchema
 from .git_request import GitRequestSchema
+from .member import MemberSchema, TeamMemberSchema
 from .messages import ValidationErrorSchema
 from .metrics import MetricsSchema
 from .organization import OrganizationSchema
