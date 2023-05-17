@@ -63,4 +63,8 @@ FEATURE_FLAGS = {
         "FEATURE_DEPLOY_FREQUENCY", "false"
     ).lower()
     == "true",
+    "FEATURE_EXTERNAL_CONTRIBUTORS": os.environ.get(
+        "FEATURE_EXTERNAL_CONTRIBUTORS", "false"
+    ).lower()
+    == "true",
 }
