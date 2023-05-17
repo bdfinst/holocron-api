@@ -19,7 +19,7 @@ class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Team
         include_relationships = True
-        exclude = ("pipelines", "repositories", "ticket_boards")
+        exclude = ("pipelines", "repositories", "ticket_boards", "members")
 
     users = fields.Nested(UserSchema, many=True)
     collector_targets = auto_field()

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
 from .collector_target import CollectorTarget
+from .member import TeamsMembers
 from .pipeline import Pipeline
 from .repository import Repository
 from .ticket_board import TicketBoard
@@ -37,6 +38,9 @@ class Team(MetadataBase, ModelBase):
     team_history: Mapped[List["TeamHistory"]] = relationship(default_factory=list)
     users: Mapped[List["User"]] = relationship(
         secondary=association_table, default_factory=list
+    )
+    members: Mapped[List["TeamsMembers"]] = relationship(
+        default_factory=list, back_populates="team"
     )
     pipelines: Mapped[List["Pipeline"]] = relationship(
         overlaps="collector_targets", default_factory=list
