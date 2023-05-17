@@ -15,6 +15,7 @@ class Commit(MetadataBase, ModelBase):
 
     sha: Mapped[str]
     is_merged: Mapped[bool]
+    author_username: Mapped[str]
 
     repository_id: Mapped[int] = mapped_column(
         ForeignKey("collector_targets.id", ondelete="CASCADE")

@@ -1,4 +1,5 @@
 """Test data."""
+from .members import create_member
 from .organizations import create_organization, mock_organizations
 from .pipelines import builds, create_pipeline, mock_pipelines
 from .repositories import (

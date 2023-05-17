@@ -6,6 +6,7 @@ from .collector import Collector
 from .collector_target import CollectorTarget
 from .commit import Commit
 from .git_request import GitRequest
+from .member import Member, TeamsMembers
 from .organization import Organization
 from .pay_rate import PayRate
 from .pipeline import Pipeline

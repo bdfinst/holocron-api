@@ -8,6 +8,7 @@ from .builds import create_router as create_build_router
 from .commits import create_router as create_commit_router
 from .feature_flags import create_router as create_feature_flag_router
 from .git_requests import create_router as create_git_request_router
+from .members import create_router as create_member_router
 from .metrics import create_router as create_metrics_router
 from .organizations import create_router as create_organization_router
 from .pay_rates import create_router as create_pay_rate_router
@@ -28,6 +29,8 @@ def create_router() -> Blueprint:
     router.register_blueprint(create_commit_router())
     router.register_blueprint(create_feature_flag_router())
     router.register_blueprint(create_git_request_router())
+    if FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+        router.register_blueprint(create_member_router())
     router.register_blueprint(create_metrics_router())
     router.register_blueprint(create_organization_router())
     if FEATURE_FLAGS["FEATURE_COST_METRICS"]:
