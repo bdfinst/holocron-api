@@ -51,7 +51,7 @@ class TeamsMembersCRUD(BaseCRUD[TeamsMembers]):
         session: Session, json: List[Dict[str, Any]], team_id: int
     ) -> List[TeamsMembers]:
         """Insert multiple TeamsMembers in database."""
-        members = (get_or_create_member(session, item) for item in json)
+        members = (get_or_create_member(session, item["member"]) for item in json)
         new_teams_members = [
             TeamsMembers(
                 member_id=next(members).id,

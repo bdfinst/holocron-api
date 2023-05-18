@@ -61,7 +61,7 @@ def test_create_entities(monkeypatch, mock_session):
         MagicMock(return_value=create_member()),
     )
 
-    json = [{"start_date": "2020-01-01T00:00:00.000Z"}]
+    json = [{"start_date": "2020-01-01T00:00:00.000Z", "member": {}}]
     result = teams_members_crud.create_entities(mock_session, json, 1)
     teams_members = first_argument(mock_session.add)
 
