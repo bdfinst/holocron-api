@@ -21,7 +21,7 @@ class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Team
         include_relationships = True
-        exclude = ("pipelines", "repositories", "ticket_boards", "members")
+        exclude = ("pipelines", "repositories", "ticket_boards")
 
     if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
         members = fields.Nested(TeamMemberSchema, many=True, exclude=("team",))

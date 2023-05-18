@@ -102,7 +102,7 @@ def update_team_members(team_id: str) -> Tuple[Any, int]:
           description: Update members of team
           content:
             application/json:
-              schema: ExistingTeam
+              schema: ExistingTeam1
         404:
           description: Team not found
     """
