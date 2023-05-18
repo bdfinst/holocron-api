@@ -190,7 +190,6 @@ def test_create_team(
         "teamHistory": [],
         "users": [],
         "isWorkflowOnly": False,
-        "members": [],
     }
 
     assert resp.json == expected
@@ -283,7 +282,6 @@ def test_update_team(
         name="test2",
         teamSize=1,
         valuestreamId=1,
-        members=[],
     )
 
     monkeypatch.setattr(
