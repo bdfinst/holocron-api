@@ -7,10 +7,14 @@ flasgger_inline_style_hashes = [
     "'sha256-1fdCXxcHyanQoxIfyXxjg5BQQ8b9Dm8zrCS6yEdEbrg='",
     "'sha256-b3IrgBVvuKx/Q3tmAi79fnf6AFClibrz/0S5x1ghdGU='",
 ]
+flasgger_script_hashes = [
+    "'sha256-txrSP/AT5SJ8pKSlYt1LR/a8kXKc0Wjviyc4p3+g4jw='",
+    "'sha256-Flo+NY5/6INO/qTghsf/MoWXP0cYUKAAkF/vcuUqwU4='",
+]
 
 DEFAULT_SRC = "default-src 'self';"
 CONNECT_SRC = "connect-src 'self';"
-SCRIPT_SRC = "script-src 'self' 'sha256-txrSP/AT5SJ8pKSlYt1LR/a8kXKc0Wjviyc4p3+g4jw=';"
+SCRIPT_SRC = "script-src 'self' " + " ".join(flasgger_script_hashes) + ";"
 FORM_ACTION = "form-action 'self';"
 STYLE_SRC = (
     "style-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com "
