@@ -1,6 +1,6 @@
 """Utilities."""
-from datetime import datetime, timedelta
-from typing import Callable, List, TypeVar
+from datetime import datetime, timedelta, timezone
+from typing import Callable, List, Optional, TypeVar
 
 from app import config
 from app.models import Ticket
@@ -117,3 +117,23 @@ def get_first_in_progress_date(ticket: Ticket) -> datetime:
 def is_in_progress(ticket: Ticket) -> bool:
     """Return boolean representing if ticket is in progress."""
     return ticket.status == IN_PROGRESS
+
+
+def is_between_dates(
+    date_to_check: datetime, first_date: datetime, second_date: Optional[datetime]
+) -> bool:
+    """Return boolean representing if date_to_check is between first and second date."""
+    date_to_check = date_to_check.replace(tzinfo=timezone.utc)
+    first_date = first_date.replace(tzinfo=timezone.utc)
+    if second_date is not None:
+        second_date = second_date.replace(tzinfo=timezone.utc)
+
+    if second_date is not None and second_date < first_date:
+        raise ValueError("first_date must not be after second_date")
+    if date_to_check < first_date:
+        return False
+    if second_date is None:
+        return True
+    if date_to_check > second_date:
+        return False
+    return True

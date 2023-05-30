@@ -36,6 +36,8 @@ class IntegrationFrequencySchema(MetricsSchemaBase):
 
     integrations = List(Number())
     direct_integrations = List(Number())
+    if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+        external_integrations = List(Number())
 
 
 class CycleTimeDefectSchema(MetricsSchemaBase):

@@ -82,6 +82,7 @@ def test_process_organization(monkeypatch):
                     "integration_frequency": {
                         "integrations": [1, 1],
                         "direct_integrations": [1],
+                        "external_integrations": [],
                     },
                     "cumulative_flow": {
                         "backlog": [],
@@ -124,6 +125,7 @@ def test_process_organization(monkeypatch):
                     "integration_frequency": {
                         "integrations": [],
                         "direct_integrations": [],
+                        "external_integrations": [],
                     },
                     "cumulative_flow": {
                         "backlog": [],
@@ -190,7 +192,7 @@ def test_process_team_last_collected(monkeypatch):
     monkeypatch.setattr(process_data, "get_latest_builds", lambda x: {})
     monkeypatch.setattr(process_data, "process_cycle_time_defect", lambda x: {})
     monkeypatch.setattr(process_data, "process_wip_load", lambda x: {})
-    monkeypatch.setattr(process_data, "process_integration_frequency", lambda x: {})
+    monkeypatch.setattr(process_data, "process_integration_frequency", lambda x, y: {})
     monkeypatch.setattr(process_data, "build_weekly_data", lambda x: None)
 
     test_team = mock_team_last_collected
