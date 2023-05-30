@@ -102,6 +102,7 @@ def create_empty_week_object() -> Dict[str, Dict[str, List[int]]]:
         "integration_frequency": {
             "integrations": [],
             "direct_integrations": [],
+            "external_integrations": [],
         },
         "cumulative_flow": {
             "backlog": [],
@@ -163,7 +164,7 @@ def process_team(team: Team) -> TeamMetrics:
     repo_builds = get_latest_builds(team.pipelines)
     cycle_time_defect = process_cycle_time_defect(tickets)
     wip_load = process_wip_load(tickets)
-    integration_frequency = process_integration_frequency(integrations)
+    integration_frequency = process_integration_frequency(team, integrations)
 
     team_history = process_team_history(team.team_history)
 

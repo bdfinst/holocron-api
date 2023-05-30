@@ -1,7 +1,7 @@
 """Processor utils test."""
 from datetime import datetime
 
-from pytest import fixture
+from pytest import fixture, raises
 
 from app.processors import utils
 from app.processors.types import DateValue
@@ -9,6 +9,7 @@ from app.processors.utils import (
     days_between_dates,
     flat_map,
     get_fmt_year_week,
+    is_between_dates,
     total_days_diff_workflow,
     values_by_week,
 )
@@ -117,3 +118,55 @@ def test_days_between_dates(mock_config):
         actual = days_between_dates(case["start"], case["end"])
         expected = case["expected"]
         assert actual == expected
+
+
+def test_is_between_dates():
+    """Test is_between_dates function."""
+    cases = [
+        {
+            "check": datetime(year=2000, month=2, day=1),
+            "first": datetime(year=2000, month=1, day=1),
+            "second": datetime(year=2000, month=3, day=1),
+            "expected": True,
+        },
+        {
+            "check": datetime(year=2000, month=2, day=1),
+            "first": datetime(year=2000, month=1, day=1),
+            "second": None,
+            "expected": True,
+        },
+        {
+            "check": datetime(year=2000, month=1, day=1),
+            "first": datetime(year=2000, month=2, day=1),
+            "second": datetime(year=2000, month=3, day=1),
+            "expected": False,
+        },
+        {
+            "check": datetime(year=2000, month=1, day=1),
+            "first": datetime(year=2000, month=2, day=1),
+            "second": None,
+            "expected": False,
+        },
+        {
+            "check": datetime(year=2000, month=1, day=1),
+            "first": datetime(year=2000, month=1, day=1),
+            "second": datetime(year=2000, month=1, day=1),
+            "expected": True,
+        },
+    ]
+
+    for case in cases:
+        actual = is_between_dates(case["check"], case["first"], case["second"])
+        expected = case["expected"]
+        assert actual == expected
+
+
+def test_is_between_dates_error():
+    """Test is_between_dates function error condition."""
+    with raises(ValueError) as err:
+        is_between_dates(
+            datetime.now(),
+            datetime(year=2000, month=1, day=2),
+            datetime(year=2000, month=1, day=1),
+        )
+    assert str(err.value) == "first_date must not be after second_date"
