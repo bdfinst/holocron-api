@@ -1,6 +1,7 @@
 """Application entrypoint."""
 import atexit
 import logging
+from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -56,6 +57,9 @@ def register_background_tasks() -> None:
         scheduler.shutdown()
 
     atexit.register(on_scheduler_shutdown)
+
+    for job in scheduler.get_jobs():
+        job.modify(next_run_time=datetime.now())
 
 
 def create_app() -> Flask:
