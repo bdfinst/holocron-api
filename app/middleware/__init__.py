@@ -17,6 +17,6 @@ from .circuit_breaker import circuit_breaker_check, circuit_breaker_validation
 from .csp import set_csp
 from .limiter import limiter
 from .log import log_request
-from .organizations_schema_cache import organizations_cache
+from .organizations_schema_cache import organizations_cache_v1, organizations_cache_v2
 from .schema_cache import SchemaCache, SchemaCacheNotReady
 from .text_validator import validate_text

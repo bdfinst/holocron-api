@@ -12,14 +12,16 @@ from app.middleware import (
     circuit_breaker_validation,
     limiter,
     log_request,
-    organizations_cache,
+    organizations_cache_v1,
+    organizations_cache_v2,
     return_user,
     set_csp,
     set_user,
     validate_text,
 )
-from app.processors import team_history
-from app.routes import create_router
+from app.processors.v1 import team_history
+from app.routes.v1 import create_v1_router
+from app.routes.v2 import create_v2_router
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, serve_spec
 
@@ -29,11 +31,18 @@ def register_background_tasks() -> None:
     scheduler = BackgroundScheduler()
     # adding metrics calculation job for the scheduler
     scheduler.add_job(
-        organizations_cache.run,
+        organizations_cache_v1.run,
         "interval",
         minutes=10,
         name="Calculate metrics for organizations.",
     )
+    if config.MODE == "development":
+        scheduler.add_job(
+            organizations_cache_v2.run,
+            "interval",
+            minutes=10,
+            name="Calculate metrics for organizations. (v2)",
+        )
     scheduler.add_job(
         team_history.delete_outdated_team_history,
         "interval",
@@ -64,9 +73,13 @@ def create_app() -> Flask:
         app.before_request(set_user)
         app.after_request(return_user)
 
-    app.register_blueprint(create_router())
-    spec = generate_spec(app)
-    serve_spec(app, spec)
+    app.register_blueprint(create_v1_router())
+    v1_spec = generate_spec(app, "v1")
+    serve_spec(app, v1_spec, "v1")
+
+    if config.MODE == "development":
+        app.register_blueprint(create_v2_router())
+
     limiter.init_app(app)
     Database.establish_connection()
     register_background_tasks()

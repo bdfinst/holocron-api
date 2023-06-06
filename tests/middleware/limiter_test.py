@@ -3,7 +3,7 @@ from pytest import fixture
 
 from app import security
 from app.middleware import log
-from app.routes import organizations
+from app.routes.v1 import organizations
 from app.security import DEFAULT_LIMITS
 from tests.mocks import crud, request
 
