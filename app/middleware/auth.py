@@ -22,7 +22,7 @@ from app.crud.valuestreams import ValuestreamsCRUD
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.models import Team, Valuestream
-from app.schemas import UserSchema
+from app.schemas.v1 import UserSchema
 from app.security import get_sanitized_id, log_security_event
 
 schema = UserSchema()

@@ -36,13 +36,16 @@ def application(monkeypatch):
     """Run application factory."""
     warnings.filterwarnings("ignore", message="Multiple schemas resolved to the name")
     monkeypatch.setattr(app.app.Database, "establish_connection", MagicMock())
-    monkeypatch.setattr(app.app, "organizations_cache", MagicMock())
+    monkeypatch.setattr(app.app, "organizations_cache_v1", MagicMock())
+    monkeypatch.setattr(app.app, "organizations_cache_v2", MagicMock())
     monkeypatch.setattr(app.app, "set_user", MagicMock())
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
-    monkeypatch.setattr(app.routes.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
     monkeypatch.setattr(
-        app.routes,
+        app.routes.v1.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
+    )
+    monkeypatch.setattr(
+        app.routes.v1,
         "FEATURE_FLAGS",
         {"FEATURE_COST_METRICS": True, "FEATURE_EXTERNAL_CONTRIBUTORS": True},
     )
