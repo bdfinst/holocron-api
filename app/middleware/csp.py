@@ -4,12 +4,12 @@ from flask import Response
 # list is not all-inclusive, some hashes are considered unsafe
 # unsafe hashes require the 'unsafe-hashes' keyword be present
 flasgger_inline_style_hashes = [
+    "'sha256-6FWIojjtZwiNizws7ImlHjGH3DA5yMh5x4c+/4UVpXk='",
     "'sha256-1fdCXxcHyanQoxIfyXxjg5BQQ8b9Dm8zrCS6yEdEbrg='",
-    "'sha256-b3IrgBVvuKx/Q3tmAi79fnf6AFClibrz/0S5x1ghdGU='",
 ]
 flasgger_script_hashes = [
-    "'sha256-txrSP/AT5SJ8pKSlYt1LR/a8kXKc0Wjviyc4p3+g4jw='",
-    "'sha256-Flo+NY5/6INO/qTghsf/MoWXP0cYUKAAkF/vcuUqwU4='",
+    "'sha256-BT/bry9Z9efIe9Hn+0V/f9f+ypp3OhHEGnMNWqGEyeA='",
+    "'sha256-qtMLOFWFqUIRtMNOstHHl6UVOKx0xOX5b76VB2gUmqw='",
 ]
 
 DEFAULT_SRC = "default-src 'self';"
