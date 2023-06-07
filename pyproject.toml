@@ -46,7 +46,7 @@ profile = "black"
 exclude = ["^alembic"]
 
 [[tool.mypy.overrides]]
-module = ["apispec_webframeworks.flask", "flasgger", "openapi_spec_validator", "apscheduler.*"]
+module = ["apispec_webframeworks.flask", "flasgger.*", "openapi_spec_validator", "apscheduler.*",]
 ignore_missing_imports = true
 
 [tool.coverage.run]

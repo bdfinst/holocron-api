@@ -24,7 +24,7 @@ from app.processors.v1 import team_history
 from app.routes.v1 import create_v1_router
 from app.routes.v2 import create_v2_router
 from app.security import on_unexpected_http_methods
-from app.spec import generate_spec, serve_spec
+from app.spec import generate_spec, patch_flasgger, serve_spec
 
 
 def register_background_tasks() -> None:
@@ -81,8 +81,12 @@ def create_app() -> Flask:
     v1_spec = generate_spec(app, "v1")
     serve_spec(app, v1_spec, "v1")
 
+    patch_flasgger()
+
     if config.MODE == "development":
         app.register_blueprint(create_v2_router())
+        v2_spec = generate_spec(app, "v2")
+        serve_spec(app, v2_spec, "v2")
 
     limiter.init_app(app)
     Database.establish_connection()
