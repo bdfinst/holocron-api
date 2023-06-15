@@ -6,7 +6,7 @@ from app.models import Build
 from ._base import SchemaBase
 
 
-class BuildSchema(SQLAlchemyAutoSchema, SchemaBase):
+class BuildV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Build model."""
 
     class Meta:

@@ -5,7 +5,7 @@ from pytest import fixture
 
 from app.middleware import auth, log
 from app.routes.v1 import metrics
-from tests.mocks import cache, crud, request
+from tests.mocks import cache_v1, crud, request
 from tests.testdata import create_team, create_valuestream
 
 
@@ -21,7 +21,7 @@ def mock_request(monkeypatch):
 @fixture
 def mock_cache(monkeypatch):
     """Patch cache."""
-    monkeypatch.setattr(metrics, "organizations_cache_v1", cache)
+    monkeypatch.setattr(metrics, "organizations_cache_v1", cache_v1)
 
 
 @fixture

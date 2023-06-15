@@ -6,7 +6,7 @@ from app.models import Branch
 from ._base import SchemaBase
 
 
-class BranchSchema(SQLAlchemyAutoSchema, SchemaBase):
+class BranchV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Branch model."""
 
     class Meta:

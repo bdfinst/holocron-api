@@ -9,10 +9,10 @@ from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_org_access, requires_security
-from app.schemas.v1 import OrganizationSchema
+from app.schemas.v1 import OrganizationV1Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-schema = OrganizationSchema()
+schema = OrganizationV1Schema()
 
 
 def list_organizations() -> Tuple[Any, int]:
@@ -31,7 +31,7 @@ def list_organizations() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingOrganization'
+                      $ref: '#/components/schemas/ExistingOrganizationV1'
     """
     with generate_session() as session:
         raw_organizations = (
@@ -56,18 +56,18 @@ def create_organization() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationSchema
+            schema: NewOrganizationV1Schema
       responses:
         201:
           description: The organization was successfully created
           content:
             application/json:
-              schema: ExistingOrganizationSchema
+              schema: ExistingOrganizationV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)
@@ -101,7 +101,7 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
           description: Get organization
           content:
             application/json:
-              schema: ExistingOrganizationSchema
+              schema: ExistingOrganizationV1Schema
         404:
           description: Organization not found
     """
@@ -137,18 +137,18 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationSchema
+            schema: NewOrganizationV1Schema
       responses:
         200:
           description: The organization was successfully updated
           content:
             application/json:
-              schema: ExistingOrganizationSchema
+              schema: ExistingOrganizationV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)

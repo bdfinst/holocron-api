@@ -7,11 +7,11 @@ from marshmallow import ValidationError
 from app.crud import pay_rates_crud
 from app.database import generate_session
 from app.middleware import requires_org_leadership, requires_security
-from app.schemas.v1 import MultiplePayRateSchema, PayRateSchema
+from app.schemas.v1 import MultiplePayRateV1Schema, PayRateV1Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 
-schema = PayRateSchema()
-many_schema = MultiplePayRateSchema()
+schema = PayRateV1Schema()
+many_schema = MultiplePayRateV1Schema()
 
 
 @requires_security([requires_org_leadership])
@@ -31,7 +31,7 @@ def list_pay_rates() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PayRate'
+                      $ref: '#/components/schemas/PayRateV1'
     """
     with generate_session() as session:
         raw_pay_rates = pay_rates_crud.get_entities(session)
@@ -50,7 +50,7 @@ def upsert_pay_rates() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: MultiplePayRateSchema
+            schema: MultiplePayRateV1Schema
       responses:
         201:
           description: The pay rates successfuly set.
@@ -61,12 +61,12 @@ def upsert_pay_rates() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PayRate'
+                      $ref: '#/components/schemas/PayRateV1'
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = many_schema.load(cast(Mapping[str, Any], request.json))

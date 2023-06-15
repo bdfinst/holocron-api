@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 import app
+from app.routes.v2 import create_v2_router
 from tests.mocks import mock_delete, mock_select, session
 
 
@@ -50,6 +51,7 @@ def application(monkeypatch):
         {"FEATURE_COST_METRICS": True, "FEATURE_EXTERNAL_CONTRIBUTORS": True},
     )
     application = app.create_app()
+    application.register_blueprint(create_v2_router())
     application.config.update({"TESTING": True})
     return application
 

@@ -7,10 +7,10 @@ from app.crud import ticket_boards_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import TicketBoardSchema
+from app.schemas.v1 import TicketBoardV1Schema
 from app.security import get_sanitized_id
 
-schema = TicketBoardSchema()
+schema = TicketBoardV1Schema()
 
 
 def list_ticket_boards() -> Tuple[Any, int]:
@@ -29,7 +29,7 @@ def list_ticket_boards() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TicketBoard'
+                      $ref: '#/components/schemas/TicketBoardV1'
     """
     with generate_session() as session:
         raw_ticket_boards = ticket_boards_crud.get_entities(session)
@@ -62,7 +62,7 @@ def list_ticket_boards_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TicketBoard'
+                      $ref: '#/components/schemas/TicketBoardV1'
         404:
           description: Team or team view not found
     """
@@ -96,7 +96,7 @@ def get_ticket_board(board_id: str) -> Tuple[Any, int]:
           description: Get single ticket board by id
           content:
             application/json:
-              schema: TicketBoardSchema
+              schema: TicketBoardV1Schema
         404:
           description: Ticket board not found
     """

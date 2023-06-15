@@ -5,7 +5,7 @@ from app.models import GitRequest
 from app.processors.v1.code_review_trend import process_code_review_trend
 
 
-def test_process_code_review_trend(monkeypatch):
+def test_process_code_review_trend():
     """Test process_code_review_trend function."""
     test_cases = [
         (

@@ -2,7 +2,7 @@
 from marshmallow import Schema, fields
 
 
-class ValidationErrorSchema(Schema):
+class ValidationErrorV1Schema(Schema):
     """Schema for returning schema validation errors."""
 
     fieldName = fields.List(fields.String())

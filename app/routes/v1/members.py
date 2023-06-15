@@ -8,12 +8,12 @@ from app.crud import members_crud, teams_crud, teams_members_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import MemberSchema, TeamMemberSchema, TeamSchema
+from app.schemas.v1 import MemberV1Schema, TeamMemberV1Schema, TeamV1Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-member_schema = MemberSchema()
-team_member_schema = TeamMemberSchema()
-team_schema = TeamSchema()
+member_schema = MemberV1Schema()
+team_member_schema = TeamMemberV1Schema()
+team_schema = TeamV1Schema()
 
 
 @requires_security([requires_admin])
@@ -33,7 +33,7 @@ def list_members() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Member'
+                      $ref: '#/components/schemas/MemberV1'
     """
     with generate_session() as session:
         raw_members = members_crud.get_entities(session)
@@ -61,7 +61,7 @@ def get_member(member_id: str) -> Tuple[Any, int]:
           description: Get single member by id
           content:
             application/json:
-              schema: MemberSchema
+              schema: MemberV1Schema
         404:
           description: Member not found
     """
@@ -96,13 +96,13 @@ def update_team_members(team_id: str) -> Tuple[Any, int]:
                 teamMembers:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TeamMember1'
+                    $ref: '#/components/schemas/TeamMemberV11'
       responses:
         200:
           description: Update members of team
           content:
             application/json:
-              schema: ExistingTeam1
+              schema: ExistingTeamV11
         404:
           description: Team not found
     """

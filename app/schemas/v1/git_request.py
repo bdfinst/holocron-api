@@ -6,7 +6,7 @@ from app.models import GitRequest
 from ._base import SchemaBase
 
 
-class GitRequestSchema(SQLAlchemyAutoSchema, SchemaBase):
+class GitRequestV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Git Request model."""
 
     class Meta:

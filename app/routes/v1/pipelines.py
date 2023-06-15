@@ -7,10 +7,10 @@ from app.crud import pipelines_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import PipelineSchema
+from app.schemas.v1 import PipelineV1Schema
 from app.security import get_sanitized_id
 
-schema = PipelineSchema()
+schema = PipelineV1Schema()
 
 
 def list_pipelines() -> Tuple[Any, int]:
@@ -29,7 +29,7 @@ def list_pipelines() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Pipeline'
+                      $ref: '#/components/schemas/PipelineV1'
     """
     with generate_session() as session:
         raw_pipelines = pipelines_crud.get_entities(session)
@@ -62,7 +62,7 @@ def list_pipelines_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Pipeline'
+                      $ref: '#/components/schemas/PipelineV1'
         404:
           description: Team or team view not found
     """
@@ -96,7 +96,7 @@ def get_pipeline(pipeline_id: str) -> Tuple[Any, int]:
           description: Get single pipeline by id
           content:
             application/json:
-              schema: PipelineSchema
+              schema: PipelineV1Schema
         404:
           description: Pipeline not found
     """

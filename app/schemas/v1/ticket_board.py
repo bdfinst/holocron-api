@@ -7,10 +7,10 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from app.models import TicketBoard
 
 from ._base import SchemaBase
-from .collector_target_config import ConfigItemSchema
+from .collector_target_config import ConfigItemV1Schema
 
 
-class TicketBoardSchema(SQLAlchemyAutoSchema, SchemaBase):
+class TicketBoardV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for TicketBoard model."""
 
     class Meta:
@@ -21,4 +21,4 @@ class TicketBoardSchema(SQLAlchemyAutoSchema, SchemaBase):
         exclude: Tuple[str, ...] = ("tickets",)
 
     team_id = auto_field()
-    config = fields.Nested(ConfigItemSchema, many=True)
+    config = fields.Nested(ConfigItemV1Schema, many=True)

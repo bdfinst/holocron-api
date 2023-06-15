@@ -9,7 +9,7 @@ from app.models import PayRate
 from ._base import SchemaBase
 
 
-class PayRateSchema(SQLAlchemyAutoSchema, SchemaBase):
+class PayRateV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for PayRate model."""
 
     class Meta:
@@ -28,11 +28,11 @@ def unique_emails(rates: List[Dict[str, Any]]):
         raise ValidationError("Duplicate email found in rates.")
 
 
-class MultiplePayRateSchema(Schema):
+class MultiplePayRateV1Schema(Schema):
     """Schema for multiple PayRate."""
 
     rates = fields.List(
-        fields.Nested("PayRateSchema", only=("rate", "email")),
+        fields.Nested("PayRateV1Schema", only=("rate", "email")),
         validate=validate.And(validate.Length(min=1), unique_emails),
         required=True,
     )

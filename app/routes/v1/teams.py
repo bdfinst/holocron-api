@@ -18,11 +18,11 @@ from app.middleware import (
     requires_valid_team_view_data,
     requires_vs_access,
 )
-from app.schemas.v1 import TeamSchema, TeamViewSchema
+from app.schemas.v1 import TeamV1Schema, TeamViewV1Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-schema = TeamSchema()
-schema_view = TeamViewSchema()
+schema = TeamV1Schema()
+schema_view = TeamViewV1Schema()
 
 
 def list_teams() -> Tuple[Any, int]:
@@ -41,7 +41,7 @@ def list_teams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeam'
+                      $ref: '#/components/schemas/ExistingTeamV1'
     """
     with generate_session() as session:
         raw_teams = (
@@ -65,18 +65,18 @@ def create_team() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamSchema
+            schema: NewTeamV1Schema
       responses:
         201:
           description: The team was successfully created
           content:
             application/json:
-              schema: ExistingTeamSchema
+              schema: ExistingTeamV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)
@@ -116,7 +116,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
           description: Get team
           content:
             application/json:
-              schema: ExistingTeamSchema
+              schema: ExistingTeamV1Schema
         404:
           description: Team not found
     """
@@ -151,18 +151,18 @@ def update_team(team_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamSchema
+            schema: NewTeamV1Schema
       responses:
         200:
           description: The team was successfully updated
           content:
             application/json:
-              schema: ExistingTeamSchema
+              schema: ExistingTeamV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)
@@ -230,7 +230,7 @@ def list_team_views() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamView'
+                      $ref: '#/components/schemas/ExistingTeamV1View'
     """
     with generate_session() as session:
         raw_teams = team_views_crud.get_entities(session)
@@ -250,18 +250,18 @@ def create_team_view() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewSchema
+            schema: NewTeamViewV1Schema
       responses:
         201:
           description: The team view was successfully created
           content:
             application/json:
-              schema: ExistingTeamViewSchema
+              schema: ExistingTeamViewV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema_view.load(request.json)
@@ -296,7 +296,7 @@ def get_team_view(team_view_id: str) -> Tuple[Any, int]:
           description: Get team view
           content:
             application/json:
-              schema: ExistingTeamViewSchema
+              schema: ExistingTeamViewV1Schema
         404:
           description: Team not found
     """
@@ -329,18 +329,18 @@ def update_team_view(team_view_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewSchema
+            schema: NewTeamViewV1Schema
       responses:
         200:
           description: The team view was successfully updated
           content:
             application/json:
-              schema: ExistingTeamViewSchema
+              schema: ExistingTeamViewV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema_view.load(request.json)

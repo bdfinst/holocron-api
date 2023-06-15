@@ -6,7 +6,7 @@ from app.models import Commit
 from ._base import SchemaBase
 
 
-class CommitSchema(SQLAlchemyAutoSchema, SchemaBase):
+class CommitV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Commit model."""
 
     class Meta:
