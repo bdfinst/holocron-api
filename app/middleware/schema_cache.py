@@ -2,7 +2,7 @@
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Generator, Optional, Union
+from typing import Any, Callable, Dict, Generator, Union
 
 from marshmallow import Schema
 
@@ -21,7 +21,7 @@ class SchemaCache:
 
     schema: Schema
     crud: Union[BaseCRUD, Any]
-    process_func: Callable
+    process_func: Callable[[Any], Any]
     data: Dict[int, Dict] = field(default_factory=dict)
 
     def _get_ids(self) -> Generator[int, None, None]:
@@ -49,7 +49,7 @@ class SchemaCache:
         end = time.time()
         logging.info(f"---Finished cache run in {round(end - start, 2)} seconds.---")
 
-    def get_entity(self, id_: int) -> Optional[Dict]:
+    def get_entity(self, id_: int) -> Any:
         """Retrieve entity from cache."""
         with generate_session() as session:
             self.crud.get_entity(session, id_)

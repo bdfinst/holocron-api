@@ -1,18 +1,18 @@
 """V1 schemas."""
-from .branch import BranchSchema
-from .build import BuildSchema
-from .commit import CommitSchema
-from .git_request import GitRequestSchema
-from .member import MemberSchema, TeamMemberSchema
-from .messages import ValidationErrorSchema
-from .metrics import MetricsSchema
-from .organization import OrganizationSchema
-from .pay_rate import MultiplePayRateSchema, PayRateSchema
-from .pipelines import PipelineSchema
-from .repository import RepositorySchema
-from .team import TeamSchema
-from .team_view import TeamViewSchema
-from .ticket import TicketSchema
-from .ticket_board import TicketBoardSchema
-from .user import UserSchema
-from .valuestream import ValuestreamSchema
+from .branch import BranchV1Schema
+from .build import BuildV1Schema
+from .commit import CommitV1Schema
+from .git_request import GitRequestV1Schema
+from .member import MemberV1Schema, TeamMemberV1Schema
+from .messages import ValidationErrorV1Schema
+from .metrics import MetricsV1Schema
+from .organization import OrganizationV1Schema
+from .pay_rate import MultiplePayRateV1Schema, PayRateV1Schema
+from .pipelines import PipelineV1Schema
+from .repository import RepositoryV1Schema
+from .team import TeamV1Schema
+from .team_view import TeamViewV1Schema
+from .ticket import TicketV1Schema
+from .ticket_board import TicketBoardV1Schema
+from .user import UserV1Schema
+from .valuestream import ValuestreamV1Schema

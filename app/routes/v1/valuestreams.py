@@ -14,10 +14,10 @@ from app.middleware import (
     requires_security,
     requires_vs_access,
 )
-from app.schemas.v1 import ValuestreamSchema
+from app.schemas.v1 import ValuestreamV1Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-schema = ValuestreamSchema()
+schema = ValuestreamV1Schema()
 
 
 def list_valuestreams() -> Tuple[Any, int]:
@@ -36,7 +36,7 @@ def list_valuestreams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingValuestream'
+                      $ref: '#/components/schemas/ExistingValuestreamV1'
     """
     with generate_session() as session:
         raw_valuestreams = (
@@ -59,18 +59,18 @@ def create_valuestream() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamSchema
+            schema: NewValuestreamV1Schema
       responses:
         201:
           description: The valuestream was successfully created
           content:
             application/json:
-              schema: ExistingValuestreamSchema
+              schema: ExistingValuestreamV1Schema
         400:
           description: Failure due to invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)
@@ -104,7 +104,7 @@ def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
           description: Get valuestream
           content:
             application/json:
-              schema: ExistingValuestreamSchema
+              schema: ExistingValuestreamV1Schema
         404:
           description: Valuestream not found
     """
@@ -142,18 +142,18 @@ def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamSchema
+            schema: NewValuestreamV1Schema
       responses:
         200:
           description: The valuestream was successfully updated
           content:
             application/json:
-              schema: ExistingValuestreamSchema
+              schema: ExistingValuestreamV1Schema
         400:
           description: Failure due to an invalid request
           content:
             application/json:
-              schema: ValidationErrorSchema
+              schema: ValidationErrorV1Schema
     """
     try:
         data = schema.load(request.json)

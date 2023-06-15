@@ -8,11 +8,11 @@ from app.models import Valuestream
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
-from .team import ExistingTeamSchema
-from .user import UserSchema
+from .team import ExistingTeamV1Schema
+from .user import UserV1Schema
 
 
-class ExistingValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ExistingValuestreamV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for existing valuestream model."""
 
     class Meta:
@@ -22,11 +22,11 @@ class ExistingValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
 
     organization_id = auto_field()
-    teams = fields.Nested(ExistingTeamSchema, many=True)
-    users = fields.Nested(UserSchema, many=True)
+    teams = fields.Nested(ExistingTeamV1Schema, many=True)
+    users = fields.Nested(UserV1Schema, many=True)
 
 
-class NewValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
+class NewValuestreamV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for new valuestream model."""
 
     class Meta:
@@ -39,13 +39,13 @@ class NewValuestreamSchema(SQLAlchemyAutoSchema, SchemaBase):
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
 
 
-class ValuestreamSchema:
+class ValuestreamV1Schema:
     """Contain both existing and new schemas."""
 
     def __init__(self):
         """Initialize."""
-        self.existing_schema = ExistingValuestreamSchema()
-        self.new_schema = NewValuestreamSchema()
+        self.existing_schema = ExistingValuestreamV1Schema()
+        self.new_schema = NewValuestreamV1Schema()
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""

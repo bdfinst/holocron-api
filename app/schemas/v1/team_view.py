@@ -10,7 +10,7 @@ from app.utils.input_validation import input_name_validator
 from ._base import SchemaBase
 
 
-class ExistingTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ExistingTeamViewV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Existing team schema."""
 
     class Meta:
@@ -32,7 +32,7 @@ class ExistingTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
     view_owner_id = auto_field()
 
 
-class NewTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
+class NewTeamViewV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """New team schema."""
 
     class Meta:
@@ -49,13 +49,13 @@ class NewTeamViewSchema(SQLAlchemyAutoSchema, SchemaBase):
     view_owner_id = fields.Int(required=True)
 
 
-class TeamViewSchema:
+class TeamViewV1Schema:
     """Contain both existing and new schemas."""
 
     def __init__(self):
         """Initialize."""
-        self.existing_schema = ExistingTeamViewSchema()
-        self.new_schema = NewTeamViewSchema()
+        self.existing_schema = ExistingTeamViewV1Schema()
+        self.new_schema = NewTeamViewV1Schema()
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""

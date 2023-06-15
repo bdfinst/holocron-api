@@ -7,10 +7,10 @@ from app.crud import users_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security
-from app.schemas.v1 import UserSchema
+from app.schemas.v1 import UserV1Schema
 from app.security import get_sanitized_id
 
-schema = UserSchema()
+schema = UserV1Schema()
 
 
 def list_users() -> Tuple[Any, int]:
@@ -29,7 +29,7 @@ def list_users() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
+                      $ref: '#/components/schemas/UserV1'
     """
     with generate_session() as session:
         raw_users = users_crud.get_entities(session)
@@ -56,7 +56,7 @@ def get_user(user_id: str) -> Tuple[Any, int]:
           description: Get user
           content:
             application/json:
-              schema: UserSchema
+              schema: UserV1Schema
         404:
           description: User not found
     """

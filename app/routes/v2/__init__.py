@@ -1,6 +1,8 @@
 """V2 routes."""
 from app.routes.v1 import *
 
+from .metrics import create_router as create_metrics_router
+
 
 def create_v2_router() -> Blueprint:
     """Router factory."""

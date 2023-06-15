@@ -8,11 +8,11 @@ from app.models import Organization
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
-from .user import UserSchema
-from .valuestream import ExistingValuestreamSchema
+from .user import UserV1Schema
+from .valuestream import ExistingValuestreamV1Schema
 
 
-class ExistingOrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ExistingOrganizationV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for existing organization model."""
 
     class Meta:
@@ -21,11 +21,11 @@ class ExistingOrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
         model = Organization
         include_relationships = True
 
-    valuestreams = fields.Nested(ExistingValuestreamSchema, many=True)
-    users = fields.Nested(UserSchema, many=True)
+    valuestreams = fields.Nested(ExistingValuestreamV1Schema, many=True)
+    users = fields.Nested(UserV1Schema, many=True)
 
 
-class NewOrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
+class NewOrganizationV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """New organization schema."""
 
     class Meta:
@@ -37,13 +37,13 @@ class NewOrganizationSchema(SQLAlchemyAutoSchema, SchemaBase):
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
 
 
-class OrganizationSchema:
+class OrganizationV1Schema:
     """Contain both existing and new schemas."""
 
     def __init__(self):
         """Initialize."""
-        self.existing_schema = ExistingOrganizationSchema()
-        self.new_schema = NewOrganizationSchema()
+        self.existing_schema = ExistingOrganizationV1Schema()
+        self.new_schema = NewOrganizationV1Schema()
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""

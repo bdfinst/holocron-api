@@ -40,7 +40,7 @@ def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
           description: Get organization metrics
           content:
             application/json:
-              schema: MetricsSchema
+              schema: MetricsV1Schema
         202:
           description: Metrics are still being processed
         404:
@@ -74,7 +74,7 @@ def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
           description: Get valuestream metrics
           content:
             application/json:
-              schema: ValuestreamMetricsSchema
+              schema: ValuestreamMetricsV1Schema
         202:
           description: Valuestreams are still being processed
         404:
@@ -118,7 +118,7 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
           description: Get team metrics
           content:
             application/json:
-              schema: TeamMetricsSchema
+              schema: TeamMetricsV1Schema
         202:
           description: Metrics are still being processed
         404:

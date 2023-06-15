@@ -7,7 +7,7 @@ from app.models import Member, TeamsMembers
 from ._base import SchemaBase
 
 
-class TeamMemberSchema(SQLAlchemyAutoSchema, SchemaBase):
+class TeamMemberV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Team member schema."""
 
     class Meta:
@@ -16,11 +16,11 @@ class TeamMemberSchema(SQLAlchemyAutoSchema, SchemaBase):
         model = TeamsMembers
         include_relationships = True
 
-    member = fields.Nested("MemberSchema", exclude=("teams",))
-    team = fields.Nested("ExistingTeamSchema", exclude=("members",), dump_only=True)
+    member = fields.Nested("MemberV1Schema", exclude=("teams",))
+    team = fields.Nested("ExistingTeamV1Schema", exclude=("members",), dump_only=True)
 
 
-class MemberSchema(SQLAlchemyAutoSchema, SchemaBase):
+class MemberV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Existing member schema."""
 
     class Meta:
@@ -29,4 +29,4 @@ class MemberSchema(SQLAlchemyAutoSchema, SchemaBase):
         model = Member
         include_relationships = True
 
-    teams = fields.Nested(TeamMemberSchema, many=True, exclude=("member",))
+    teams = fields.Nested(TeamMemberV1Schema, many=True, exclude=("member",))

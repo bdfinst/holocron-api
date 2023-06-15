@@ -7,10 +7,10 @@ from app.crud import tickets_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import TicketSchema
+from app.schemas.v1 import TicketV1Schema
 from app.security import get_sanitized_id
 
-schema = TicketSchema()
+schema = TicketV1Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
@@ -37,7 +37,7 @@ def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Ticket'
+                      $ref: '#/components/schemas/TicketV1'
         404:
           description: Team or team view not found
     """
@@ -72,7 +72,7 @@ def get_ticket(ticket_id: str) -> Tuple[Any, int]:
           description: Get single ticket by id
           content:
             application/json:
-              schema: TicketSchema
+              schema: TicketV1Schema
         404:
           description: Ticket not found
     """

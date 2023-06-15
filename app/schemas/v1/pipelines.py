@@ -7,10 +7,10 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from app.models import Pipeline
 
 from ._base import SchemaBase
-from .collector_target_config import ConfigItemSchema
+from .collector_target_config import ConfigItemV1Schema
 
 
-class PipelineSchema(SQLAlchemyAutoSchema, SchemaBase):
+class PipelineV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Pipeline model."""
 
     class Meta:
@@ -21,4 +21,4 @@ class PipelineSchema(SQLAlchemyAutoSchema, SchemaBase):
         exclude: Tuple[str, ...] = ("builds",)
 
     team_id = auto_field()
-    config = fields.Nested(ConfigItemSchema, many=True)
+    config = fields.Nested(ConfigItemV1Schema, many=True)

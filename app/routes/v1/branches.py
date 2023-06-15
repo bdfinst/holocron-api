@@ -7,10 +7,10 @@ from app.crud import branches_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import BranchSchema
+from app.schemas.v1 import BranchV1Schema
 from app.security import get_sanitized_id
 
-schema = BranchSchema()
+schema = BranchV1Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
@@ -37,7 +37,7 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Branch'
+                      $ref: '#/components/schemas/BranchV1'
         404:
           description: Team or team view not found
     """
@@ -72,7 +72,7 @@ def get_branch(branch_id: str) -> Tuple[Any, int]:
           description: Get single branch by id
           content:
             application/json:
-              schema: BranchSchema
+              schema: BranchV1Schema
         404:
           description: Branch not found
     """

@@ -9,11 +9,11 @@ from app.models import Team
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
-from .member import TeamMemberSchema
-from .user import UserSchema
+from .member import TeamMemberV1Schema
+from .user import UserV1Schema
 
 
-class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ExistingTeamV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Existing team schema."""
 
     class Meta:
@@ -24,13 +24,13 @@ class ExistingTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
         exclude = ("pipelines", "repositories", "ticket_boards")
 
     if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
-        members = fields.Nested(TeamMemberSchema, many=True, exclude=("team",))
-    users = fields.Nested(UserSchema, many=True)
+        members = fields.Nested(TeamMemberV1Schema, many=True, exclude=("team",))
+    users = fields.Nested(UserV1Schema, many=True)
     collector_targets = auto_field()
     valuestream_id = auto_field()
 
 
-class NewTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
+class NewTeamV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """New team schema."""
 
     class Meta:
@@ -46,13 +46,13 @@ class NewTeamSchema(SQLAlchemyAutoSchema, SchemaBase):
     valuestream_id = auto_field()
 
 
-class TeamSchema:
+class TeamV1Schema:
     """Contain both existing and new schemas."""
 
     def __init__(self):
         """Initialize."""
-        self.existing_schema = ExistingTeamSchema()
-        self.new_schema = NewTeamSchema()
+        self.existing_schema = ExistingTeamV1Schema()
+        self.new_schema = NewTeamV1Schema()
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""

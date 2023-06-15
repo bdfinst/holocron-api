@@ -7,7 +7,7 @@ from app.models import StatusHistory, Ticket
 from ._base import SchemaBase
 
 
-class StatusHistorySchema(SQLAlchemyAutoSchema, SchemaBase):
+class StatusHistoryV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Ticket StatusHistory model."""
 
     class Meta:
@@ -16,7 +16,7 @@ class StatusHistorySchema(SQLAlchemyAutoSchema, SchemaBase):
         model = StatusHistory
 
 
-class TicketSchema(SQLAlchemyAutoSchema, SchemaBase):
+class TicketV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Ticket model."""
 
     class Meta:
@@ -24,4 +24,4 @@ class TicketSchema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Ticket
 
-    status_history = fields.Nested(StatusHistorySchema, many=True)
+    status_history = fields.Nested(StatusHistoryV1Schema, many=True)

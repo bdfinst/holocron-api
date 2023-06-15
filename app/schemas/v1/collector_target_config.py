@@ -6,7 +6,7 @@ from app.models.collector_target import ConfigItem
 from ._base import SchemaBase
 
 
-class ConfigItemSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ConfigItemV1Schema(SQLAlchemyAutoSchema, SchemaBase):
     """Schema for Collector Target Config Item model."""
 
     class Meta:

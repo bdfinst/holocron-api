@@ -7,10 +7,10 @@ from app.crud import repositories_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v1 import RepositorySchema
+from app.schemas.v1 import RepositoryV1Schema
 from app.security import get_sanitized_id
 
-schema = RepositorySchema()
+schema = RepositoryV1Schema()
 
 
 def list_repositories() -> Tuple[Any, int]:
@@ -29,7 +29,7 @@ def list_repositories() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Repository'
+                      $ref: '#/components/schemas/RepositoryV1'
     """
     with generate_session() as session:
         raw_repositories = repositories_crud.get_entities(session)
@@ -62,7 +62,7 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Repository'
+                      $ref: '#/components/schemas/RepositoryV1'
         404:
           description: Team or team view not found
     """
@@ -96,7 +96,7 @@ def get_repository(repo_id: str) -> Tuple[Any, int]:
           description: Get single repository by id
           content:
             application/json:
-              schema: RepositorySchema
+              schema: RepositoryV1Schema
         404:
           description: Repository not found
     """
