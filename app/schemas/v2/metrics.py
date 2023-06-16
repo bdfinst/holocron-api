@@ -19,10 +19,10 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
     """Schema for historical data of team metrics."""
 
     week = String()
-    hours_spent_on_features = Number()
-    hours_spent_on_defects = Number()
-    hours_spent_on_maintenance = Number()
-    hours_spent_on_unplanned = Number()
+    days_spent_on_features = Number()
+    days_spent_on_defects = Number()
+    days_spent_on_maintenance = Number()
+    days_spent_on_unplanned = Number()
     if FEATURE_FLAGS["FEATURE_COST_METRICS"]:
         amount_spent_on_features = Number()
         amount_spent_on_defects = Number()
