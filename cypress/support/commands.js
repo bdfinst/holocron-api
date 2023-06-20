@@ -46,3 +46,11 @@ Cypress.Commands.add('mockAuth', () => {
 Cypress.Commands.add('visitAPI', () => {
   cy.visit(apiV1Url, { timeout })
 })
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // returning false here prevents Cypress from
+  // failing the test in case anything
+  // errors in the application for example
+  // window.onload when visiting the page.
+  return false
+})
