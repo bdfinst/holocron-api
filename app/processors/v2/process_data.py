@@ -32,10 +32,10 @@ class HistoricalData(NamedTuple):
     """Historical data type."""
 
     week: str
-    hours_spent_on_features: float
-    hours_spent_on_defects: float
-    hours_spent_on_maintenance: float
-    hours_spent_on_unplanned: float
+    days_spent_on_features: float
+    days_spent_on_defects: float
+    days_spent_on_maintenance: float
+    days_spent_on_unplanned: float
     amount_spent_on_features: float
     amount_spent_on_defects: float
     amount_spent_on_maintenance: float
@@ -115,16 +115,16 @@ def build_historical_data(
     return [
         HistoricalData(
             week=week,
-            hours_spent_on_features=type_fixed_sum(
+            days_spent_on_features=type_fixed_sum(
                 data["effort_hours"]["feature"].get(week, [])
             ),
-            hours_spent_on_defects=type_fixed_sum(
+            days_spent_on_defects=type_fixed_sum(
                 data["effort_hours"]["defect_effort"].get(week, [])
             ),
-            hours_spent_on_maintenance=type_fixed_sum(
+            days_spent_on_maintenance=type_fixed_sum(
                 data["effort_hours"]["maintenance"].get(week, [])
             ),
-            hours_spent_on_unplanned=type_fixed_sum(
+            days_spent_on_unplanned=type_fixed_sum(
                 data["effort_hours"]["unplanned"].get(week, [])
             ),
             amount_spent_on_features=type_fixed_sum(
