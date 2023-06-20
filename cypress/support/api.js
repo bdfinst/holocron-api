@@ -85,6 +85,7 @@ Cypress.Commands.add('apiCreateOrganization', orgName =>
     })
   }),
 )
+
 Cypress.Commands.add('apiCreateTeam', (teamName,collectorTargetIds, teamSize, valuestreamId) =>
   cy.apiGetUsers().then(resp => {
     expect(resp.status).to.equal(200)
@@ -127,21 +128,18 @@ Cypress.Commands.add('apiGetAvailableTicketBoard', () => {
     const { result: teams } = resp.body
     expect(teams).length.gt(0)
 
-    var activeCollectorTargets = []
-    teams.forEach((team) => {
-      activeCollectorTargets.push(...team.collectorTargets);
-    });
+    const activeCollectorTargetsIds = teams.flatMap(team => team.collectorTargets)
+    const activeCollectorTargetIdsTable = {}
+    for (const id of activeCollectorTargetsIds){
+      activeCollectorTargetIdsTable[id] = true
+    }
 
     cy.apiGetTicketBoards().then(resp =>{
       expect(resp.status).to.equal(200)
       const { result: ticketBoards } = resp.body
       expect(ticketBoards).length.gt(0)
-      var allBoards = []
-      ticketBoards.forEach((board) => {
-        allBoards.push(board.id);
-      });
-      const id = allBoards.find(boardId => !activeCollectorTargets.includes(boardId))
-      cy.wrap({ id: id})
+      const inActiveBoard = ticketBoards.find(board => !(board.id in activeCollectorTargetIdsTable))
+      cy.wrap({ id: inActiveBoard.id})
     })
   })
 })
