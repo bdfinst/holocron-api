@@ -16,7 +16,17 @@ class TeamMemberV1Schema(SQLAlchemyAutoSchema, SchemaBase):
         model = TeamsMembers
         include_relationships = True
 
-    member = fields.Nested("MemberV1Schema", exclude=("teams",))
+    class MemberNoTeamV1Schema(SQLAlchemyAutoSchema, SchemaBase):
+        """Member schema with teams excluded."""
+
+        class Meta:
+            """Configuration."""
+
+            model = Member
+            include_relationships = True
+            exclude = ("teams",)
+
+    member = fields.Nested("MemberNoTeamV1Schema")
     team = fields.Nested("ExistingTeamV1Schema", exclude=("members",), dump_only=True)
 
 
@@ -29,4 +39,14 @@ class MemberV1Schema(SQLAlchemyAutoSchema, SchemaBase):
         model = Member
         include_relationships = True
 
-    teams = fields.Nested(TeamMemberV1Schema, many=True, exclude=("member",))
+    class TeamMemberNoMemberV1Schema(SQLAlchemyAutoSchema, SchemaBase):
+        """Team member with member excluded."""
+
+        class Meta:
+            """Configuration."""
+
+            model = TeamsMembers
+            include_relationships = True
+            exclude = ("member",)
+
+    teams = fields.Nested("TeamMemberNoMemberV1Schema", many=True)

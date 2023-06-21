@@ -96,13 +96,13 @@ def update_team_members(team_id: str) -> Tuple[Any, int]:
                 teamMembers:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TeamMemberV11'
+                    $ref: '#/components/schemas/TeamMemberV1'
       responses:
         200:
           description: Update members of team
           content:
             application/json:
-              schema: ExistingTeamV11
+              schema: ExistingTeamV1
         404:
           description: Team not found
     """
