@@ -35,7 +35,6 @@ def mock_session():
 @fixture
 def application(monkeypatch):
     """Run application factory."""
-    warnings.filterwarnings("ignore", message="Multiple schemas resolved to the name")
     monkeypatch.setattr(app.app.Database, "establish_connection", MagicMock())
     monkeypatch.setattr(app.app, "organizations_cache_v1", MagicMock())
     monkeypatch.setattr(app.app, "organizations_cache_v2", MagicMock())
