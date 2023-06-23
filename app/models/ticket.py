@@ -12,9 +12,13 @@ class Ticket(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "tickets"
-    __table_args__ = (UniqueConstraint("ticket_id", "board_id"),)
+    __table_args__ = (
+        UniqueConstraint("ticket_id", "board_id"),
+        UniqueConstraint("resource_id", "board_id"),
+    )
 
     ticket_id: Mapped[int]
+    resource_id: Mapped[Optional[str]]
     status: Mapped[str]
     ticket_type: Mapped[Optional[str]]
     priority: Mapped[Optional[str]]

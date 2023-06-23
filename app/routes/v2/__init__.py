@@ -1,7 +1,15 @@
 """V2 routes."""
 from app.routes.v1 import *
 
+from .branches import create_router as create_branch_router
+from .builds import create_router as create_build_router
+from .commits import create_router as create_commit_router
+from .git_requests import create_router as create_git_request_router
 from .metrics import create_router as create_metrics_router
+from .pipelines import create_router as create_pipeline_router
+from .repositories import create_router as create_repository_router
+from .ticket_boards import create_router as create_ticket_board_router
+from .tickets import create_router as create_ticket_router
 
 
 def create_v2_router() -> Blueprint:

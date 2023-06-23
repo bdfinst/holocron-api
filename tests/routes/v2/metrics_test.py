@@ -39,7 +39,7 @@ def mock_non_admin(monkeypatch, mock_request):
 
 
 def test_get_organization_metrics(client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics/organization/:id endpoint."""
+    """Test GET /api/v2/metrics/organization/:id endpoint."""
     resp = client.get("/api/v2/metrics/organization/1")
 
     assert resp.json["result"][0]["organization_name"] == "org_name_test"
@@ -47,7 +47,7 @@ def test_get_organization_metrics(client, mock_cache, mock_admin):
 
 
 def test_get_organization_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
-    """Test GET /api/v1/metrics/organization/:id endpoint."""
+    """Test GET /api/v2/metrics/organization/:id endpoint."""
     expected = "Resource not found"
     monkeypatch.setattr(auth, "organizations_crud", crud)
 
@@ -57,7 +57,7 @@ def test_get_organization_metrics_404(monkeypatch, client, mock_cache, mock_non_
 
 
 def test_get_organization_metrics_202(client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics:id endpoint."""
+    """Test GET /api/v2/metrics:id endpoint."""
     expected = "Processing not completed"
 
     resp = client.get("/api/v2/metrics/organization/42")
@@ -67,7 +67,7 @@ def test_get_organization_metrics_202(client, mock_cache, mock_admin):
 
 
 def test_get_valuestream_metrics(monkeypatch, client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics/valuestream/:id endpoint."""
+    """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     monkeypatch.setattr(
         metrics.valuestreams_crud,
         "get_entity",
@@ -80,7 +80,7 @@ def test_get_valuestream_metrics(monkeypatch, client, mock_cache, mock_admin):
 
 
 def test_get_valuestream_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
-    """Test GET /api/v1/metrics/valuestream/:id endpoint."""
+    """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     expected = "Resource not found"
     monkeypatch.setattr(auth, "valuestreams_crud", crud)
     resp = client.get("/api/v2/metrics/valuestream/-1")
@@ -89,7 +89,7 @@ def test_get_valuestream_metrics_404(monkeypatch, client, mock_cache, mock_non_a
 
 
 def test_get_valuestream_metrics_202(monkeypatch, client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics/valuestream/:id endpoint."""
+    """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     expected = "Processing not completed"
     monkeypatch.setattr(
         metrics.valuestreams_crud,
@@ -102,7 +102,7 @@ def test_get_valuestream_metrics_202(monkeypatch, client, mock_cache, mock_admin
 
 
 def test_get_team_metrics(monkeypatch, client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics/team/:id endpoint."""
+    """Test GET /api/v2/metrics/team/:id endpoint."""
     monkeypatch.setattr(
         metrics.teams_crud,
         "get_entity",
@@ -120,7 +120,7 @@ def test_get_team_metrics(monkeypatch, client, mock_cache, mock_admin):
 
 
 def test_get_team_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
-    """Test GET /api/v1/metrics/team/:id endpoint."""
+    """Test GET /api/v2/metrics/team/:id endpoint."""
     expected = "Resource not found"
     monkeypatch.setattr(auth, "teams_crud", crud)
     resp = client.get("/api/v2/metrics/team/-1")
@@ -129,7 +129,7 @@ def test_get_team_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
 
 
 def test_get_team_metrics_202(monkeypatch, client, mock_cache, mock_admin):
-    """Test GET /api/v1/metrics/team/:id endpoint."""
+    """Test GET /api/v2/metrics/team/:id endpoint."""
     expected = "Processing not completed"
     monkeypatch.setattr(
         metrics.teams_crud,

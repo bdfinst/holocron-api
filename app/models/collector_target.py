@@ -12,12 +12,17 @@ class CollectorTarget(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "collector_targets"
-    __table_args__ = (UniqueConstraint("collector_id", "url"),)
+    __table_args__ = (
+        UniqueConstraint("collector_id", "url"),
+        UniqueConstraint("collector_id", "resource_id"),
+    )
 
     url: Mapped[str]
     name: Mapped[Optional[str]]
+    type: Mapped[Optional[str]]
 
     collector_id: Mapped[int] = mapped_column(ForeignKey(Collector.id))
+    resource_id: Mapped[Optional[str]] = mapped_column(index=True)
     last_collected: Mapped[Optional[int]] = mapped_column(BigInteger)
     team_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL")

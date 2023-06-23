@@ -30,6 +30,7 @@ tickets = [
     Ticket(
         board_id=1,
         ticket_id=1,
+        resource_id=1,
         assignee="nobody",
         status="Done",
         ticket_type="Bug",
@@ -40,6 +41,7 @@ tickets = [
     Ticket(
         board_id=2,
         ticket_id=2,
+        resource_id=2,
         assignee="somebody",
         status="In Progress",
         ticket_type="Feature",
@@ -58,6 +60,8 @@ def create_ticket_board(
     tickets=tickets,
     last_collected=datetime(2020, 6, 17).timestamp(),
     board_id=1,
+    resource_id=1,
+    type="workflow",
     team_id=None,
 ):
     """Create mock ticket_board object with default values."""
@@ -68,6 +72,8 @@ def create_ticket_board(
         tickets=tickets,
         last_collected=last_collected,
         board_id=board_id,
+        resource_id=resource_id,
+        type=type,
         team_id=team_id,
     )
     ticket_board.id = id

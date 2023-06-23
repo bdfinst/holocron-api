@@ -28,6 +28,7 @@ def test_get_last_activity_date(monkeypatch):
             Ticket(
                 board_id=1,
                 ticket_id=200,
+                resource_id=200,
                 assignee="someone",
                 status=IN_PROGRESS_STATUS,
                 ticket_type="Feature",
@@ -53,6 +54,7 @@ def test_get_last_activity_date(monkeypatch):
             Ticket(
                 board_id=1,
                 ticket_id=200,
+                resource_id=200,
                 assignee="someone",
                 status=TO_DO_STATUS,
                 ticket_type="Feature",
@@ -84,6 +86,7 @@ def test_get_last_activity_date(monkeypatch):
             Ticket(
                 board_id=1,
                 ticket_id=200,
+                resource_id=200,
                 assignee="someone",
                 status=TO_DO_STATUS,
                 ticket_type="Feature",
@@ -135,6 +138,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
@@ -169,6 +173,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
@@ -208,6 +213,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
@@ -267,6 +273,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -326,6 +333,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -352,6 +360,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -379,6 +388,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
@@ -402,6 +412,7 @@ def test_cumulative_flow(monkeypatch):
                 Ticket(
                     board_id=1,
                     ticket_id=201,
+                    resource_id=201,
                     assignee="someone",
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
@@ -419,6 +430,7 @@ def test_cumulative_flow(monkeypatch):
                     # that go from done to to_do or in progress again
                     board_id=1,
                     ticket_id=201,
+                    resource_id=201,
                     assignee="someone",
                     status=TO_DO_STATUS,
                     ticket_type="Feature",
@@ -475,6 +487,7 @@ def test_get_hist_stat_at_date():
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -510,6 +523,7 @@ def test_get_hist_stat_at_date():
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -545,6 +559,7 @@ def test_get_hist_stat_at_date():
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -579,6 +594,7 @@ def test_get_hist_stat_at_date():
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
@@ -608,6 +624,7 @@ def test_get_hist_stat_at_date():
                 Ticket(
                     board_id=1,
                     ticket_id=200,
+                    resource_id=200,
                     assignee="someone",
                     status=IN_PROGRESS_STATUS,
                     ticket_type="Feature",
