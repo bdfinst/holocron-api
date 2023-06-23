@@ -40,6 +40,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -66,6 +67,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=2,
+                    resource_id=2,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -92,6 +94,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=3,
+                    resource_id=3,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Maintenance",
@@ -118,6 +121,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=4,
+                    resource_id=4,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Unplanned",
@@ -157,6 +161,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -188,6 +193,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=2,
+                    resource_id=2,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -232,6 +238,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -267,6 +274,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",
@@ -308,6 +316,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Feature",

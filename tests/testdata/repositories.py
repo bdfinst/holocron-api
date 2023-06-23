@@ -54,6 +54,8 @@ def create_repository(
     trunk_branch="master",
     last_collected=datetime(2020, 7, 17).timestamp(),
     repository_id=1,
+    resource_id=1,
+    type="scm",
     team_id=None,
 ):
     """Create mock repository object with default values."""
@@ -67,6 +69,8 @@ def create_repository(
         trunk_branch=trunk_branch,
         last_collected=last_collected,
         repository_id=repository_id,
+        resource_id=resource_id,
+        type=type,
         team_id=team_id,
     )
     repository.id = id

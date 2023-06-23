@@ -33,6 +33,8 @@ def create_pipeline(
     builds=builds,
     last_collected=datetime(2020, 5, 17).timestamp(),
     pipeline_id=1,
+    resource_id=1,
+    type="build",
     team_id=None,
 ):
     """Create mock pipeline object with default values."""
@@ -43,6 +45,8 @@ def create_pipeline(
         builds=builds,
         last_collected=last_collected,
         pipeline_id=pipeline_id,
+        resource_id=resource_id,
+        type=type,
         team_id=team_id,
     )
     pipeline.id = id

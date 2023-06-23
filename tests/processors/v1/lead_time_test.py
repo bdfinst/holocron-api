@@ -63,6 +63,7 @@ def test_process_lead_time(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=28,
+                    resource_id=28,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Task",
@@ -85,6 +86,7 @@ def test_process_lead_time(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=27,
+                    resource_id=27,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Epic",

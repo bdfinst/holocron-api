@@ -65,6 +65,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=1,
+                    resource_id=1,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Task",
@@ -91,6 +92,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=2,
+                    resource_id=2,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -117,6 +119,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=3,
+                    resource_id=3,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -143,6 +146,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=4,
+                    resource_id=4,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -169,6 +173,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=5,
+                    resource_id=5,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -195,6 +200,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=6,
+                    resource_id=6,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
@@ -221,6 +227,7 @@ def test_process_cycle_time_defect(mock_config):
                 Ticket(
                     board_id=1,
                     ticket_id=7,
+                    resource_id=7,
                     assignee="someone",
                     status=DONE_STATUS,
                     ticket_type="Bug",
