@@ -1,11 +1,20 @@
 """Holocron collector target model."""
+import enum
 from typing import List, Optional
 
-from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint
+from sqlalchemy import BigInteger, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
 from .collector import Collector
+
+
+class CollectorTargetType(enum.Enum):
+    """Enum for 'type' field of CollectorTarget."""
+
+    BUILD = "BUILD"
+    SCM = "SCM"
+    WORKFLOW = "WORKFLOW"
 
 
 class CollectorTarget(MetadataBase, ModelBase):
@@ -19,8 +28,10 @@ class CollectorTarget(MetadataBase, ModelBase):
 
     url: Mapped[str]
     name: Mapped[Optional[str]]
-    type: Mapped[Optional[str]]
 
+    type: Mapped[Optional[CollectorTargetType]] = mapped_column(
+        Enum(CollectorTargetType, create_constraint=True)
+    )
     collector_id: Mapped[int] = mapped_column(ForeignKey(Collector.id))
     resource_id: Mapped[Optional[str]] = mapped_column(index=True)
     last_collected: Mapped[Optional[int]] = mapped_column(BigInteger)
