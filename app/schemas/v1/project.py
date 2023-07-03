@@ -1,0 +1,24 @@
+"""Schema for Project model."""
+from typing import Tuple
+
+from marshmallow import fields
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+
+from app.models import Project
+
+from ._base import SchemaBase
+from .collector_target_config import ConfigItemV1Schema
+
+
+class ProjectV1Schema(SQLAlchemyAutoSchema, SchemaBase):
+    """Schema for Project model."""
+
+    class Meta:
+        """Configuration."""
+
+        model = Project
+        include_relationships = True
+        exclude: Tuple[str, ...] = ("issues",)
+
+    team_id = auto_field()
+    config = fields.Nested(ConfigItemV1Schema, many=True)

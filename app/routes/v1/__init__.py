@@ -13,6 +13,8 @@ from .metrics import create_router as create_metrics_router
 from .organizations import create_router as create_organization_router
 from .pay_rates import create_router as create_pay_rate_router
 from .pipelines import create_router as create_pipeline_router
+from .project_issues import create_router as create_project_issue_router
+from .projects import create_router as create_project_router
 from .repositories import create_router as create_repository_router
 from .teams import create_router as create_team_router
 from .ticket_boards import create_router as create_ticket_board_router
@@ -36,6 +38,9 @@ def create_v1_router() -> Blueprint:
     if FEATURE_FLAGS["FEATURE_COST_METRICS"]:
         router.register_blueprint(create_pay_rate_router())
     router.register_blueprint(create_pipeline_router())
+    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
+        router.register_blueprint(create_project_issue_router())
+        router.register_blueprint(create_project_router())
     router.register_blueprint(create_repository_router())
     router.register_blueprint(create_team_router())
     router.register_blueprint(create_ticket_board_router())

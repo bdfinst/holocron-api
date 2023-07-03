@@ -8,6 +8,7 @@ from ._base import MetadataBase, ModelBase
 from .collector_target import CollectorTarget
 from .member import TeamsMembers
 from .pipeline import Pipeline
+from .project import Project
 from .repository import Repository
 from .ticket_board import TicketBoard
 from .user import User
@@ -43,6 +44,9 @@ class Team(MetadataBase, ModelBase):
         default_factory=list, back_populates="team"
     )
     pipelines: Mapped[List["Pipeline"]] = relationship(
+        overlaps="collector_targets", default_factory=list
+    )
+    projects: Mapped[List["Project"]] = relationship(
         overlaps="collector_targets", default_factory=list
     )
     repositories: Mapped[List["Repository"]] = relationship(

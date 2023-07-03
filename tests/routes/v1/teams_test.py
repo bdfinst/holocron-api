@@ -457,6 +457,7 @@ def test_create_team_view(
                 team_size=1,
                 users=[],
                 pipelines=[],
+                projects=[],
                 repositories=[],
                 ticket_boards=[],
                 view_owner_id=1,
@@ -520,6 +521,7 @@ def test_update_team_view(
             return_value=create_team_view(
                 name="test_view2",
                 pipelines=[],
+                projects=[],
                 repositories=[],
                 ticket_boards=[],
                 view_owner_id=1,

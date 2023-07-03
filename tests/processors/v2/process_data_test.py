@@ -121,6 +121,7 @@ def test_process_organization(monkeypatch):
                 "build": datetime(2020, 5, 17).timestamp(),
                 "workflow": datetime(2020, 6, 17).timestamp(),
                 "scm": datetime(2020, 7, 17).timestamp(),
+                "project_analysis": datetime(2020, 8, 17).timestamp(),
             },
         )
     ]

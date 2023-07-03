@@ -55,6 +55,10 @@ MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
 PIPLINE_PASSED_STATUS = "success"
 
 FEATURE_FLAGS = {
+    "FEATURE_PROJECT_ANALYSIS": os.environ.get(
+        "FEATURE_PROJECT_ANALYSIS", "false"
+    ).lower()
+    == "true",
     "FEATURE_TEAM_VIEWS": os.environ.get("FEATURE_TEAM_VIEWS", "false").lower()
     == "true",
     "FEATURE_COST_METRICS": os.environ.get("FEATURE_COST_METRICS", "false").lower()
