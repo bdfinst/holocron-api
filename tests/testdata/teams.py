@@ -2,6 +2,7 @@
 from app.models import Team
 
 from .pipelines import mock_pipelines, mock_pipelines_last_collected
+from .projects import mock_projects, mock_projects_last_collected
 from .repositories import mock_repositories, mock_repositories_last_collected
 from .ticket_boards import mock_ticket_boards, mock_ticket_boards_last_collected
 from .users import mock_users
@@ -12,6 +13,7 @@ def create_team(
     name="mock team",
     team_size=5,
     pipelines=mock_pipelines,
+    projects=mock_projects,
     repositories=mock_repositories,
     ticket_boards=mock_ticket_boards,
     users=mock_users,
@@ -25,6 +27,7 @@ def create_team(
         name=name,
         team_size=team_size,
         pipelines=pipelines,
+        projects=projects,
         repositories=repositories,
         ticket_boards=ticket_boards,
         users=users,
@@ -42,6 +45,7 @@ def create_team_view(
     name="mock team view",
     team_size=5,
     pipelines=mock_pipelines,
+    projects=mock_projects,
     repositories=mock_repositories,
     ticket_boards=mock_ticket_boards,
     users=mock_users,
@@ -55,6 +59,7 @@ def create_team_view(
         name=name,
         team_size=team_size,
         pipelines=pipelines,
+        projects=projects,
         repositories=repositories,
         ticket_boards=ticket_boards,
         users=users,
@@ -72,4 +77,5 @@ mock_team_last_collected = create_team(
     pipelines=mock_pipelines_last_collected,
     ticket_boards=mock_ticket_boards_last_collected,
     repositories=mock_repositories_last_collected,
+    projects=mock_projects_last_collected,
 )

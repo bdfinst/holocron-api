@@ -20,6 +20,7 @@ class ExistingTeamViewV1Schema(SQLAlchemyAutoSchema, SchemaBase):
         include_relationships = True
         exclude = (
             "pipelines",
+            "projects",
             "repositories",
             "ticket_boards",
             "users",

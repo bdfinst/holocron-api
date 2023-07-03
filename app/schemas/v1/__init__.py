@@ -9,6 +9,8 @@ from .metrics import MetricsV1Schema
 from .organization import OrganizationV1Schema
 from .pay_rate import MultiplePayRateV1Schema, PayRateV1Schema
 from .pipelines import PipelineV1Schema
+from .project import ProjectV1Schema
+from .project_issue import ProjectIssueV1Schema
 from .repository import RepositoryV1Schema
 from .team import TeamV1Schema
 from .team_view import TeamViewV1Schema

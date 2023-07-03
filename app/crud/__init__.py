@@ -8,6 +8,8 @@ from .members import members_crud, teams_members_crud
 from .organizations import organizations_crud
 from .pay_rates import pay_rates_crud
 from .pipelines import pipelines_crud
+from .project_issues import project_issues_crud
+from .projects import projects_crud
 from .repositories import repositories_crud
 from .team_views import team_views_crud
 from .teams import teams_crud

@@ -290,6 +290,13 @@ def process_team(
                     if pipe.last_collected is not None
                 ]
             ),
+            "project_analysis": get_latest_time(
+                [
+                    project.last_collected
+                    for project in team.projects
+                    if project.last_collected is not None
+                ]
+            ),
         },
     )
 

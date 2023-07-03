@@ -1,6 +1,5 @@
 """BaseCRUD extension and instance for Build model."""
-from app.models import Build
-from app.models.pipeline import Pipeline
+from app.models import Build, Pipeline
 
 from ._base_metric import BaseMetricCRUD
 

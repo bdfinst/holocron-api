@@ -13,6 +13,7 @@ class CollectorTargetType(enum.Enum):
     """Enum for 'type' field of CollectorTarget."""
 
     BUILD = "BUILD"
+    PROJECT_ANALYSIS = "PROJECT_ANALYSIS"
     SCM = "SCM"
     WORKFLOW = "WORKFLOW"
 

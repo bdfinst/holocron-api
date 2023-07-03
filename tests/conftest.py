@@ -47,7 +47,11 @@ def application(monkeypatch):
     monkeypatch.setattr(
         app.routes.v1,
         "FEATURE_FLAGS",
-        {"FEATURE_COST_METRICS": True, "FEATURE_EXTERNAL_CONTRIBUTORS": True},
+        {
+            "FEATURE_COST_METRICS": True,
+            "FEATURE_EXTERNAL_CONTRIBUTORS": True,
+            "FEATURE_PROJECT_ANALYSIS": True,
+        },
     )
     application = app.create_app()
     application.register_blueprint(create_v2_router())
