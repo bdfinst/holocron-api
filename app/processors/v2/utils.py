@@ -5,9 +5,20 @@ from typing import List
 from .types import DateValue, WeeklyData
 
 
+def get_monday(date: datetime) -> datetime:
+    """Return the monday of a given date's week."""
+    return date - timedelta(
+        days=date.weekday(),
+        hours=date.hour,
+        minutes=date.minute,
+        seconds=date.second,
+        microseconds=date.microsecond,
+    )
+
+
 def get_monday_string(date: datetime) -> str:
     """Return the formatted YYYY-MM-DD of the date's week's Monday."""
-    monday = date - timedelta(days=date.weekday())
+    monday = get_monday(date)
     date_format = "%Y-%m-%d"
     return monday.strftime(date_format)
 

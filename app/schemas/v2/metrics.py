@@ -3,7 +3,12 @@ from marshmallow import Schema
 from marshmallow.fields import Boolean, Dict, Field, Int, List, Nested, Number, String
 
 from app.config import FEATURE_FLAGS
-from app.schemas.v1 import BranchV1Schema, BuildV1Schema, GitRequestV1Schema
+from app.schemas.v1 import (
+    BranchV1Schema,
+    BuildV1Schema,
+    GitRequestV1Schema,
+    ProjectIssueV1Schema,
+)
 from app.schemas.v1._base import camelcase
 
 
@@ -48,6 +53,8 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
     high_priority_defects_created = Number()
     medium_priority_defects_created = Number()
     low_priority_defects_created = Number()
+    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
+        maintainability_score = Number()
 
 
 class MetricsV2Schema(MetricsSchemaBase):
@@ -65,5 +72,7 @@ class MetricsV2Schema(MetricsSchemaBase):
     stale_merge_requests = Nested(GitRequestV1Schema, many=True)
     stale_branches = Nested(BranchV1Schema, many=True)
     latest_builds = Nested(BuildV1Schema, many=True)
+    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
+        active_issues = Nested(ProjectIssueV1Schema, many=True)
     historical_data = Nested(HistoricalDataV2Schema, many=True)
     last_updated = Dict(keys=String(), values=Int())
