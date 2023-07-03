@@ -8,6 +8,7 @@ from app.models import (
     Build,
     GitRequest,
     Organization,
+    ProjectIssue,
     Team,
     Ticket,
     Valuestream,
@@ -23,6 +24,7 @@ from .deploy_frequency import process_deploy_frequency
 from .effort import process_effort
 from .integration_frequency import process_integration_frequency
 from .lead_time import process_lead_time
+from .maintainability import process_maintainability_score
 from .team_history import process_team_history
 from .types import ChartData
 from .utils import average
@@ -58,6 +60,7 @@ class HistoricalData(NamedTuple):
     high_priority_defects_created: int
     medium_priority_defects_created: int
     low_priority_defects_created: int
+    maintainability_score: int
 
 
 class TeamMetrics(NamedTuple):
@@ -75,6 +78,7 @@ class TeamMetrics(NamedTuple):
     stale_merge_requests: List[GitRequest]
     stale_branches: List[Branch]
     latest_builds: List[Build]
+    active_issues: List[ProjectIssue]
     historical_data: List[HistoricalData]
     last_updated: Dict[str, Any]
 
@@ -195,6 +199,9 @@ def build_historical_data(
             low_priority_defects_created=len(
                 data["cycle_time_defect"]["low_defects"].get(week, [])
             ),
+            maintainability_score=type_fixed_sum(
+                data["maintainability_score"]["maintainability_score"].get(week, [])
+            ),
         )
         for week in sorted(weeks)
     ]
@@ -233,6 +240,9 @@ def process_team(
     cycle_time_defect = process_cycle_time_defect(tickets)
     wip_load = process_wip_load(tickets)
 
+    issues = flat_map(team.projects, lambda project: project.issues)
+    maintainability_score = process_maintainability_score(issues)
+
     historical_data = build_historical_data(
         team,
         {
@@ -244,6 +254,7 @@ def process_team(
             "integration_frequency": integration_frequency,
             "deploy_frequency": deploy_frequency,
             "review_frequency": review_frequency,
+            "maintainability_score": maintainability_score,
             "team_history": team_history,
         },
     )
@@ -267,6 +278,7 @@ def process_team(
             b for b in branches if (datetime.now() - b.last_updated) > timedelta(days=1)
         ],
         latest_builds=builds,
+        active_issues=[i for i in issues if i.closed_date is None],
         historical_data=historical_data,
         last_updated={
             "workflow": get_latest_time(

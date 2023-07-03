@@ -11,8 +11,8 @@ issues = [
         severity=ProjectIssueSeverity.LOW,
         type=ProjectIssueType.MAINTAINABILITY,
         issue_url="test.com/1",
-        created_date=datetime(2020, 1, 1),
-        closed_date=datetime(2020, 2, 1),
+        created_date=datetime(2000, 1, 1),
+        closed_date=datetime(2000, 1, 21),
     ),
     ProjectIssue(
         resource_id="2",
@@ -21,7 +21,7 @@ issues = [
         severity=ProjectIssueSeverity.MEDIUM,
         type=ProjectIssueType.MAINTAINABILITY,
         issue_url="test.com/2",
-        created_date=datetime(2020, 2, 1),
+        created_date=datetime(2000, 1, 8),
         closed_date=None,
     ),
     ProjectIssue(
@@ -31,7 +31,7 @@ issues = [
         severity=ProjectIssueSeverity.LOW,
         type=ProjectIssueType.VULNERABILITY,
         issue_url="test.com/3",
-        created_date=datetime(2020, 1, 1),
+        created_date=datetime(2000, 1, 1),
         closed_date=None,
     ),
 ]

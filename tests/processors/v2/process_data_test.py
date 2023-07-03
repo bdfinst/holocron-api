@@ -1,7 +1,7 @@
 """Processor process_data test."""
 from datetime import datetime
 
-from app.processors.v2 import cumulative_flow, effort, process_data
+from app.processors.v2 import cumulative_flow, effort, maintainability, process_data
 from app.processors.v2.process_data import (
     HistoricalData,
     TeamMetrics,
@@ -15,6 +15,7 @@ from tests.testdata import (
     branches,
     builds,
     git_requests,
+    issues,
     mock_organizations,
     mock_teams,
     mock_valuestreams,
@@ -39,6 +40,7 @@ def test_process_organization(monkeypatch):
     """Integration testing for the overall process organization."""
     monkeypatch.setattr(cumulative_flow, "datetime", mock_dt)
     monkeypatch.setattr(effort, "datetime", mock_dt)
+    monkeypatch.setattr(maintainability, "datetime", mock_dt)
     monkeypatch.setattr(
         process_data, "FEATURE_FLAGS", {"FEATURE_DEPLOY_FREQUENCY": True}
     )
@@ -57,6 +59,7 @@ def test_process_organization(monkeypatch):
             stale_merge_requests=git_requests,
             stale_branches=branches,
             latest_builds=[builds[1]],
+            active_issues=[issues[1], issues[2]],
             historical_data=[
                 HistoricalData(
                     week="2000-01-03",
@@ -86,6 +89,7 @@ def test_process_organization(monkeypatch):
                     high_priority_defects_created=0,
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
+                    maintainability_score=1,
                 ),
                 HistoricalData(
                     week="2000-01-10",
@@ -115,6 +119,7 @@ def test_process_organization(monkeypatch):
                     high_priority_defects_created=0,
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
+                    maintainability_score=4,
                 ),
             ],
             last_updated={
