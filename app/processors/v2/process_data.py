@@ -1,6 +1,6 @@
 """Process metrics data."""
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple, Set
 
 from app.config import FEATURE_FLAGS
 from app.models import (
@@ -60,6 +60,7 @@ class HistoricalData(NamedTuple):
     high_priority_defects_created: int
     medium_priority_defects_created: int
     low_priority_defects_created: int
+    lowest_priority_defects_created: int
     maintainability_score: int
 
 
@@ -100,108 +101,53 @@ def build_historical_data(
     team: Team, data: Dict[str, ChartData]
 ) -> List[HistoricalData]:
     """Build the historical data from the chart data."""
-    weeks = set()
+    weeks: Set[str] = set()
     for chart in data.values():
-        for weekly_data in chart.values():
-            for week in weekly_data:
-                weeks.add(week)
-
-    def type_fixed_sum(numbers: List) -> int:
-        """Sum function.
-
-        Using builtin 'sum' with list of floats was causing an error.
-        `Argument 1 to "sum" has incompatible type "List[float]";
-        expected "Iterable[bool]"  [arg-type]`
-        This function is used to replace it.
-        """
-        return sum(numbers)
+        weeks.update(chart.keys())
 
     return [
         HistoricalData(
             week=week,
-            days_spent_on_features=type_fixed_sum(
-                data["effort_hours"]["feature"].get(week, [])
-            ),
-            days_spent_on_defects=type_fixed_sum(
-                data["effort_hours"]["defect_effort"].get(week, [])
-            ),
-            days_spent_on_maintenance=type_fixed_sum(
-                data["effort_hours"]["maintenance"].get(week, [])
-            ),
-            days_spent_on_unplanned=type_fixed_sum(
-                data["effort_hours"]["unplanned"].get(week, [])
-            ),
-            amount_spent_on_features=type_fixed_sum(
-                data["effort_cost"]["feature"].get(week, [])
-            ),
-            amount_spent_on_defects=type_fixed_sum(
-                data["effort_cost"]["defect_effort"].get(week, [])
-            ),
-            amount_spent_on_maintenance=type_fixed_sum(
-                data["effort_cost"]["maintenance"].get(week, [])
-            ),
-            amount_spent_on_unplanned=type_fixed_sum(
-                data["effort_cost"]["unplanned"].get(week, [])
-            ),
-            total_integrations=len(
-                data["integration_frequency"]["integrations"].get(week, [])
-            ),
-            total_direct_integrations=len(
-                data["integration_frequency"]["direct_integrations"].get(week, [])
-            ),
+            days_spent_on_features=sum(data["feature_hours"].get(week, [])),
+            days_spent_on_defects=sum(data["defect_hours"].get(week, [])),
+            days_spent_on_maintenance=sum(data["maintenance_hours"].get(week, [])),
+            days_spent_on_unplanned=sum(data["unplanned_hours"].get(week, [])),
+            amount_spent_on_features=sum(data["feature_costs"].get(week, [])),
+            amount_spent_on_defects=sum(data["defect_costs"].get(week, [])),
+            amount_spent_on_maintenance=sum(data["maintenance_costs"].get(week, [])),
+            amount_spent_on_unplanned=sum(data["unplanned_costs"].get(week, [])),
+            total_integrations=len(data["integrations"].get(week, [])),
+            total_direct_integrations=len(data["direct_integrations"].get(week, [])),
             total_external_integrations=len(
-                data["integration_frequency"]["external_integrations"].get(week, [])
+                data["external_integrations"].get(week, [])
             ),
             average_team_size=average(
-                data["team_history"]["team_size"].get(week, []), default=team.team_size
+                data["team_size"].get(week, []), default=team.team_size
             ),
             average_age_in_days_code_review_was_open=average(
-                data["review_frequency"]["age_in_days_review_was_open"].get(week, [])
+                data["review_age"].get(week, [])
             ),
-            total_issues_in_backlog=len(
-                data["cumulative_flow"]["backlog"].get(week, [])
-            ),
-            total_issues_in_progress=len(data["cumulative_flow"]["wip"].get(week, [])),
+            total_issues_in_backlog=len(data["backlog"].get(week, [])),
+            total_issues_in_progress=len(data["wip"].get(week, [])),
             average_age_in_days_of_backlog_issues=average(
-                [
-                    issue
-                    for issue in data["cumulative_flow"]["backlog"].get(week, [])
-                    if issue >= 0
-                ]
+                [issue for issue in data["backlog"].get(week, []) if issue >= 0]
             ),
             total_stale_backlog_issues=len(
-                [
-                    issue
-                    for issue in data["cumulative_flow"]["backlog"].get(week, [])
-                    if issue > 30
-                ]
+                [issue for issue in data["backlog"].get(week, []) if issue > 30]
             ),
-            total_throughput=len(
-                data["lead_time_throughput"]["throughput"].get(week, [])
+            maintainability_score=sum(
+                data["maintainability_score"].get(week, [])  # type: ignore
             ),
-            lead_times_for_week_in_days=data["lead_time_throughput"][
-                "story_lead_time"
-            ].get(week, []),
-            total_deploys=len(data["deploy_frequency"]["deploys"].get(week, [])),
-            development_cycle_times_for_week_in_days=data["cycle_time_defect"][
-                "dev_cycle_time"
-            ].get(week, []),
-            defects_created=len(data["cycle_time_defect"]["defect_rate"].get(week, [])),
-            highest_priority_defects_created=len(
-                data["cycle_time_defect"]["highest_defects"].get(week, [])
-            ),
-            high_priority_defects_created=len(
-                data["cycle_time_defect"]["high_defects"].get(week, [])
-            ),
-            medium_priority_defects_created=len(
-                data["cycle_time_defect"]["medium_defects"].get(week, [])
-            ),
-            low_priority_defects_created=len(
-                data["cycle_time_defect"]["low_defects"].get(week, [])
-            ),
-            maintainability_score=type_fixed_sum(
-                data["maintainability_score"]["maintainability_score"].get(week, [])
-            ),
+            total_throughput=len(data["throughput"].get(week, [])),
+            lead_times_for_week_in_days=data["lead_time"].get(week, []),
+            total_deploys=len(data["deploys"].get(week, [])),
+            development_cycle_times_for_week_in_days=data["cycle_time"].get(week, []),
+            defects_created=len(data["defect_rate"].get(week, [])),
+            highest_priority_defects_created=len(data["highest_defects"].get(week, [])),
+            high_priority_defects_created=len(data["high_defects"].get(week, [])),
+            medium_priority_defects_created=len(data["medium_defects"].get(week, [])),
+            low_priority_defects_created=len(data["low_defects"].get(week, [])),
+            lowest_priority_defects_created=len(data["lowest_defects"].get(week, [])),
         )
         for week in sorted(weeks)
     ]
@@ -246,16 +192,32 @@ def process_team(
     historical_data = build_historical_data(
         team,
         {
-            "cumulative_flow": cumulative_flow,
-            "effort_hours": effort["hours"],
-            "effort_cost": effort["costs"],
-            "lead_time_throughput": lead_time,
-            "cycle_time_defect": cycle_time_defect,
-            "integration_frequency": integration_frequency,
-            "deploy_frequency": deploy_frequency,
-            "review_frequency": review_frequency,
+            "feature_hours": effort.feature_hours,
+            "defect_hours": effort.defect_hours,
+            "maintenance_hours": effort.maintenance_hours,
+            "unplanned_hours": effort.unplanned_hours,
+            "feature_costs": effort.feature_costs,
+            "defect_costs": effort.defect_costs,
+            "maintenance_costs": effort.maintenance_costs,
+            "unplanned_costs": effort.unplanned_costs,
+            "integrations": integration_frequency.internal,
+            "direct_integrations": integration_frequency.direct,
+            "external_integrations": integration_frequency.external,
+            "team_size": team_history,
+            "review_age": review_frequency,
+            "backlog": cumulative_flow.backlog,
+            "wip": cumulative_flow.wip,
             "maintainability_score": maintainability_score,
-            "team_history": team_history,
+            "throughput": lead_time.throughput,
+            "lead_time": lead_time.lead_time,
+            "deploys": deploy_frequency,
+            "cycle_time": cycle_time_defect.cycle_time,
+            "defect_rate": cycle_time_defect.defect_rate,
+            "highest_defects": cycle_time_defect.highest_defects,
+            "high_defects": cycle_time_defect.high_defects,
+            "medium_defects": cycle_time_defect.medium_defects,
+            "low_defects": cycle_time_defect.low_defects,
+            "lowest_defects": cycle_time_defect.lowest_defects,
         },
     )
 

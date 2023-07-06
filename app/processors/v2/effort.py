@@ -8,13 +8,13 @@ Value for time is number of days the ticket was in progress that week.
 Value for money is the time value multiplied by the assignee's pay rate.
 """
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict, List, NamedTuple
 
 from app import config
 from app.models import Ticket
 from app.processors.v1.utils import IN_PROGRESS, total_days_diff_workflow
 
-from .types import ChartData, WeeklyData
+from .types import ChartData, DateValue
 from .utils import get_monday_string
 
 # hash table containing
@@ -116,20 +116,33 @@ def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
     return effort_dist_for_ticket
 
 
-def process_effort(
-    tickets: List[Ticket],
-) -> Dict[str, ChartData]:
-    """Process tickets into effort data."""
-    chart_data_hours: ChartData = {key: {} for key in config.JIRA_TICKET_TYPE_BUCKETS}
-    chart_data_cost: ChartData = {key: {} for key in config.JIRA_TICKET_TYPE_BUCKETS}
+class EffortChartData(NamedTuple):
+    """Type of chart data for effort."""
 
-    def accumulate_ticket_effort(dist: WeekAndEffortTable, table: WeeklyData):
-        """Accumulate ticket effort for each week."""
-        for week, effort_spent in dist.items():
-            if week in table:
-                table[week].append(effort_spent)
-            else:
-                table[week] = [effort_spent]
+    feature_hours: ChartData
+    feature_costs: ChartData
+    defect_hours: ChartData
+    defect_costs: ChartData
+    maintenance_hours: ChartData
+    maintenance_costs: ChartData
+    unplanned_hours: ChartData
+    unplanned_costs: ChartData
+
+
+def process_effort(tickets: List[Ticket]) -> EffortChartData:
+    """Process tickets into effort data."""
+    hours_values: Dict[str, List[DateValue]] = {
+        "feature": [],
+        "defect_effort": [],
+        "maintenance": [],
+        "unplanned": [],
+    }
+    costs_values: Dict[str, List[DateValue]] = {
+        "feature": [],
+        "defect_effort": [],
+        "maintenance": [],
+        "unplanned": [],
+    }
 
     for ticket in tickets:
         effort_type = next(
@@ -141,7 +154,26 @@ def process_effort(
             "feature",
         )
         effort_dist_for_ticket = get_effort_distribution(ticket)
-        accumulate_ticket_effort(effort_dist_for_ticket, chart_data_hours[effort_type])
-        # STILL HAVE TO DO COSTS
-        accumulate_ticket_effort(effort_dist_for_ticket, chart_data_cost[effort_type])
-    return {"hours": chart_data_hours, "costs": chart_data_hours}
+        for week, value in effort_dist_for_ticket.items():
+            hours_values[effort_type].append(DateValue(week, value))
+            # STILL HAVE TO DO COSTS
+            costs_values[effort_type].append(DateValue(week, value))
+
+    result = EffortChartData({}, {}, {}, {}, {}, {}, {}, {})
+    for item in hours_values["feature"]:
+        result.feature_hours.setdefault(item.date, []).append(item.value)
+    for item in costs_values["feature"]:
+        result.feature_costs.setdefault(item.date, []).append(item.value)
+    for item in hours_values["defect_effort"]:
+        result.defect_hours.setdefault(item.date, []).append(item.value)
+    for item in costs_values["defect_effort"]:
+        result.defect_costs.setdefault(item.date, []).append(item.value)
+    for item in hours_values["maintenance"]:
+        result.maintenance_hours.setdefault(item.date, []).append(item.value)
+    for item in costs_values["maintenance"]:
+        result.maintenance_costs.setdefault(item.date, []).append(item.value)
+    for item in hours_values["unplanned"]:
+        result.unplanned_hours.setdefault(item.date, []).append(item.value)
+    for item in costs_values["unplanned"]:
+        result.unplanned_costs.setdefault(item.date, []).append(item.value)
+    return result

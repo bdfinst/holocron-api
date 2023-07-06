@@ -8,7 +8,7 @@ weekends).
 """
 from collections import OrderedDict
 from datetime import datetime, timedelta
-from typing import Dict, List, Union
+from typing import Dict, List, NamedTuple, Union
 
 from app.models import StatusHistory, Ticket
 from app.processors.v1.utils import (
@@ -20,7 +20,7 @@ from app.processors.v1.utils import (
     total_days_diff_workflow,
 )
 
-from .types import ChartData
+from .types import ChartData, DateValue
 from .utils import get_monday_string
 
 # data structure that store the
@@ -157,31 +157,35 @@ def get_ticket_cum_flow(ticket: Ticket) -> TicketCumFlowDistribution:
     return ticket_cum_flow
 
 
-def process_cumulative_flow(tickets: List[Ticket]) -> ChartData:
+class CumulativeFlowChartData(NamedTuple):
+    """Type of chart data for cumulative flow."""
+
+    backlog: ChartData
+    wip: ChartData
+
+
+def process_cumulative_flow(tickets: List[Ticket]) -> CumulativeFlowChartData:
     """Process tickets into cumulative flow data."""
     tickets_that_matter = iter(
         ticket
         for ticket in tickets
         if not is_epic_or_subtask_ticket(ticket) and not is_no_effort_ticket(ticket)
     )
-    cumulative_flow: Dict[str, Dict[str, List[Union[int, float]]]] = {
-        "backlog": {},
-        "wip": {},
-    }
 
-    def upsert_ticket_cum_flow(week: str, value: Union[float, int], bucket: str):
-        """Upsert value into cumulative_flow bucket."""
-        if week not in cumulative_flow[bucket]:
-            cumulative_flow[bucket][week] = [value]
-        else:
-            cumulative_flow[bucket][week].append(value)
-
+    backlog_values: List[DateValue] = []
+    wip_values: List[DateValue] = []
     for ticket in tickets_that_matter:
         ticket_cum_flow = get_ticket_cum_flow(ticket)
-        wip, backlog = ticket_cum_flow["wip"], ticket_cum_flow["backlog"]
-        for week, value in wip.items():
-            upsert_ticket_cum_flow(week, value, "wip")
-        for week, value in backlog.items():
-            upsert_ticket_cum_flow(week, value, "backlog")
+        wip_values.extend(
+            DateValue(week, value) for week, value in ticket_cum_flow["wip"].items()
+        )
+        backlog_values.extend(
+            DateValue(week, value) for week, value in ticket_cum_flow["backlog"].items()
+        )
 
-    return cumulative_flow
+    result = CumulativeFlowChartData({}, {})
+    for item in backlog_values:
+        result.backlog.setdefault(item.date, []).append(item.value)
+    for item in wip_values:
+        result.wip.setdefault(item.date, []).append(item.value)
+    return result

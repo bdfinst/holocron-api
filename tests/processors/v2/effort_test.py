@@ -23,7 +23,7 @@ def mock_config(monkeypatch):
     config.reset()
 
 
-def test_process_effort_hours(monkeypatch, mock_config):
+def test_process_effort(monkeypatch, mock_config):
     """Testing process_effort hours case."""
     monkeypatch.setattr(effort, "datetime", mock_dt)
 
@@ -146,12 +146,16 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     ],
                 ),
             ],
-            {
-                "feature": {"2000-01-03": [1]},
-                "defect_effort": {"2000-01-03": [1]},
-                "unplanned": {"2000-01-03": [1]},
-                "maintenance": {"2000-01-03": [1]},
-            },
+            (
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+                {"2000-01-03": [1]},
+            ),
         ),
         (
             """Given there is one issue in progress for more than
@@ -220,16 +224,24 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     ],
                 ),
             ],
-            {
-                "feature": {
+            (
+                {
                     "2000-01-03": [5, 5],
                     "2000-01-10": [5, 5],
                     "2000-01-17": [1, 2],
                 },
-                "defect_effort": {},
-                "unplanned": {},
-                "maintenance": {},
-            },
+                {
+                    "2000-01-03": [5, 5],
+                    "2000-01-10": [5, 5],
+                    "2000-01-17": [1, 2],
+                },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+            ),
         ),
         (
             """It should calculate effort till current date
@@ -261,12 +273,16 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     ],
                 ),
             ],
-            {
-                "feature": {"2000-01-17": [2.5]},
-                "defect_effort": {},
-                "unplanned": {},
-                "maintenance": {},
-            },
+            (
+                {"2000-01-17": [2.5]},
+                {"2000-01-17": [2.5]},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+            ),
         ),
         (
             """Should calculate partial effort""",
@@ -302,12 +318,16 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     ],
                 ),
             ],
-            {
-                "feature": {"2000-01-03": [0.1]},
-                "defect_effort": {},
-                "unplanned": {},
-                "maintenance": {},
-            },
+            (
+                {"2000-01-03": [0.1]},
+                {"2000-01-03": [0.1]},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+            ),
         ),
         (
             """Should calculate effort for status
@@ -368,16 +388,20 @@ def test_process_effort_hours(monkeypatch, mock_config):
                     ],
                 ),
             ],
-            {
-                "feature": {"2000-01-03": [3.7], "2000-01-10": [3], "2000-01-17": [5]},
-                "defect_effort": {},
-                "unplanned": {},
-                "maintenance": {},
-            },
+            (
+                {"2000-01-03": [3.7], "2000-01-10": [3], "2000-01-17": [5]},
+                {"2000-01-03": [3.7], "2000-01-10": [3], "2000-01-17": [5]},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+            ),
         ),
     ]
 
     for case in test_cases:
         description, input_case, expected = case
-        actual = process_effort(input_case)["hours"]
+        actual = process_effort(input_case)
         assert expected == actual, description
