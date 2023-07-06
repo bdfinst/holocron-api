@@ -2,6 +2,11 @@
 from datetime import datetime
 
 from app.processors.v2 import cumulative_flow, effort, maintainability, process_data
+from app.processors.v2.cumulative_flow import CumulativeFlowChartData
+from app.processors.v2.cycle_time_defect import CycleTimeDefectChartData
+from app.processors.v2.effort import EffortChartData
+from app.processors.v2.integration_frequency import IntegrationChartData
+from app.processors.v2.lead_time import LeadTimeThroughputChartData
 from app.processors.v2.process_data import (
     HistoricalData,
     TeamMetrics,
@@ -89,6 +94,7 @@ def test_process_organization(monkeypatch):
                     high_priority_defects_created=0,
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
+                    lowest_priority_defects_created=0,
                     maintainability_score=1,
                 ),
                 HistoricalData(
@@ -119,6 +125,7 @@ def test_process_organization(monkeypatch):
                     high_priority_defects_created=0,
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
+                    lowest_priority_defects_created=0,
                     maintainability_score=4,
                 ),
             ],
@@ -141,15 +148,32 @@ def test_process_organization(monkeypatch):
 
 def test_process_team_last_collected(monkeypatch):
     """Test finding the most recent last_collected time."""
-    process_effort = {"hours": 1, "costs": 2}
-    monkeypatch.setattr(process_data, "process_cumulative_flow", lambda x: {})
+    monkeypatch.setattr(
+        process_data,
+        "process_cumulative_flow",
+        lambda x: CumulativeFlowChartData({}, {}),
+    )
     monkeypatch.setattr(process_data, "process_deploy_frequency", lambda x: {})
-    monkeypatch.setattr(process_data, "process_effort", lambda x: process_effort)
-    monkeypatch.setattr(process_data, "process_lead_time", lambda x: {})
+    monkeypatch.setattr(
+        process_data,
+        "process_effort",
+        lambda x: EffortChartData({}, {}, {}, {}, {}, {}, {}, {}),
+    )
+    monkeypatch.setattr(
+        process_data, "process_lead_time", lambda x: LeadTimeThroughputChartData({}, {})
+    )
     monkeypatch.setattr(process_data, "get_latest_builds", lambda x: {})
-    monkeypatch.setattr(process_data, "process_cycle_time_defect", lambda x: {})
+    monkeypatch.setattr(
+        process_data,
+        "process_cycle_time_defect",
+        lambda x: CycleTimeDefectChartData({}, {}, {}, {}, {}, {}, {}),
+    )
     monkeypatch.setattr(process_data, "process_wip_load", lambda x: {})
-    monkeypatch.setattr(process_data, "process_integration_frequency", lambda x, y: {})
+    monkeypatch.setattr(
+        process_data,
+        "process_integration_frequency",
+        lambda x, y: IntegrationChartData({}, {}, {}),
+    )
     monkeypatch.setattr(process_data, "build_historical_data", lambda x, y: None)
 
     test_team = mock_team_last_collected

@@ -11,7 +11,7 @@ from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType
 from app.processors.v1.utils import flat_map
 
 from .types import ChartData, DateValue
-from .utils import get_monday, values_by_week
+from .utils import get_monday, get_monday_string
 
 SEVERITY_SCORE_MAPPING = {
     ProjectIssueSeverity.LOW: 1,
@@ -30,7 +30,11 @@ def get_active_issue_date_values(issue: ProjectIssue) -> List[DateValue]:
     )
     date_to_check = get_monday(issue.created_date) + timedelta(days=7)
     while date_to_check <= end_date and date_to_check < datetime.now():
-        dates.append(DateValue(date_to_check, SEVERITY_SCORE_MAPPING[issue.severity]))
+        dates.append(
+            DateValue(
+                get_monday_string(date_to_check), SEVERITY_SCORE_MAPPING[issue.severity]
+            )
+        )
         date_to_check += timedelta(days=7)
     return dates
 
@@ -42,9 +46,12 @@ def is_maintenance_issue(issue: ProjectIssue) -> bool:
 
 def process_maintainability_score(issues: List[ProjectIssue]) -> ChartData:
     """Process issues into maintainability score data."""
-    maintenance_issues = [issue for issue in issues if is_maintenance_issue(issue)]
-    return {
-        "maintainability_score": values_by_week(
-            flat_map(maintenance_issues, get_active_issue_date_values)
-        )
-    }
+    maintenance_values = flat_map(
+        [issue for issue in issues if is_maintenance_issue(issue)],
+        get_active_issue_date_values,
+    )
+
+    result: ChartData = {}
+    for item in maintenance_values:
+        result.setdefault(item.date, []).append(item.value)
+    return result

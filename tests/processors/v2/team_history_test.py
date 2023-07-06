@@ -112,12 +112,12 @@ def test_process_team_size():
                     created_at=datetime(year=2000, month=1, day=10),
                 ),
             ],
-            {"team_size": {"2000-01-03": [3, 4], "2000-01-10": [5]}},
+            {"2000-01-03": [3, 4], "2000-01-10": [5]},
         ),
         (
             "It should result in array length 0 when there are no team histories",
             [],
-            {"team_size": {}},
+            {},
         ),
     ]
 

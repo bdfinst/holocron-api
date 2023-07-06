@@ -10,7 +10,7 @@ from app import config
 from app.models import Build
 
 from .types import ChartData, DateValue
-from .utils import values_by_week
+from .utils import get_monday_string
 
 
 def process_build(build: Build) -> DateValue:
@@ -19,17 +19,14 @@ def process_build(build: Build) -> DateValue:
     if build.is_deployed is True and build.build_status is config.PIPLINE_PASSED_STATUS:
         deploy = 1
 
-    return DateValue(build.end_time, deploy)
+    return DateValue(get_monday_string(build.end_time), deploy)
 
 
 def process_deploy_frequency(builds: List[Build]) -> ChartData:
     """Process builds into deploy frequency data."""
-    return {
-        "deploys": values_by_week(
-            [
-                date_value
-                for date_value in [process_build(build) for build in builds]
-                if date_value.value != 0
-            ]
-        )
-    }
+    deploy_values = [process_build(build) for build in builds]
+
+    result: ChartData = {}
+    for item in deploy_values:
+        result.setdefault(item.date, []).append(item.value)
+    return result

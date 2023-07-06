@@ -158,10 +158,10 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 )
             ],
-            {
-                "wip": {"2000-01-24": [3]},
-                "backlog": {},
-            },
+            (
+                {},
+                {"2000-01-24": [3]},
+            ),
         ),
         (
             """Given that an issue is in backlog
@@ -199,10 +199,10 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 )
             ],
-            {
-                "wip": {},
-                "backlog": {"2000-01-24": [3]},
-            },
+            (
+                {"2000-01-24": [3]},
+                {},
+            ),
         ),
         (
             """Given that an issue is fluctuating
@@ -254,16 +254,16 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 )
             ],
-            {
-                "wip": {
-                    "2000-01-10": [-1],
-                    "2000-01-24": [18],
-                },
-                "backlog": {
+            (
+                {
                     "2000-01-03": [-1],
                     "2000-01-17": [-1],
                 },
-            },
+                {
+                    "2000-01-10": [-1],
+                    "2000-01-24": [18],
+                },
+            ),
         ),
         (
             """Given it is a done issue, it should just
@@ -314,15 +314,15 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 )
             ],
-            {
-                "wip": {
-                    "2000-01-10": [-1],
-                },
-                "backlog": {
+            (
+                {
                     "2000-01-03": [-1],
                     "2000-01-17": [11],
                 },
-            },
+                {
+                    "2000-01-10": [-1],
+                },
+            ),
         ),  # front-end should handle when the
         # data does not show the latest week data.
         # for the average age of issues in backlog etc.
@@ -348,10 +348,10 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 )
             ],
-            {
-                "wip": {},
-                "backlog": {},
-            },
+            (
+                {},
+                {},
+            ),
         ),
         (
             """Should work as expected for
@@ -460,18 +460,18 @@ def test_cumulative_flow(monkeypatch):
                     ],
                 ),
             ],
-            {
-                "wip": {
-                    "2000-01-10": [-1],
-                    "2000-01-17": [1, -1, -1],
-                    "2000-01-24": [18],
-                },
-                "backlog": {
+            (
+                {
                     "2000-01-03": [-1, -1],
                     "2000-01-10": [-1],
                     "2000-01-24": [2, 18],
                 },
-            },
+                {
+                    "2000-01-10": [-1],
+                    "2000-01-17": [1, -1, -1],
+                    "2000-01-24": [18],
+                },
+            ),
         ),
     ]
     for case in cases:

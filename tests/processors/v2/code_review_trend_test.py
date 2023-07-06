@@ -21,9 +21,7 @@ def test_process_code_review_trend():
                     repository_id=1,
                 )
             ],
-            {
-                "age_in_days_review_was_open": {},
-            },
+            {},
         ),
         (
             """should calculate the days difference between merged_at
@@ -72,10 +70,8 @@ def test_process_code_review_trend():
                 ),
             ],
             {
-                "age_in_days_review_was_open": {
-                    "2000-01-03": [5, 0.5],
-                    "2000-01-10": [11],
-                },
+                "2000-01-03": [5, 0.5],
+                "2000-01-10": [11],
             },
         ),
     ]

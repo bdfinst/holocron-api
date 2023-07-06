@@ -12,20 +12,23 @@ from app.models import GitRequest
 from app.utils.time_utils import total_days_diff
 
 from .types import ChartData, DateValue
-from .utils import values_by_week
+from .utils import get_monday_string
 
 
-def process_code_review_trend(git_requests: List[GitRequest]) -> ChartData:
+def process_code_review_trend(
+    git_requests: List[GitRequest],
+) -> ChartData:
     """Process list of GitRequest into code review trend data."""
     merged_git_requests_trend_values = [
         DateValue(
-            gr.merged_at,
+            get_monday_string(gr.merged_at),
             total_days_diff(gr.first_opened, gr.merged_at),
         )
         for gr in git_requests
         if gr.merged_at is not None and gr.first_opened is not None
     ]
-    code_review_trend_data: ChartData = {
-        "age_in_days_review_was_open": values_by_week(merged_git_requests_trend_values),
-    }
-    return code_review_trend_data
+
+    result: ChartData = {}
+    for item in merged_git_requests_trend_values:
+        result.setdefault(item.date, []).append(item.value)
+    return result

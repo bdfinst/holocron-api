@@ -54,11 +54,11 @@ def test_process_integration_frequency():
                 ],
                 "team": team,
             },
-            {
-                "integrations": {"2000-01-03": [1, 1]},
-                "direct_integrations": {"2000-01-03": [1]},
-                "external_integrations": {"2000-01-03": [1, 1]},
-            },
+            (
+                {"2000-01-03": [1, 1]},
+                {"2000-01-03": [1, 1]},
+                {"2000-01-03": [1]},
+            ),
         )
     ]
 

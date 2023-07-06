@@ -7,18 +7,18 @@ Direct integrations has a list entry for each commit in trunk that wasn't merged
 The values are always 1.
 """
 import logging
-from typing import List
+from typing import List, NamedTuple
 
 from app.models import Commit, Team, TeamsMembers
 from app.processors.v1.utils import is_between_dates
 
 from .types import ChartData, DateValue
-from .utils import values_by_week
+from .utils import get_monday_string
 
 
 def process_integration(integration: Commit) -> DateValue:
     """Get the DateValue for an integration."""
-    return DateValue(integration.date, 1)
+    return DateValue(get_monday_string(integration.date), 1)
 
 
 def is_internal(integration: Commit, teams_members: List[TeamsMembers]) -> bool:
@@ -41,7 +41,17 @@ def is_internal(integration: Commit, teams_members: List[TeamsMembers]) -> bool:
     return result
 
 
-def process_integration_frequency(team: Team, integrations: List[Commit]) -> ChartData:
+class IntegrationChartData(NamedTuple):
+    """Type of chart data for integration frequency."""
+
+    internal: ChartData
+    external: ChartData
+    direct: ChartData
+
+
+def process_integration_frequency(
+    team: Team, integrations: List[Commit]
+) -> IntegrationChartData:
     """Process commits into integration frequency data."""
     internal, external = [], []
     if team.members:
@@ -53,18 +63,23 @@ def process_integration_frequency(team: Team, integrations: List[Commit]) -> Cha
     else:
         internal = integrations
 
-    return {
-        "integrations": values_by_week(
-            [process_integration(integration) for integration in internal]
-        ),
-        "direct_integrations": values_by_week(
-            [
-                process_integration(integration)
-                for integration in integrations
-                if not integration.is_merged
-            ]
-        ),
-        "external_integrations": values_by_week(
-            [process_integration(integration) for integration in external]
-        ),
-    }
+    internal_integration_values = [
+        process_integration(integration) for integration in internal
+    ]
+    external_integration_values = [
+        process_integration(integration) for integration in external
+    ]
+    direct_integration_values = [
+        process_integration(integration)
+        for integration in integrations
+        if not integration.is_merged
+    ]
+
+    result = IntegrationChartData({}, {}, {})
+    for item in internal_integration_values:
+        result.internal.setdefault(item.date, []).append(item.value)
+    for item in external_integration_values:
+        result.external.setdefault(item.date, []).append(item.value)
+    for item in direct_integration_values:
+        result.direct.setdefault(item.date, []).append(item.value)
+    return result

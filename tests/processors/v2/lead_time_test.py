@@ -106,7 +106,7 @@ def test_process_lead_time(mock_config):
                     ],
                 ),
             ],
-            {"story_lead_time": {"2000-01-03": [2]}, "throughput": {"2000-01-03": [1]}},
+            ({"2000-01-03": [2]}, {"2000-01-03": [1]}),
         )
     ]
 

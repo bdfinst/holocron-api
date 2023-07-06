@@ -10,7 +10,7 @@ from app.models import TeamHistory
 from app.utils.time_utils import total_days_diff
 
 from .types import ChartData, DateValue
-from .utils import values_by_week
+from .utils import get_monday_string
 
 
 def delete_outdated_team_history() -> None:
@@ -29,11 +29,14 @@ def delete_outdated_team_history() -> None:
 
 def process_team_size(team_history: TeamHistory) -> DateValue:
     """Get the DateValue for a team size."""
-    return DateValue(team_history.created_at, team_history.team_size)
+    return DateValue(get_monday_string(team_history.created_at), team_history.team_size)
 
 
 def process_team_history(team_history: Sequence[TeamHistory]) -> ChartData:
     """Process team size into weekly data."""
-    return {
-        "team_size": values_by_week([process_team_size(hist) for hist in team_history])
-    }
+    team_size_values = [process_team_size(hist) for hist in team_history]
+
+    result: ChartData = {}
+    for item in team_size_values:
+        result.setdefault(item.date, []).append(item.value)
+    return result

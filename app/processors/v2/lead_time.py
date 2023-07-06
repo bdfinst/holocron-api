@@ -7,7 +7,7 @@ Throughput is weekly data represented by the throughput key.
 One list entry for each ticket that was closed during the week.
 The value is always 1.
 """
-from typing import List
+from typing import List, NamedTuple
 
 from app.models import Ticket
 from app.processors.v1.utils import (
@@ -18,7 +18,7 @@ from app.processors.v1.utils import (
 )
 
 from .types import ChartData, DateValue
-from .utils import values_by_week
+from .utils import get_monday_string
 
 
 def to_lead_time(ticket: Ticket) -> DateValue:
@@ -26,13 +26,15 @@ def to_lead_time(ticket: Ticket) -> DateValue:
     creation_date = ticket.status_history[0].date
     done_date = ticket.status_history[-1].date
 
-    return DateValue(done_date, days_between_dates(creation_date, done_date))
+    return DateValue(
+        get_monday_string(done_date), days_between_dates(creation_date, done_date)
+    )
 
 
 def to_throughput(ticket: Ticket) -> DateValue:
     """Get the DateValue for a ticket's throughput."""
     done_date = ticket.status_history[-1].date
-    return DateValue(done_date, 1)
+    return DateValue(get_monday_string(done_date), 1)
 
 
 def by_lead_time(ticket: Ticket) -> bool:
@@ -44,13 +46,25 @@ def by_lead_time(ticket: Ticket) -> bool:
     )
 
 
-def process_lead_time(tickets: List[Ticket]) -> ChartData:
+class LeadTimeThroughputChartData(NamedTuple):
+    """Type of chart data for lead time and throughput."""
+
+    lead_time: ChartData
+    throughput: ChartData
+
+
+def process_lead_time(tickets: List[Ticket]) -> LeadTimeThroughputChartData:
     """Process tickets into lead time and throughput data."""
-    return {
-        "story_lead_time": values_by_week(
-            [to_lead_time(ticket) for ticket in tickets if by_lead_time(ticket)]
-        ),
-        "throughput": values_by_week(
-            [to_throughput(ticket) for ticket in tickets if by_lead_time(ticket)]
-        ),
-    }
+    lead_time_values = [
+        to_lead_time(ticket) for ticket in tickets if by_lead_time(ticket)
+    ]
+    throughput_values = [
+        to_throughput(ticket) for ticket in tickets if by_lead_time(ticket)
+    ]
+
+    result = LeadTimeThroughputChartData({}, {})
+    for item in lead_time_values:
+        result.lead_time.setdefault(item.date, []).append(item.value)
+    for item in throughput_values:
+        result.throughput.setdefault(item.date, []).append(item.value)
+    return result
