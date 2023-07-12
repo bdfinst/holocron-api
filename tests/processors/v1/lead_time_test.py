@@ -22,7 +22,7 @@ def mock_config(monkeypatch):
 
 def test_process_lead_time(mock_config):
     """Test process_lead_time function."""
-    mock_config.JIRA_TICKET_TYPE_BUCKETS = {
+    mock_config.TICKET_TYPE_BUCKETS = {
         "defect_effort": ["Bug", "Anomaly"],
         "unplanned": ["Unplanned"],
         "maintenance": ["Maintenance"],
@@ -35,7 +35,7 @@ def test_process_lead_time(mock_config):
         "LOW": "Low",
         "LOWEST": "Lowest",
     }
-    mock_config.JIRA_PRIORITY_MAPPINGS = {
+    mock_config.TICKET_PRIORITY_MAPPINGS = {
         mock_config.TICKET_PRIORITIES["HIGHEST"]: mock_config.TICKET_PRIORITIES[
             "HIGHEST"
         ],

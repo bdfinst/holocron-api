@@ -24,11 +24,11 @@ MODE = os.environ.get("MODE", "production")
 
 REQUEST_IP_HEADER = os.environ.get("REQUEST_IP_HEADER", "X-Forwarded-For")
 
-JIRA_TICKET_TYPE_BUCKETS: Dict[str, List[str]] = {
-    "defect_effort": ["Bug", "Anomaly"],
-    "unplanned": ["Unplanned"],
-    "maintenance": ["Maintenance"],
-    "feature": [],
+TICKET_TYPE_BUCKETS: Dict[str, List[str]] = {
+    "defect_effort": ["Bug", "Anomaly", "DEFECT"],
+    "unplanned": ["Unplanned", "UNPLANNED"],
+    "maintenance": ["Maintenance", "MAINTENANCE"],
+    "feature": ["FEATURE"],
 }
 TICKET_PRIORITIES = {
     "HIGHEST": "Highest",
@@ -37,7 +37,7 @@ TICKET_PRIORITIES = {
     "LOW": "Low",
     "LOWEST": "Lowest",
 }
-JIRA_PRIORITY_MAPPINGS = {
+TICKET_PRIORITY_MAPPINGS = {
     TICKET_PRIORITIES["HIGHEST"]: TICKET_PRIORITIES["HIGHEST"],
     TICKET_PRIORITIES["HIGH"]: TICKET_PRIORITIES["HIGH"],
     TICKET_PRIORITIES["MEDIUM"]: TICKET_PRIORITIES["MEDIUM"],
@@ -49,6 +49,11 @@ JIRA_PRIORITY_MAPPINGS = {
     4: TICKET_PRIORITIES["LOW"],
     5: TICKET_PRIORITIES["LOWEST"],
     "Critical": TICKET_PRIORITIES["HIGHEST"],
+    "HIGHEST": TICKET_PRIORITIES["HIGHEST"],
+    "HIGH": TICKET_PRIORITIES["HIGH"],
+    "MEDIUM": TICKET_PRIORITIES["MEDIUM"],
+    "LOW": TICKET_PRIORITIES["LOW"],
+    "LOWEST": TICKET_PRIORITIES["LOWEST"],
 }
 DEFAULT_TICKET_PRIORITY = TICKET_PRIORITIES["LOWEST"]
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12

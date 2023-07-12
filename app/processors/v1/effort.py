@@ -125,10 +125,10 @@ def process_effort(
 ) -> Dict[str, Dict[str, WeekAndEffortTableForTickets]]:
     """Process tickets into effort data."""
     chart_data_hours: Dict[str, WeekAndEffortTableForTickets] = {
-        key: {} for key in config.JIRA_TICKET_TYPE_BUCKETS
+        key: {} for key in config.TICKET_TYPE_BUCKETS
     }
     chart_data_cost: Dict[str, WeekAndEffortTableForTickets] = {
-        key: {} for key in config.JIRA_TICKET_TYPE_BUCKETS
+        key: {} for key in config.TICKET_TYPE_BUCKETS
     }
 
     def accumulate_ticket_effort(
@@ -145,7 +145,7 @@ def process_effort(
         effort_type = next(
             (
                 key
-                for key, value in config.JIRA_TICKET_TYPE_BUCKETS.items()
+                for key, value in config.TICKET_TYPE_BUCKETS.items()
                 if ticket.ticket_type in value
             ),
             "feature",
