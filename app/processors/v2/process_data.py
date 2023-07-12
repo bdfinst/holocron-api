@@ -42,15 +42,15 @@ class HistoricalData(NamedTuple):
     amount_spent_on_defects: float
     amount_spent_on_maintenance: float
     amount_spent_on_unplanned: float
-    total_integrations: int
+    total_internal_integrations: int
     total_direct_integrations: int
     total_external_integrations: int
     average_team_size: float
     average_age_in_days_code_review_was_open: float
-    total_issues_in_backlog: int
-    total_issues_in_progress: int
-    average_age_in_days_of_backlog_issues: float
-    total_stale_backlog_issues: int
+    total_tickets_in_backlog: int
+    total_tickets_in_progress: int
+    average_age_in_days_of_backlog_tickets: float
+    total_stale_backlog_tickets: int
     total_throughput: int
     lead_times_for_week_in_days: List[float]
     total_deploys: int
@@ -70,7 +70,7 @@ class TeamMetrics(NamedTuple):
     name: str
     id: int
     team_size: int
-    wip_issues: int
+    wip_tickets: int
     is_view: bool
     organization_name: str
     organization_id: int
@@ -108,15 +108,17 @@ def build_historical_data(
     return [
         HistoricalData(
             week=week,
-            days_spent_on_features=sum(data["feature_hours"].get(week, [])),
-            days_spent_on_defects=sum(data["defect_hours"].get(week, [])),
-            days_spent_on_maintenance=sum(data["maintenance_hours"].get(week, [])),
-            days_spent_on_unplanned=sum(data["unplanned_hours"].get(week, [])),
+            days_spent_on_features=sum(data["feature_days"].get(week, [])),
+            days_spent_on_defects=sum(data["defect_days"].get(week, [])),
+            days_spent_on_maintenance=sum(data["maintenance_days"].get(week, [])),
+            days_spent_on_unplanned=sum(data["unplanned_days"].get(week, [])),
             amount_spent_on_features=sum(data["feature_costs"].get(week, [])),
             amount_spent_on_defects=sum(data["defect_costs"].get(week, [])),
             amount_spent_on_maintenance=sum(data["maintenance_costs"].get(week, [])),
             amount_spent_on_unplanned=sum(data["unplanned_costs"].get(week, [])),
-            total_integrations=len(data["integrations"].get(week, [])),
+            total_internal_integrations=len(
+                data["internal_integrations"].get(week, [])
+            ),
             total_direct_integrations=len(data["direct_integrations"].get(week, [])),
             total_external_integrations=len(
                 data["external_integrations"].get(week, [])
@@ -127,13 +129,13 @@ def build_historical_data(
             average_age_in_days_code_review_was_open=average(
                 data["review_age"].get(week, [])
             ),
-            total_issues_in_backlog=len(data["backlog"].get(week, [])),
-            total_issues_in_progress=len(data["wip"].get(week, [])),
-            average_age_in_days_of_backlog_issues=average(
-                [issue for issue in data["backlog"].get(week, []) if issue >= 0]
+            total_tickets_in_backlog=len(data["backlog"].get(week, [])),
+            total_tickets_in_progress=len(data["wip"].get(week, [])),
+            average_age_in_days_of_backlog_tickets=average(
+                [ticket for ticket in data["backlog"].get(week, []) if ticket >= 0]
             ),
-            total_stale_backlog_issues=len(
-                [issue for issue in data["backlog"].get(week, []) if issue > 30]
+            total_stale_backlog_tickets=len(
+                [ticket for ticket in data["backlog"].get(week, []) if ticket > 30]
             ),
             maintainability_score=sum(
                 data["maintainability_score"].get(week, [])  # type: ignore
@@ -192,15 +194,15 @@ def process_team(
     historical_data = build_historical_data(
         team,
         {
-            "feature_hours": effort.feature_hours,
-            "defect_hours": effort.defect_hours,
-            "maintenance_hours": effort.maintenance_hours,
-            "unplanned_hours": effort.unplanned_hours,
+            "feature_days": effort.feature_days,
+            "defect_days": effort.defect_days,
+            "maintenance_days": effort.maintenance_days,
+            "unplanned_days": effort.unplanned_days,
             "feature_costs": effort.feature_costs,
             "defect_costs": effort.defect_costs,
             "maintenance_costs": effort.maintenance_costs,
             "unplanned_costs": effort.unplanned_costs,
-            "integrations": integration_frequency.internal,
+            "internal_integrations": integration_frequency.internal,
             "direct_integrations": integration_frequency.direct,
             "external_integrations": integration_frequency.external,
             "team_size": team_history,
@@ -225,7 +227,7 @@ def process_team(
         name=team.name,
         id=team.id,
         team_size=team.team_size,
-        wip_issues=wip_load,
+        wip_tickets=wip_load,
         is_view=team.view_owner_id is not None,
         value_stream_name=valuestream.name,
         value_stream_id=valuestream.id,

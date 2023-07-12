@@ -119,19 +119,19 @@ def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
 class EffortChartData(NamedTuple):
     """Type of chart data for effort."""
 
-    feature_hours: ChartData
+    feature_days: ChartData
     feature_costs: ChartData
-    defect_hours: ChartData
+    defect_days: ChartData
     defect_costs: ChartData
-    maintenance_hours: ChartData
+    maintenance_days: ChartData
     maintenance_costs: ChartData
-    unplanned_hours: ChartData
+    unplanned_days: ChartData
     unplanned_costs: ChartData
 
 
 def process_effort(tickets: List[Ticket]) -> EffortChartData:
     """Process tickets into effort data."""
-    hours_values: Dict[str, List[DateValue]] = {
+    days_values: Dict[str, List[DateValue]] = {
         "feature": [],
         "defect_effort": [],
         "maintenance": [],
@@ -155,25 +155,25 @@ def process_effort(tickets: List[Ticket]) -> EffortChartData:
         )
         effort_dist_for_ticket = get_effort_distribution(ticket)
         for week, value in effort_dist_for_ticket.items():
-            hours_values[effort_type].append(DateValue(week, value))
+            days_values[effort_type].append(DateValue(week, value))
             # STILL HAVE TO DO COSTS
             costs_values[effort_type].append(DateValue(week, value))
 
     result = EffortChartData({}, {}, {}, {}, {}, {}, {}, {})
-    for item in hours_values["feature"]:
-        result.feature_hours.setdefault(item.date, []).append(item.value)
+    for item in days_values["feature"]:
+        result.feature_days.setdefault(item.date, []).append(item.value)
     for item in costs_values["feature"]:
         result.feature_costs.setdefault(item.date, []).append(item.value)
-    for item in hours_values["defect_effort"]:
-        result.defect_hours.setdefault(item.date, []).append(item.value)
+    for item in days_values["defect_effort"]:
+        result.defect_days.setdefault(item.date, []).append(item.value)
     for item in costs_values["defect_effort"]:
         result.defect_costs.setdefault(item.date, []).append(item.value)
-    for item in hours_values["maintenance"]:
-        result.maintenance_hours.setdefault(item.date, []).append(item.value)
+    for item in days_values["maintenance"]:
+        result.maintenance_days.setdefault(item.date, []).append(item.value)
     for item in costs_values["maintenance"]:
         result.maintenance_costs.setdefault(item.date, []).append(item.value)
-    for item in hours_values["unplanned"]:
-        result.unplanned_hours.setdefault(item.date, []).append(item.value)
+    for item in days_values["unplanned"]:
+        result.unplanned_days.setdefault(item.date, []).append(item.value)
     for item in costs_values["unplanned"]:
         result.unplanned_costs.setdefault(item.date, []).append(item.value)
     return result
