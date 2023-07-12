@@ -51,7 +51,7 @@ def to_defect_rate(ticket: Ticket) -> DateValue:
 
 def by_defect_rate(ticket: Ticket) -> bool:
     """Return boolean representing if ticket is a defect."""
-    return ticket.ticket_type in config.JIRA_TICKET_TYPE_BUCKETS["defect_effort"]
+    return ticket.ticket_type in config.TICKET_TYPE_BUCKETS["defect_effort"]
 
 
 def by_defect_rate_priority(tickets: List[Ticket]) -> Dict[str, List[DateValue]]:
@@ -64,7 +64,7 @@ def by_defect_rate_priority(tickets: List[Ticket]) -> Dict[str, List[DateValue]]
         "LOWEST": [],
     }
     for ticket in tickets:
-        mapped_priority_label = config.JIRA_PRIORITY_MAPPINGS.get(
+        mapped_priority_label = config.TICKET_PRIORITY_MAPPINGS.get(
             ticket.priority, config.DEFAULT_TICKET_PRIORITY
         )
         if mapped_priority_label == config.TICKET_PRIORITIES["HIGHEST"]:

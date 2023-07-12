@@ -148,7 +148,7 @@ def process_effort(tickets: List[Ticket]) -> EffortChartData:
         effort_type = next(
             (
                 key
-                for key, value in config.JIRA_TICKET_TYPE_BUCKETS.items()
+                for key, value in config.TICKET_TYPE_BUCKETS.items()
                 if ticket.ticket_type in value
             ),
             "feature",

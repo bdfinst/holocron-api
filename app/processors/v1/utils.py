@@ -76,7 +76,7 @@ def days_between_dates(start: datetime, end: datetime) -> float:
 
 def is_defect_ticket(ticket: Ticket) -> bool:
     """Return boolean representing if ticket is for a defect."""
-    return ticket.ticket_type in config.JIRA_TICKET_TYPE_BUCKETS["defect_effort"]
+    return ticket.ticket_type in config.TICKET_TYPE_BUCKETS["defect_effort"]
 
 
 def is_completed_ticket(ticket: Ticket) -> bool:

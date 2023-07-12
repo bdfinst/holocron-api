@@ -26,7 +26,7 @@ def test_process_effort_hours(monkeypatch, mock_config):
     """Testing process_effort hours case."""
     monkeypatch.setattr(effort, "datetime", mock_dt)
 
-    mock_config.JIRA_TICKET_TYPE_BUCKETS = {
+    mock_config.TICKET_TYPE_BUCKETS = {
         "defect_effort": ["Bug", "Anomaly"],
         "unplanned": ["Unplanned"],
         "maintenance": ["Maintenance"],
