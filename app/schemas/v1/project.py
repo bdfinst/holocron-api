@@ -4,7 +4,7 @@ from typing import Tuple
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
-from app.models import Project
+from app.models import CollectorTargetType, Project
 
 from ._base import SchemaBase
 from .collector_target_config import ConfigItemV1Schema
@@ -21,4 +21,5 @@ class ProjectV1Schema(SQLAlchemyAutoSchema, SchemaBase):
         exclude: Tuple[str, ...] = ("issues",)
 
     team_id = auto_field()
+    type = fields.Enum(CollectorTargetType, by_value=True)
     config = fields.Nested(ConfigItemV1Schema, many=True)
