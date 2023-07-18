@@ -54,7 +54,6 @@ def application(monkeypatch):
         },
     )
     application = app.create_app()
-    application.register_blueprint(create_v2_router())
     application.config.update({"TESTING": True})
     return application
 

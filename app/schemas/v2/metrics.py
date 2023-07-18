@@ -1,6 +1,6 @@
 """Metric schema objects."""
 from marshmallow import Schema
-from marshmallow.fields import Boolean, Dict, Field, Int, List, Nested, Number, String
+from marshmallow.fields import Boolean, Dict, Field, Int, Nested, Number, String
 
 from app.config import FEATURE_FLAGS
 from app.schemas.v1 import (
@@ -20,6 +20,12 @@ class MetricsSchemaBase(Schema):
         field_obj.data_key = camelcase(field_obj.data_key or field_name)
 
 
+class AgeV2Schema(MetricsSchemaBase):
+    """Schema for item age in days."""
+
+    days = Number()
+
+
 class HistoricalDataV2Schema(MetricsSchemaBase):
     """Schema for historical data of team metrics."""
 
@@ -35,24 +41,23 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
         amount_spent_on_unplanned = Number()
     total_internal_integrations = Number()
     total_direct_integrations = Number()
-    average_team_size = Number()
     if FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
         total_external_integrations = Number()
+    average_team_size = Number()
     average_age_in_days_code_review_was_open = Number()
     total_tickets_in_backlog = Number()
     total_tickets_in_progress = Number()
-    average_age_in_days_of_backlog_tickets = Number()
-    total_stale_backlog_tickets = Number()
     total_throughput = Number()
-    lead_times_for_week_in_days = List(Number())
+    ticket_lead_times = Nested(AgeV2Schema, many=True)
     if FEATURE_FLAGS["FEATURE_DEPLOY_FREQUENCY"]:
         total_deploys = Number()
-    development_cycle_times_for_week_in_days = List(Number())
+    ticket_development_cycle_times = Nested(AgeV2Schema, many=True)
     defects_created = Number()
     highest_priority_defects_created = Number()
     high_priority_defects_created = Number()
     medium_priority_defects_created = Number()
     low_priority_defects_created = Number()
+    lowest_priority_defects_created = Number()
     if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
         maintainability_score = Number()
 
@@ -69,10 +74,13 @@ class MetricsV2Schema(MetricsSchemaBase):
     organization_id = Number()
     value_stream_name = String()
     value_stream_id = Number()
-    stale_merge_requests = Nested(GitRequestV1Schema, many=True)
+    stale_backlog_tickets = Number()
+    stale_git_requests = Nested(GitRequestV1Schema, many=True)
     stale_branches = Nested(BranchV1Schema, many=True)
     latest_builds = Nested(BuildV1Schema, many=True)
     if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
         active_issues = Nested(ProjectIssueV1Schema, many=True)
     historical_data = Nested(HistoricalDataV2Schema, many=True)
+    age_of_tickets_in_backlog = Nested(AgeV2Schema, many=True)
+
     last_updated = Dict(keys=String(), values=Int())

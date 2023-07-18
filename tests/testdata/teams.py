@@ -54,7 +54,7 @@ def create_team_view(
     view_owner_id=1,
 ):
     """Create mock team object with default values."""
-    collector_targets = pipelines + repositories + ticket_boards
+    collector_targets = pipelines + repositories + ticket_boards + projects
     team = Team(
         name=name,
         team_size=team_size,
