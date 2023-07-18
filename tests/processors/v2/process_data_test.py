@@ -49,6 +49,7 @@ def test_process_organization(monkeypatch):
     monkeypatch.setattr(
         process_data, "FEATURE_FLAGS", {"FEATURE_DEPLOY_FREQUENCY": True}
     )
+    monkeypatch.setattr(process_data, "datetime", mock_dt)
     org, vs, team = mock_organizations[0], mock_valuestreams[0], mock_teams[0]
     expected = [
         TeamMetrics(
@@ -61,7 +62,8 @@ def test_process_organization(monkeypatch):
             organization_id=org.id,
             value_stream_name=vs.name,
             value_stream_id=vs.id,
-            stale_merge_requests=git_requests,
+            stale_backlog_tickets=0,
+            stale_git_requests=git_requests,
             stale_branches=branches,
             latest_builds=[builds[1]],
             active_issues=[issues[1], issues[2]],
@@ -83,12 +85,10 @@ def test_process_organization(monkeypatch):
                     average_age_in_days_code_review_was_open=0,
                     total_tickets_in_backlog=0,
                     total_tickets_in_progress=2,
-                    average_age_in_days_of_backlog_tickets=0,
-                    total_stale_backlog_tickets=0,
                     total_throughput=0,
-                    lead_times_for_week_in_days=[],
+                    ticket_lead_times=[],
                     total_deploys=2,
-                    development_cycle_times_for_week_in_days=[],
+                    ticket_development_cycle_times=[],
                     defects_created=1,
                     highest_priority_defects_created=1,
                     high_priority_defects_created=0,
@@ -114,12 +114,10 @@ def test_process_organization(monkeypatch):
                     average_age_in_days_code_review_was_open=0,
                     total_tickets_in_backlog=0,
                     total_tickets_in_progress=1,
-                    average_age_in_days_of_backlog_tickets=0,
-                    total_stale_backlog_tickets=0,
                     total_throughput=0,
-                    lead_times_for_week_in_days=[],
+                    ticket_lead_times=[],
                     total_deploys=0,
-                    development_cycle_times_for_week_in_days=[],
+                    ticket_development_cycle_times=[],
                     defects_created=0,
                     highest_priority_defects_created=0,
                     high_priority_defects_created=0,
@@ -129,6 +127,7 @@ def test_process_organization(monkeypatch):
                     maintainability_score=4,
                 ),
             ],
+            age_of_tickets_in_backlog=[],
             last_updated={
                 "build": datetime(2020, 5, 17).timestamp(),
                 "workflow": datetime(2020, 6, 17).timestamp(),

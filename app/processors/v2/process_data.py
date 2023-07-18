@@ -27,7 +27,13 @@ from .lead_time import process_lead_time
 from .maintainability import process_maintainability_score
 from .team_history import process_team_history
 from .types import ChartData
-from .utils import average
+from .utils import average, get_monday_string
+
+
+class Age(NamedTuple):
+    """Age in days type."""
+
+    days: float
 
 
 class HistoricalData(NamedTuple):
@@ -49,12 +55,10 @@ class HistoricalData(NamedTuple):
     average_age_in_days_code_review_was_open: float
     total_tickets_in_backlog: int
     total_tickets_in_progress: int
-    average_age_in_days_of_backlog_tickets: float
-    total_stale_backlog_tickets: int
     total_throughput: int
-    lead_times_for_week_in_days: List[float]
+    ticket_lead_times: List[Age]
     total_deploys: int
-    development_cycle_times_for_week_in_days: List[float]
+    ticket_development_cycle_times: List[Age]
     defects_created: int
     highest_priority_defects_created: int
     high_priority_defects_created: int
@@ -76,11 +80,13 @@ class TeamMetrics(NamedTuple):
     organization_id: int
     value_stream_name: str
     value_stream_id: int
-    stale_merge_requests: List[GitRequest]
+    stale_backlog_tickets: int
+    stale_git_requests: List[GitRequest]
     stale_branches: List[Branch]
     latest_builds: List[Build]
     active_issues: List[ProjectIssue]
     historical_data: List[HistoricalData]
+    age_of_tickets_in_backlog: List[Age]
     last_updated: Dict[str, Any]
 
 
@@ -131,19 +137,15 @@ def build_historical_data(
             ),
             total_tickets_in_backlog=len(data["backlog"].get(week, [])),
             total_tickets_in_progress=len(data["wip"].get(week, [])),
-            average_age_in_days_of_backlog_tickets=average(
-                [ticket for ticket in data["backlog"].get(week, []) if ticket >= 0]
-            ),
-            total_stale_backlog_tickets=len(
-                [ticket for ticket in data["backlog"].get(week, []) if ticket > 30]
-            ),
             maintainability_score=sum(
                 data["maintainability_score"].get(week, [])  # type: ignore
             ),
             total_throughput=len(data["throughput"].get(week, [])),
-            lead_times_for_week_in_days=data["lead_time"].get(week, []),
+            ticket_lead_times=[Age(age) for age in data["lead_time"].get(week, [])],
             total_deploys=len(data["deploys"].get(week, [])),
-            development_cycle_times_for_week_in_days=data["cycle_time"].get(week, []),
+            ticket_development_cycle_times=[
+                Age(age) for age in data["cycle_time"].get(week, [])
+            ],
             defects_created=len(data["defect_rate"].get(week, [])),
             highest_priority_defects_created=len(data["highest_defects"].get(week, [])),
             high_priority_defects_created=len(data["high_defects"].get(week, [])),
@@ -223,6 +225,8 @@ def process_team(
         },
     )
 
+    current_week = get_monday_string(datetime.now())
+
     return TeamMetrics(
         name=team.name,
         id=team.id,
@@ -233,7 +237,14 @@ def process_team(
         value_stream_id=valuestream.id,
         organization_name=organization.name,
         organization_id=organization.id,
-        stale_merge_requests=[
+        stale_backlog_tickets=len(
+            [
+                ticket
+                for ticket in cumulative_flow.backlog.get(current_week, [])
+                if ticket > 30
+            ]
+        ),
+        stale_git_requests=[
             gr
             for gr in git_requests
             if gr.is_open and (datetime.now() - gr.last_updated) > timedelta(hours=1)
@@ -244,6 +255,9 @@ def process_team(
         latest_builds=builds,
         active_issues=[i for i in issues if i.closed_date is None],
         historical_data=historical_data,
+        age_of_tickets_in_backlog=[
+            Age(ticket) for ticket in cumulative_flow.backlog.get(current_week, [])
+        ],
         last_updated={
             "workflow": get_latest_time(
                 [

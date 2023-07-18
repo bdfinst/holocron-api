@@ -76,5 +76,4 @@ FEATURE_FLAGS = {
         "FEATURE_EXTERNAL_CONTRIBUTORS", "false"
     ).lower()
     == "true",
-    "FEATURE_API_V2": os.environ.get("FEATURE_API_V2", "false").lower() == "true",
 }

@@ -37,13 +37,12 @@ def register_background_tasks() -> None:
         minutes=10,
         name="Calculate metrics for organizations.",
     )
-    if config.FEATURE_FLAGS["FEATURE_API_V2"]:
-        scheduler.add_job(
-            organizations_cache_v2.run,
-            "interval",
-            minutes=10,
-            name="Calculate metrics for organizations. (v2)",
-        )
+    scheduler.add_job(
+        organizations_cache_v2.run,
+        "interval",
+        minutes=10,
+        name="Calculate metrics for organizations. (v2)",
+    )
     scheduler.add_job(
         team_history.delete_outdated_team_history,
         "interval",
@@ -83,10 +82,9 @@ def create_app() -> Flask:
 
     patch_flasgger()
 
-    if config.FEATURE_FLAGS["FEATURE_API_V2"]:
-        app.register_blueprint(create_v2_router())
-        v2_spec = generate_spec(app, "v2")
-        serve_spec(app, v2_spec, "v2")
+    app.register_blueprint(create_v2_router())
+    v2_spec = generate_spec(app, "v2")
+    serve_spec(app, v2_spec, "v2")
 
     limiter.init_app(app)
     Database.establish_connection()
