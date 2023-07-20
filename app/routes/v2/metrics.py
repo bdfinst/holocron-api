@@ -106,7 +106,7 @@ def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
         metrics = [
             team_metrics
             for team_metrics in organization_data
-            if team_metrics["value_stream_id"] == database_id
+            if team_metrics["valueStreamId"] == database_id
         ]
         result = {"result": metrics}
         return jsonify(result), 200
