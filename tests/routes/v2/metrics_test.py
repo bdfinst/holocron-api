@@ -42,7 +42,7 @@ def test_get_organization_metrics(client, mock_cache, mock_admin):
     """Test GET /api/v2/metrics/organization/:id endpoint."""
     resp = client.get("/api/v2/metrics/organization/1")
 
-    assert resp.json["result"][0]["organization_name"] == "org_name_test"
+    assert resp.json["result"][0]["organizationName"] == "org_name_test"
     assert resp.status_code == 200
 
 
@@ -75,7 +75,7 @@ def test_get_valuestream_metrics(monkeypatch, client, mock_cache, mock_admin):
     )
     resp = client.get("/api/v2/metrics/valuestream/1")
 
-    assert resp.json["result"][0]["value_stream_name"] == "vs_name_test"
+    assert resp.json["result"][0]["valueStreamName"] == "vs_name_test"
     assert resp.status_code == 200
 
 

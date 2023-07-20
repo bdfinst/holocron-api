@@ -35,7 +35,9 @@ class SchemaCache:
         with generate_session() as session:
             item = self.crud.get_entity(session, id_)
             processed_item = self.process_func(item)
-            self.data[id_] = self.schema.dump(processed_item)
+            self.data[id_] = self.schema.dump(
+                processed_item, many=isinstance(processed_item, list)
+            )
 
     def run(self):
         """Update the cache for each entity."""

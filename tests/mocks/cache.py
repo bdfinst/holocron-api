@@ -1,4 +1,6 @@
 """Mock for all cache modules."""
+from typing import NamedTuple
+
 from app.exceptions import HolocronIntegrityError
 from app.middleware import SchemaCacheNotReady
 from app.schemas.v2 import MetricsV2Schema
@@ -23,21 +25,32 @@ class MockCache:
         return self.result
 
 
+class MetricsV2Tuple(NamedTuple):
+    """Tuple for metrics object mock."""
+
+    name: str
+    id: int
+    value_stream_name: str
+    value_stream_id: int
+    organization_name: str
+    organization_id: int
+
+
 result_v1 = {
     "name": "org_name_test",
     "valuestreams": [{"name": "vs_name_test", "teams": [{"name": "team_name_test"}]}],
 }
 
 result_v2 = [
-    MetricsV2Schema().load(
-        {
-            "name": "team_name_test",
-            "id": 1,
-            "valueStreamName": "vs_name_test",
-            "valueStreamId": 1,
-            "organizationName": "org_name_test",
-            "organizationId": 1,
-        }
+    MetricsV2Schema().dump(
+        MetricsV2Tuple(
+            name="team_name_test",
+            id=1,
+            value_stream_name="vs_name_test",
+            value_stream_id=1,
+            organization_name="org_name_test",
+            organization_id=1,
+        )
     )
 ]
 
