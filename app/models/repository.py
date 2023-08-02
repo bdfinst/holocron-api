@@ -1,7 +1,7 @@
 """SCM repository model."""
 from typing import List, Optional
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from .branch import Branch
 from .collector_target import CollectorTarget
@@ -13,8 +13,6 @@ class Repository(CollectorTarget):
     """Model class."""
 
     trunk_branch: Mapped[Optional[str]]
-
-    repository_id: Mapped[Optional[int]] = mapped_column(index=True)
 
     branches: Mapped[List["Branch"]] = relationship(default_factory=list)
     commits: Mapped[List["Commit"]] = relationship(default_factory=list)

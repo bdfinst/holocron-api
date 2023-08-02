@@ -30,11 +30,11 @@ class CollectorTarget(MetadataBase, ModelBase):
     url: Mapped[str]
     name: Mapped[Optional[str]]
 
-    type: Mapped[Optional[CollectorTargetType]] = mapped_column(
-        Enum(CollectorTargetType, create_constraint=True)
+    type: Mapped[CollectorTargetType] = mapped_column(
+        Enum(CollectorTargetType, create_constraint=True, name="collectortargettype"),
     )
     collector_id: Mapped[int] = mapped_column(ForeignKey(Collector.id))
-    resource_id: Mapped[Optional[str]] = mapped_column(index=True)
+    resource_id: Mapped[str] = mapped_column(index=True)
     last_collected: Mapped[Optional[int]] = mapped_column(BigInteger)
     team_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL")

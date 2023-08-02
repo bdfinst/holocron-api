@@ -1,15 +1,26 @@
 """V2 routes."""
-from app.routes.v1 import *
+from flask import Blueprint
+
+from app.config import FEATURE_FLAGS
 
 from .branches import create_router as create_branch_router
 from .builds import create_router as create_build_router
 from .commits import create_router as create_commit_router
+from .feature_flags import create_router as create_feature_flag_router
 from .git_requests import create_router as create_git_request_router
+from .members import create_router as create_member_router
 from .metrics import create_router as create_metrics_router
+from .organizations import create_router as create_organization_router
+from .pay_rates import create_router as create_pay_rate_router
 from .pipelines import create_router as create_pipeline_router
+from .project_issues import create_router as create_project_issue_router
+from .projects import create_router as create_project_router
 from .repositories import create_router as create_repository_router
+from .teams import create_router as create_team_router
 from .ticket_boards import create_router as create_ticket_board_router
 from .tickets import create_router as create_ticket_router
+from .users import create_router as create_user_router
+from .valuestreams import create_router as create_valuestream_router
 
 
 def create_v2_router() -> Blueprint:

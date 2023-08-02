@@ -1,12 +1,21 @@
 """Schema for Ticket model."""
-from typing import Tuple
-
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Ticket
-from app.schemas.v1._base import SchemaBase
-from app.schemas.v1.ticket import StatusHistoryV1Schema
+from app.models import StatusHistory, Ticket, TicketPriority, TicketStatus, TicketType
+
+from ._base import SchemaBase
+
+
+class StatusHistoryV2Schema(SQLAlchemyAutoSchema, SchemaBase):
+    """Schema for Ticket StatusHistory model."""
+
+    class Meta:
+        """Configuration."""
+
+        model = StatusHistory
+
+    status = fields.Enum(TicketStatus, by_value=True)
 
 
 class TicketV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -16,7 +25,8 @@ class TicketV2Schema(SQLAlchemyAutoSchema, SchemaBase):
         """Configuration."""
 
         model = Ticket
-        exclude: Tuple[str, ...] = ("board_id", "ticket_id")
 
-    collector_target_id = auto_field("board_id")
-    status_history = fields.Nested(StatusHistoryV1Schema, many=True)
+    status_history = fields.Nested(StatusHistoryV2Schema, many=True)
+    ticket_type = fields.Enum(TicketType, by_value=True)
+    priority = fields.Enum(TicketPriority, by_value=True)
+    status = fields.Enum(TicketStatus, by_value=True)

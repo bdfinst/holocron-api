@@ -24,28 +24,28 @@ def test_process_integration_frequency():
             {
                 "integrations": [
                     Commit(
-                        repository_id=1,
+                        collector_target_id=1,
                         sha="1234",
                         is_merged=True,
                         date=datetime(year=2000, month=1, day=3),
                         author_username=member.username,
                     ),
                     Commit(
-                        repository_id=1,
+                        collector_target_id=1,
                         sha="4321",
                         is_merged=False,
                         date=datetime(year=2000, month=1, day=3),
                         author_username=member.username,
                     ),
                     Commit(
-                        repository_id=1,
+                        collector_target_id=1,
                         sha="4132",
                         is_merged=True,
                         date=datetime(year=2000, month=1, day=3),
                         author_username="external",
                     ),
                     Commit(
-                        repository_id=1,
+                        collector_target_id=1,
                         sha="1423",
                         is_merged=True,
                         date=datetime(year=2000, month=1, day=4),

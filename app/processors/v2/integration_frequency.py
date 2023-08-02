@@ -10,10 +10,9 @@ import logging
 from typing import List, NamedTuple
 
 from app.models import Commit, Team, TeamsMembers
-from app.processors.v1.utils import is_between_dates
 
 from .types import ChartData, DateValue
-from .utils import get_monday_string
+from .utils import get_monday_string, is_between_dates
 
 
 def process_integration(integration: Commit) -> DateValue:

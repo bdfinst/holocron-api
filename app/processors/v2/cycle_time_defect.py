@@ -9,19 +9,18 @@ The value is always 1.
 """
 from typing import Dict, List, NamedTuple
 
-from app import config
-from app.models import Ticket
-from app.processors.v1.utils import (
+from app.models import Ticket, TicketPriority, TicketType
+
+from .types import ChartData, DateValue
+from .utils import (
     days_between_dates,
     get_first_in_progress_date,
+    get_monday_string,
     is_completed_ticket,
     is_defect_ticket,
     is_epic_or_subtask_ticket,
     ticket_was_started,
 )
-
-from .types import ChartData, DateValue
-from .utils import get_monday_string
 
 
 def by_dev_cycle_time(ticket: Ticket) -> bool:
@@ -51,32 +50,22 @@ def to_defect_rate(ticket: Ticket) -> DateValue:
 
 def by_defect_rate(ticket: Ticket) -> bool:
     """Return boolean representing if ticket is a defect."""
-    return ticket.ticket_type in config.TICKET_TYPE_BUCKETS["defect_effort"]
+    return ticket.ticket_type == TicketType.DEFECT
 
 
-def by_defect_rate_priority(tickets: List[Ticket]) -> Dict[str, List[DateValue]]:
+def by_defect_rate_priority(
+    tickets: List[Ticket],
+) -> Dict[TicketPriority, List[DateValue]]:
     """Return mapping of defect tickets based on priority."""
-    result: Dict[str, List[DateValue]] = {
-        "HIGHEST": [],
-        "HIGH": [],
-        "MEDIUM": [],
-        "LOW": [],
-        "LOWEST": [],
+    result: Dict[TicketPriority, List[DateValue]] = {
+        TicketPriority.HIGHEST: [],
+        TicketPriority.HIGH: [],
+        TicketPriority.MEDIUM: [],
+        TicketPriority.LOW: [],
+        TicketPriority.LOWEST: [],
     }
     for ticket in tickets:
-        mapped_priority_label = config.TICKET_PRIORITY_MAPPINGS.get(
-            ticket.priority, config.DEFAULT_TICKET_PRIORITY
-        )
-        if mapped_priority_label == config.TICKET_PRIORITIES["HIGHEST"]:
-            result["HIGHEST"].append(to_defect_rate(ticket))
-        elif mapped_priority_label == config.TICKET_PRIORITIES["HIGH"]:
-            result["HIGH"].append(to_defect_rate(ticket))
-        elif mapped_priority_label == config.TICKET_PRIORITIES["MEDIUM"]:
-            result["MEDIUM"].append(to_defect_rate(ticket))
-        elif mapped_priority_label == config.TICKET_PRIORITIES["LOW"]:
-            result["LOW"].append(to_defect_rate(ticket))
-        else:
-            result["LOWEST"].append(to_defect_rate(ticket))
+        result[ticket.priority].append(to_defect_rate(ticket))
     return result
 
 
@@ -109,14 +98,14 @@ def process_cycle_time_defect(tickets: List[Ticket]) -> CycleTimeDefectChartData
         result.cycle_time.setdefault(item.date, []).append(item.value)
     for item in defect_rate_values:
         result.defect_rate.setdefault(item.date, []).append(item.value)
-    for item in defects_by_priority_values["HIGHEST"]:
+    for item in defects_by_priority_values[TicketPriority.HIGHEST]:
         result.highest_defects.setdefault(item.date, []).append(item.value)
-    for item in defects_by_priority_values["HIGH"]:
+    for item in defects_by_priority_values[TicketPriority.HIGH]:
         result.high_defects.setdefault(item.date, []).append(item.value)
-    for item in defects_by_priority_values["MEDIUM"]:
+    for item in defects_by_priority_values[TicketPriority.MEDIUM]:
         result.medium_defects.setdefault(item.date, []).append(item.value)
-    for item in defects_by_priority_values["LOW"]:
+    for item in defects_by_priority_values[TicketPriority.LOW]:
         result.low_defects.setdefault(item.date, []).append(item.value)
-    for item in defects_by_priority_values["LOWEST"]:
+    for item in defects_by_priority_values[TicketPriority.LOWEST]:
         result.lowest_defects.setdefault(item.date, []).append(item.value)
     return result

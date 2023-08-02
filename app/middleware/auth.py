@@ -22,10 +22,10 @@ from app.crud.valuestreams import ValuestreamsCRUD
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.models import Team, Valuestream
-from app.schemas.v1 import UserV1Schema
+from app.schemas.v2 import UserV2Schema
 from app.security import get_sanitized_id, log_security_event
 
-schema = UserV1Schema()
+schema = UserV2Schema()
 
 
 INVALID_PERMISSIONS = "Invalid permissions"

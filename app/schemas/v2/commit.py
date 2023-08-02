@@ -1,10 +1,9 @@
 """Schema for Commit model."""
-from typing import Tuple
-
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from app.models import Commit
-from app.schemas.v1._base import SchemaBase
+
+from ._base import SchemaBase
 
 
 class CommitV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -14,6 +13,3 @@ class CommitV2Schema(SQLAlchemyAutoSchema, SchemaBase):
         """Configuration."""
 
         model = Commit
-        exclude: Tuple[str, ...] = ("repository_id",)
-
-    collector_target_id = auto_field("repository_id")

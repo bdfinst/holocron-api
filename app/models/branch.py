@@ -16,7 +16,7 @@ class Branch(MetadataBase, ModelBase):
     name: Mapped[str]
     is_default: Mapped[bool]
 
-    repository_id: Mapped[int] = mapped_column(
+    collector_target_id: Mapped[int] = mapped_column(
         ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
     url: Mapped[str] = mapped_column(unique=True)

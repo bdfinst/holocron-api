@@ -8,4 +8,4 @@ class BranchesCRUD(BaseMetricCRUD[Branch]):
     """Base CRUD extension for Branch model."""
 
 
-branches_crud = BranchesCRUD(Branch, Repository, "repository_id")
+branches_crud = BranchesCRUD(Branch, Repository)

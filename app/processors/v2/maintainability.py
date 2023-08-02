@@ -8,10 +8,9 @@ from datetime import datetime, timedelta
 from typing import List
 
 from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType
-from app.processors.v1.utils import flat_map
 
 from .types import ChartData, DateValue
-from .utils import get_monday, get_monday_string
+from .utils import flat_map, get_monday, get_monday_string
 
 SEVERITY_SCORE_MAPPING = {
     ProjectIssueSeverity.LOW: 1,

@@ -10,18 +10,17 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 from typing import Dict, List, NamedTuple, Union
 
-from app.models import StatusHistory, Ticket
-from app.processors.v1.utils import (
-    IN_PROGRESS,
+from app.models import StatusHistory, Ticket, TicketStatus
+
+from .types import ChartData, DateValue
+from .utils import (
     days_between_dates,
+    get_monday_string,
     is_completed_ticket,
     is_epic_or_subtask_ticket,
     is_no_effort_ticket,
     total_days_diff_workflow,
 )
-
-from .types import ChartData, DateValue
-from .utils import get_monday_string
 
 # data structure that store the
 # week distribution for the category (wip or backlog)
@@ -33,13 +32,11 @@ WeekDistribution = Dict[str, Union[int, float]]
 # as value for a ticket (based on how many days
 # the ticket was in progress or in backlog).
 TicketCumFlowDistribution = Dict[str, WeekDistribution]
-# Done status
-DONE_STATUS = "Done"
 
 
 def get_hist_stat_at_date(
     date: datetime, latest_stat_hist4unique_weeks: List[StatusHistory]
-) -> str:
+) -> TicketStatus:
     """Return the status history of the ticket on a given date."""
     # binary search the status since the ticket status histories are
     # sorted, and return what the status would be
@@ -78,7 +75,7 @@ def get_uniq_weeks_latest_stat_hists(ticket: Ticket) -> List[StatusHistory]:
     uniq_week_stat_hist: Dict[str, StatusHistory] = OrderedDict()
     # skip done status
     hists_with_activity = iter(
-        h for h in ticket.status_history if h.status != DONE_STATUS
+        h for h in ticket.status_history if h.status != TicketStatus.DONE
     )
     for history in hists_with_activity:
         week = get_monday_string(history.date)
@@ -94,7 +91,7 @@ def get_last_activity_date(ticket: Ticket) -> datetime:
         (
             i
             for i in range(len(ticket.status_history) - 1, -1, -1)
-            if ticket.status_history[i].status != DONE_STATUS
+            if ticket.status_history[i].status != TicketStatus.DONE
         ),
     )
     return ticket.status_history[idx_of_last_activity_status].date
@@ -103,9 +100,9 @@ def get_last_activity_date(ticket: Ticket) -> datetime:
 def get_ticket_cum_flow(ticket: Ticket) -> TicketCumFlowDistribution:
     """Return the cumulative flow distribution for a ticket."""
 
-    def get_cum_flow_bucket(ticket_status: str) -> str:
+    def get_cum_flow_bucket(ticket_status: TicketStatus) -> str:
         """Return the bucket the value goes in given ticket status."""
-        return "wip" if ticket_status == IN_PROGRESS else "backlog"
+        return "wip" if ticket_status == TicketStatus.IN_PROGRESS else "backlog"
 
     ticket_cum_flow: Dict[str, Dict[str, Union[int, float]]] = {
         "wip": {},

@@ -13,15 +13,13 @@ from app.middleware import (
     circuit_breaker_validation,
     limiter,
     log_request,
-    organizations_cache_v1,
     organizations_cache_v2,
     return_user,
     set_csp,
     set_user,
     validate_text,
 )
-from app.processors.v1 import team_history
-from app.routes.v1 import create_v1_router
+from app.processors.v2 import team_history
 from app.routes.v2 import create_v2_router
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, patch_flasgger, serve_spec
@@ -31,12 +29,6 @@ def register_background_tasks() -> None:
     """Create and start background tasks for app to run."""
     scheduler = BackgroundScheduler()
     # adding metrics calculation job for the scheduler
-    scheduler.add_job(
-        organizations_cache_v1.run,
-        "interval",
-        minutes=10,
-        name="Calculate metrics for organizations.",
-    )
     scheduler.add_job(
         organizations_cache_v2.run,
         "interval",
@@ -75,10 +67,6 @@ def create_app() -> Flask:
     if config.SSO_ENABLED:
         app.before_request(set_user)
         app.after_request(return_user)
-
-    app.register_blueprint(create_v1_router())
-    v1_spec = generate_spec(app, "v1")
-    serve_spec(app, v1_spec, "v1")
 
     patch_flasgger()
 

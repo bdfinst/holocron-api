@@ -8,4 +8,4 @@ class ProjectIssueCRUD(BaseMetricCRUD[ProjectIssue]):
     """Base CRUD extension for ProjectIssue model."""
 
 
-project_issues_crud = ProjectIssueCRUD(ProjectIssue, Project, "resource_id")
+project_issues_crud = ProjectIssueCRUD(ProjectIssue, Project)

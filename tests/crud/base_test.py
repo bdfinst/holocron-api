@@ -22,9 +22,7 @@ class ValidModel(MetadataBase, ModelBase):
 
     __tablename__ = "models"
 
-    repository_id = 0
-    pipeline_id = 0
-    board_id = 0
+    collector_target_id = 0
 
 
 class InvalidModel(MetadataBase, ModelBase):
@@ -77,17 +75,10 @@ class CRUDClass(BaseMetricCRUD[ValidModel]):
     """Mock Metric CRUD class for mock model."""
 
 
-def test_init_invalid_model():
-    """Test __init__ method with invalid model."""
-    with pytest.raises(TypeError) as e:
-        CRUDClass(InvalidModel, Repository, "repository_id")
-    assert "has no attribute repository_id" in str(e.value)
-
-
 def test_get_entities_for_team_invalid_team(mock_session, mock_crud):
     """Test get_entities_for_team method with invalid team."""
     with pytest.raises(HolocronIntegrityError) as e:
-        instance = CRUDClass(ValidModel, Repository, "repository_id")
+        instance = CRUDClass(ValidModel, Repository)
         instance.get_entities_for_team(mock_session, -1)
     assert "err - err" in str(e.value)
 
@@ -98,7 +89,7 @@ def test_get_entities_for_team(mock_session):
         "SELECT * FROM models JOIN collector_targets ON collector_targets.id = :id_1 "
         + "WHERE collector_targets.team_id = :team_id_1"
     )
-    instance = CRUDClass(ValidModel, Repository, "repository_id")
+    instance = CRUDClass(ValidModel, Repository)
 
     result = instance.get_entities_for_team(mock_session, 1)
 
