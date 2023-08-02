@@ -8,4 +8,4 @@ class TicketsCRUD(BaseMetricCRUD[Ticket]):
     """Base CRUD extension for Ticket model."""
 
 
-tickets_crud = TicketsCRUD(Ticket, TicketBoard, "board_id")
+tickets_crud = TicketsCRUD(Ticket, TicketBoard)

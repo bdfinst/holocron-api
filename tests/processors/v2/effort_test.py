@@ -1,147 +1,123 @@
 """Testing process_effort."""
 from datetime import datetime
 
-from pytest import fixture
-
-from app.models import StatusHistory, Ticket
-from app.processors.v1 import utils
+from app.models import StatusHistory, Ticket, TicketStatus, TicketType
 from app.processors.v2 import effort
 from app.processors.v2.effort import process_effort
-from tests.mocks import MockDateTime, config
+from tests.mocks import MockDateTime
 
-DONE_STATUS = "Done"
-TO_DO_STATUS = "To Do"
-IN_PROGRESS_STATUS = "In Progress"
 mock_dt = MockDateTime(datetime(year=2000, month=1, day=23))
 
 
-@fixture
-def mock_config(monkeypatch):
-    """Mock configuration."""
-    monkeypatch.setattr(utils, "config", config)
-    yield config
-    config.reset()
-
-
-def test_process_effort(monkeypatch, mock_config):
+def test_process_effort(monkeypatch):
     """Testing process_effort hours case."""
     monkeypatch.setattr(effort, "datetime", mock_dt)
 
-    mock_config.TICKET_TYPE_BUCKETS = {
-        "defect_effort": ["Bug", "Anomaly"],
-        "unplanned": ["Unplanned"],
-        "maintenance": ["Maintenance"],
-        "feature": [],
-    }
     test_cases = [
         (
             """"Should collect one for each category of bucket type""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=1,
-                    resource_id=1,
+                    collector_target_id=1,
+                    resource_id="1",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=4),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=5),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=2,
-                    resource_id=2,
+                    collector_target_id=1,
+                    resource_id="2",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Bug",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.DEFECT,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=2,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=2,
                             date=datetime(year=2000, month=1, day=4),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=2,
                             date=datetime(year=2000, month=1, day=5),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=3,
-                    resource_id=3,
+                    collector_target_id=1,
+                    resource_id="3",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Maintenance",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.MAINTENANCE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=3,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=3,
                             date=datetime(year=2000, month=1, day=4),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=3,
                             date=datetime(year=2000, month=1, day=5),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=4,
-                    resource_id=4,
+                    collector_target_id=1,
+                    resource_id="4",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Unplanned",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.UNPLANNED,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=4,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=4,
                             date=datetime(year=2000, month=1, day=4),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=4,
                             date=datetime(year=2000, month=1, day=5),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
@@ -163,24 +139,23 @@ def test_process_effort(monkeypatch, mock_config):
         week buckets.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=1,
-                    resource_id=1,
+                    collector_target_id=1,
+                    resource_id="1",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=2),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # week 1 has 5 days worth of effort and ends on Jan 7
                         # week 2 has 5 days worth of effort and starts and ends from
                         # Jan 10 - Jan 14 business days, so expect to see 5 days
@@ -188,38 +163,37 @@ def test_process_effort(monkeypatch, mock_config):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # Week 3 is from Jan 17 to Jan 21 business days,
                         # so expect to see 1 day of effort for this
                         # status.
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=2,
-                    resource_id=2,
+                    collector_target_id=1,
+                    resource_id="2",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=2),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # week 1 has 5 days worth of effort and ends on Jan 7
                         # week 2 has 5 days worth of effort and starts and ends from
                         # Jan 10 - Jan 14
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
@@ -248,26 +222,25 @@ def test_process_effort(monkeypatch, mock_config):
             if the issue is still in progress.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=1,
-                    resource_id=1,
+                    collector_target_id=1,
+                    resource_id="1",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(
                                 year=2000, month=1, day=19, hour=12, minute=0, second=0
                             ),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # should be 12 hour progress + 24 hour progress (20th Jan)
                         # + 24 hour (21st Jan) = 2.5 days
                     ],
@@ -288,31 +261,30 @@ def test_process_effort(monkeypatch, mock_config):
             """Should calculate partial effort""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=1,
-                    resource_id=1,
+                    collector_target_id=1,
+                    resource_id="1",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3, hour=8, minute=30),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3, hour=9, minute=30),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(
                                 year=2000, month=1, day=3, hour=12, minute=30
                             ),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # 3 hours worth of effort translates to 3/24 = 0.1 days
                         # worth of effort.
                     ],
@@ -334,12 +306,11 @@ def test_process_effort(monkeypatch, mock_config):
             that changes progress back to back.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=1,
-                    resource_id=1,
+                    collector_target_id=1,
+                    resource_id="1",
                     assignee="someone",
-                    status=DONE_STATUS,
-                    ticket_type="Feature",
+                    status=TicketStatus.DONE,
+                    ticket_type=TicketType.FEATURE,
                     priority="Highest",
                     super_ticket_id=None,
                     status_history=[
@@ -348,14 +319,14 @@ def test_process_effort(monkeypatch, mock_config):
                             date=datetime(
                                 year=2000, month=1, day=3, hour=12, minute=0, second=0
                             ),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(
                                 year=2000, month=1, day=4, hour=8, minute=0, second=0
                             ),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # 3.7 days of effort (24 - 8 = 16 hours of effort
                         # after issue in progress for the day) for week 1
                         StatusHistory(
@@ -363,14 +334,14 @@ def test_process_effort(monkeypatch, mock_config):
                             date=datetime(
                                 year=2000, month=1, day=10, hour=12, minute=0, second=0
                             ),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # .5 days of effort here for week 2
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(
                                 year=2000, month=1, day=12, hour=12, minute=0, second=0
                             ),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # 2.5 days of effort here for week 2
                         # so total of 3 for week 2
                         StatusHistory(
@@ -383,7 +354,7 @@ def test_process_effort(monkeypatch, mock_config):
                                 minute=59,
                                 second=59,
                             ),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # 5 days of effort for week 3
                     ],
                 ),

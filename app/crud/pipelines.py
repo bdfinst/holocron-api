@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
-from app.models import Pipeline
+from app.models import CollectorTargetType, Pipeline
 
 from ._base import BaseCRUD
 from .teams import teams_crud
@@ -18,7 +18,7 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
         """Override get_entity to return only pipeline."""
         result = session.scalars(
             select(Pipeline)
-            .where(Pipeline.pipeline_id.is_not(None))
+            .where(Pipeline.type == CollectorTargetType.BUILD)
             .where(Pipeline.id == id_)
         ).first()
         if result is None:
@@ -30,7 +30,7 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
     def get_entities(self, session: Session) -> Sequence[Pipeline]:
         """Override get_entities to return only pipelines."""
         return session.scalars(
-            select(Pipeline).where(Pipeline.pipeline_id.is_not(None))
+            select(Pipeline).where(Pipeline.type == CollectorTargetType.BUILD)
         ).all()
 
     @staticmethod
@@ -40,7 +40,7 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
         return session.scalars(
             select(Pipeline)
             .where(Pipeline.team_id == team.id)
-            .where(Pipeline.pipeline_id.is_not(None))
+            .where(Pipeline.type == CollectorTargetType.BUILD)
         ).all()
 
 

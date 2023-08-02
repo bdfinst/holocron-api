@@ -1,6 +1,5 @@
 """Application Configuration."""
 import os
-from typing import Dict, List
 
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASS = os.environ.get("DB_PASS", "postgres")
@@ -24,38 +23,6 @@ MODE = os.environ.get("MODE", "production")
 
 REQUEST_IP_HEADER = os.environ.get("REQUEST_IP_HEADER", "X-Forwarded-For")
 
-TICKET_TYPE_BUCKETS: Dict[str, List[str]] = {
-    "defect_effort": ["Bug", "Anomaly", "DEFECT"],
-    "unplanned": ["Unplanned", "UNPLANNED"],
-    "maintenance": ["Maintenance", "MAINTENANCE"],
-    "feature": ["FEATURE"],
-}
-TICKET_PRIORITIES = {
-    "HIGHEST": "Highest",
-    "HIGH": "High",
-    "MEDIUM": "Medium",
-    "LOW": "Low",
-    "LOWEST": "Lowest",
-}
-TICKET_PRIORITY_MAPPINGS = {
-    TICKET_PRIORITIES["HIGHEST"]: TICKET_PRIORITIES["HIGHEST"],
-    TICKET_PRIORITIES["HIGH"]: TICKET_PRIORITIES["HIGH"],
-    TICKET_PRIORITIES["MEDIUM"]: TICKET_PRIORITIES["MEDIUM"],
-    TICKET_PRIORITIES["LOW"]: TICKET_PRIORITIES["LOW"],
-    TICKET_PRIORITIES["LOWEST"]: TICKET_PRIORITIES["LOWEST"],
-    1: TICKET_PRIORITIES["HIGHEST"],
-    2: TICKET_PRIORITIES["HIGH"],
-    3: TICKET_PRIORITIES["MEDIUM"],
-    4: TICKET_PRIORITIES["LOW"],
-    5: TICKET_PRIORITIES["LOWEST"],
-    "Critical": TICKET_PRIORITIES["HIGHEST"],
-    "HIGHEST": TICKET_PRIORITIES["HIGHEST"],
-    "HIGH": TICKET_PRIORITIES["HIGH"],
-    "MEDIUM": TICKET_PRIORITIES["MEDIUM"],
-    "LOW": TICKET_PRIORITIES["LOW"],
-    "LOWEST": TICKET_PRIORITIES["LOWEST"],
-}
-DEFAULT_TICKET_PRIORITY = TICKET_PRIORITIES["LOWEST"]
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
 PIPLINE_PASSED_STATUS = "success"
 

@@ -19,7 +19,7 @@ class GitRequest(MetadataBase, ModelBase):
     first_opened: Mapped[Optional[datetime]]
     merged_at: Mapped[Optional[datetime]]
 
-    repository_id: Mapped[int] = mapped_column(
+    collector_target_id: Mapped[int] = mapped_column(
         ForeignKey("collector_targets.id", ondelete="CASCADE")
     )
     url: Mapped[str] = mapped_column(unique=True)

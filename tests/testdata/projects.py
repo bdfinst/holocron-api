@@ -40,23 +40,23 @@ issues = [
 def create_project(
     id=1,
     collector_id=1,
+    type="PROJECT_ANALYSIS",
     name="mock_project",
     url="https://test.com",
     issues=issues,
     last_collected=datetime(2020, 8, 17).timestamp(),
     resource_id=1,
-    type="project_analysis",
     team_id=None,
 ):
     """Create mock project object with default values."""
     project = Project(
         collector_id=collector_id,
+        type=type,
         name=name,
         url=url,
         issues=issues,
         last_collected=last_collected,
         resource_id=resource_id,
-        type=type,
         team_id=team_id,
     )
     project.id = id

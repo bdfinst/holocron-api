@@ -8,4 +8,4 @@ class CommitsCRUD(BaseMetricCRUD[Commit]):
     """Base CRUD extension for Commit model."""
 
 
-commits_crud = CommitsCRUD(Commit, Repository, "repository_id")
+commits_crud = CommitsCRUD(Commit, Repository)

@@ -4,7 +4,6 @@ from datetime import datetime
 from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType
 from app.processors.v2 import maintainability
 from app.processors.v2.maintainability import process_maintainability_score
-from tests.testdata import issues
 
 
 class MockDatetime:

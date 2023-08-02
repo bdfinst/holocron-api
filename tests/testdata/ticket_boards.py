@@ -1,17 +1,26 @@
 """Test data for ticket_boards."""
 from datetime import datetime, timedelta
 
-from app.models import StatusHistory, Ticket, TicketBoard
+from app.models import (
+    StatusHistory,
+    Ticket,
+    TicketBoard,
+    TicketPriority,
+    TicketStatus,
+    TicketType,
+)
 
 all_status_history_types = [
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=3), status="To Do"
+        ticket_id=1, date=datetime(year=2000, month=1, day=3), status=TicketStatus.TO_DO
     ),
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=10), status="Done"
+        ticket_id=1, date=datetime(year=2000, month=1, day=10), status=TicketStatus.DONE
     ),
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=7), status="In Progress"
+        ticket_id=1,
+        date=datetime(year=2000, month=1, day=7),
+        status=TicketStatus.IN_PROGRESS,
     ),
 ]
 
@@ -19,33 +28,33 @@ in_progress_history_types = [
     StatusHistory(
         ticket_id=2,
         date=datetime(year=2000, month=1, day=7) - timedelta(hours=1),
-        status="To Do",
+        status=TicketStatus.TO_DO,
     ),
     StatusHistory(
-        ticket_id=2, date=datetime(year=2000, month=1, day=7), status="In Progress"
+        ticket_id=2,
+        date=datetime(year=2000, month=1, day=7),
+        status=TicketStatus.IN_PROGRESS,
     ),
 ]
 
 tickets = [
     Ticket(
-        board_id=1,
-        ticket_id=1,
+        collector_target_id=1,
         resource_id=1,
         assignee="nobody",
-        status="Done",
-        ticket_type="Bug",
-        priority="Highest",
+        status=TicketStatus.DONE,
+        ticket_type=TicketType.DEFECT,
+        priority=TicketPriority.HIGHEST,
         status_history=all_status_history_types,
         super_ticket_id=None,
     ),
     Ticket(
-        board_id=2,
-        ticket_id=2,
+        collector_target_id=2,
         resource_id=2,
         assignee="somebody",
-        status="In Progress",
-        ticket_type="Feature",
-        priority="Lowest",
+        status=TicketStatus.IN_PROGRESS,
+        ticket_type=TicketType.FEATURE,
+        priority=TicketPriority.LOWEST,
         status_history=in_progress_history_types,
         super_ticket_id=None,
     ),
@@ -55,25 +64,23 @@ tickets = [
 def create_ticket_board(
     id=1,
     collector_id=1,
+    type="WORKFLOW",
     name="mock_ticket_board",
     url="https://test.com",
     tickets=tickets,
     last_collected=datetime(2020, 6, 17).timestamp(),
-    board_id=1,
     resource_id=1,
-    type="workflow",
     team_id=None,
 ):
     """Create mock ticket_board object with default values."""
     ticket_board = TicketBoard(
         collector_id=collector_id,
+        type=type,
         name=name,
         url=url,
         tickets=tickets,
         last_collected=last_collected,
-        board_id=board_id,
         resource_id=resource_id,
-        type=type,
         team_id=team_id,
     )
     ticket_board.id = id

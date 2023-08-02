@@ -1,10 +1,10 @@
 """Schema for Build model."""
-from typing import Tuple
+from marshmallow import fields
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+from app.models import Build, BuildStatus
 
-from app.models import Build
-from app.schemas.v1._base import SchemaBase
+from ._base import SchemaBase
 
 
 class BuildV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -14,6 +14,5 @@ class BuildV2Schema(SQLAlchemyAutoSchema, SchemaBase):
         """Configuration."""
 
         model = Build
-        exclude: Tuple[str, ...] = ("pipeline_id",)
 
-    collector_target_id = auto_field("pipeline_id")
+    build_status = fields.Enum(BuildStatus, by_value=True)

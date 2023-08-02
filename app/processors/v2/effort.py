@@ -10,12 +10,10 @@ Value for money is the time value multiplied by the assignee's pay rate.
 from datetime import datetime, timedelta
 from typing import Dict, List, NamedTuple
 
-from app import config
-from app.models import Ticket
-from app.processors.v1.utils import IN_PROGRESS, total_days_diff_workflow
+from app.models import Ticket, TicketStatus, TicketType
 
 from .types import ChartData, DateValue
-from .utils import get_monday_string
+from .utils import get_monday_string, total_days_diff_workflow
 
 # hash table containing
 # the week in the format YYYY-MMM-DD in string
@@ -100,7 +98,7 @@ def get_effort_distribution(ticket: Ticket) -> WeekAndEffortTable:
             upsert_week_entry(week, effort_spent, effort_dist_for_ticket)
 
     for history in ticket.status_history:
-        if history.status == IN_PROGRESS:
+        if history.status == TicketStatus.IN_PROGRESS:
             last_in_prog_date = history.date
             last_status_was_in_prog = True
         elif last_status_was_in_prog:
@@ -131,49 +129,41 @@ class EffortChartData(NamedTuple):
 
 def process_effort(tickets: List[Ticket]) -> EffortChartData:
     """Process tickets into effort data."""
-    days_values: Dict[str, List[DateValue]] = {
-        "feature": [],
-        "defect_effort": [],
-        "maintenance": [],
-        "unplanned": [],
+    days_values: Dict[TicketType, List[DateValue]] = {
+        TicketType.FEATURE: [],
+        TicketType.DEFECT: [],
+        TicketType.MAINTENANCE: [],
+        TicketType.UNPLANNED: [],
     }
-    costs_values: Dict[str, List[DateValue]] = {
-        "feature": [],
-        "defect_effort": [],
-        "maintenance": [],
-        "unplanned": [],
+    costs_values: Dict[TicketType, List[DateValue]] = {
+        TicketType.FEATURE: [],
+        TicketType.DEFECT: [],
+        TicketType.MAINTENANCE: [],
+        TicketType.UNPLANNED: [],
     }
 
     for ticket in tickets:
-        effort_type = next(
-            (
-                key
-                for key, value in config.TICKET_TYPE_BUCKETS.items()
-                if ticket.ticket_type in value
-            ),
-            "feature",
-        )
         effort_dist_for_ticket = get_effort_distribution(ticket)
         for week, value in effort_dist_for_ticket.items():
-            days_values[effort_type].append(DateValue(week, value))
+            days_values[ticket.ticket_type].append(DateValue(week, value))
             # STILL HAVE TO DO COSTS
-            costs_values[effort_type].append(DateValue(week, value))
+            costs_values[ticket.ticket_type].append(DateValue(week, value))
 
     result = EffortChartData({}, {}, {}, {}, {}, {}, {}, {})
-    for item in days_values["feature"]:
+    for item in days_values[TicketType.FEATURE]:
         result.feature_days.setdefault(item.date, []).append(item.value)
-    for item in costs_values["feature"]:
+    for item in costs_values[TicketType.FEATURE]:
         result.feature_costs.setdefault(item.date, []).append(item.value)
-    for item in days_values["defect_effort"]:
+    for item in days_values[TicketType.DEFECT]:
         result.defect_days.setdefault(item.date, []).append(item.value)
-    for item in costs_values["defect_effort"]:
+    for item in costs_values[TicketType.DEFECT]:
         result.defect_costs.setdefault(item.date, []).append(item.value)
-    for item in days_values["maintenance"]:
+    for item in days_values[TicketType.MAINTENANCE]:
         result.maintenance_days.setdefault(item.date, []).append(item.value)
-    for item in costs_values["maintenance"]:
+    for item in costs_values[TicketType.MAINTENANCE]:
         result.maintenance_costs.setdefault(item.date, []).append(item.value)
-    for item in days_values["unplanned"]:
+    for item in days_values[TicketType.UNPLANNED]:
         result.unplanned_days.setdefault(item.date, []).append(item.value)
-    for item in costs_values["unplanned"]:
+    for item in costs_values[TicketType.UNPLANNED]:
         result.unplanned_costs.setdefault(item.date, []).append(item.value)
     return result

@@ -1,7 +1,7 @@
 """Test process_cumulative_flow."""
 from datetime import datetime
 
-from app.models import StatusHistory, Ticket
+from app.models import StatusHistory, Ticket, TicketStatus
 from app.processors.v2 import cumulative_flow
 from app.processors.v2.cumulative_flow import (
     get_hist_stat_at_date,
@@ -10,10 +10,6 @@ from app.processors.v2.cumulative_flow import (
     process_cumulative_flow,
 )
 from tests.mocks import MockDateTime
-
-TO_DO_STATUS = "To Do"
-IN_PROGRESS_STATUS = "In Progress"
-DONE_STATUS = "Done"
 
 mock_dt = MockDateTime(datetime(year=2000, month=1, day=27))
 
@@ -26,11 +22,10 @@ def test_get_last_activity_date(monkeypatch):
         (
             """Return today if ticket is not completed.""",
             Ticket(
-                board_id=1,
-                ticket_id=200,
-                resource_id=200,
+                collector_target_id=1,
+                resource_id="200",
                 assignee="someone",
-                status=IN_PROGRESS_STATUS,
+                status=TicketStatus.IN_PROGRESS,
                 ticket_type="Feature",
                 priority="Highest",
                 super_ticket_id=None,
@@ -38,12 +33,12 @@ def test_get_last_activity_date(monkeypatch):
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
-                        status=TO_DO_STATUS,
+                        status=TicketStatus.TO_DO,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
-                        status=IN_PROGRESS_STATUS,
+                        status=TicketStatus.IN_PROGRESS,
                     ),
                 ],
             ),
@@ -52,11 +47,10 @@ def test_get_last_activity_date(monkeypatch):
         (
             """Return last activity date if ticket is completed.""",
             Ticket(
-                board_id=1,
-                ticket_id=200,
-                resource_id=200,
+                collector_target_id=1,
+                resource_id="200",
                 assignee="someone",
-                status=TO_DO_STATUS,
+                status=TicketStatus.TO_DO,
                 ticket_type="Feature",
                 priority="Highest",
                 super_ticket_id=None,
@@ -64,17 +58,17 @@ def test_get_last_activity_date(monkeypatch):
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
-                        status=TO_DO_STATUS,
+                        status=TicketStatus.TO_DO,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
-                        status=IN_PROGRESS_STATUS,
+                        status=TicketStatus.IN_PROGRESS,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=27),
-                        status=DONE_STATUS,
+                        status=TicketStatus.DONE,
                     ),
                 ],
             ),
@@ -84,11 +78,10 @@ def test_get_last_activity_date(monkeypatch):
             """Return last activity date if ticket is completed
             more than one time.""",
             Ticket(
-                board_id=1,
-                ticket_id=200,
-                resource_id=200,
+                collector_target_id=1,
+                resource_id="200",
                 assignee="someone",
-                status=TO_DO_STATUS,
+                status=TicketStatus.TO_DO,
                 ticket_type="Feature",
                 priority="Highest",
                 super_ticket_id=None,
@@ -96,22 +89,22 @@ def test_get_last_activity_date(monkeypatch):
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
-                        status=TO_DO_STATUS,
+                        status=TicketStatus.TO_DO,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
-                        status=IN_PROGRESS_STATUS,
+                        status=TicketStatus.IN_PROGRESS,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=26),
-                        status=DONE_STATUS,
+                        status=TicketStatus.DONE,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=26, hour=12),
-                        status=DONE_STATUS,
+                        status=TicketStatus.DONE,
                     ),
                 ],
             ),
@@ -136,11 +129,10 @@ def test_cumulative_flow(monkeypatch):
             the last week.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=IN_PROGRESS_STATUS,
+                    status=TicketStatus.IN_PROGRESS,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -148,12 +140,12 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=24),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # age of 3 business days in wip status
                     ],
                 )
@@ -171,11 +163,10 @@ def test_cumulative_flow(monkeypatch):
             the last week.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=TO_DO_STATUS,
+                    status=TicketStatus.TO_DO,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -183,17 +174,17 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=24),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # age of 3 business days for first week
                         # should be computed here (not counting weekends)
                     ],
@@ -211,11 +202,10 @@ def test_cumulative_flow(monkeypatch):
             for it during the last week.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=IN_PROGRESS_STATUS,
+                    status=TicketStatus.IN_PROGRESS,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -223,32 +213,32 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=5),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=7),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # for week 2000-01-03 we should see this in backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=11),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # for week 2000-01-10 we should see this in wip
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # for week 2000-01-17 it should be in backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         )  # age of 5 + 5 + 5 + 3 = 18 should be here
                         # for wip for this week (2000-01-24)
                     ],
@@ -271,11 +261,10 @@ def test_cumulative_flow(monkeypatch):
             or in backlog during it's final week in progress.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -283,33 +272,33 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=5),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=7),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # should be in backlog for week 2000-01-03
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=11),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # should be in wip for week 2000-01-10
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # age of 1 + 5 + 5 = 11 should be here for
                         # backlog for this week week 2000-01-17 backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # nothing here, since it is a done status
                     ],
                 )
@@ -331,11 +320,10 @@ def test_cumulative_flow(monkeypatch):
             tickets.""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -343,7 +331,7 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         )  # nothing here, since it is a done status
                     ],
                 )
@@ -358,11 +346,10 @@ def test_cumulative_flow(monkeypatch):
             with multiple tickets""",
             [
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -370,27 +357,26 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # week 2000-01-17 should show in wip with
                         # age 1
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # should show nothing on week 4.
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=IN_PROGRESS_STATUS,
+                    status=TicketStatus.IN_PROGRESS,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -398,23 +384,22 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # backlog in 2000-01-03 and 2000-01-10
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # wip in 2000-01-17
                         # and 18 days of age for week
                         # 2000-01-24
                     ],
                 ),
                 Ticket(
-                    board_id=1,
-                    ticket_id=201,
-                    resource_id=201,
+                    collector_target_id=1,
+                    resource_id="201",
                     assignee="someone",
-                    status=TO_DO_STATUS,
+                    status=TicketStatus.TO_DO,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -422,17 +407,16 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # backlog: { 2000-01-24 : 2 } 2 days of age for week 2000-01-24
                     ],
                 ),
                 Ticket(  # testing an edge case for tickets
                     # that go from done to to_do or in progress again
-                    board_id=1,
-                    ticket_id=201,
-                    resource_id=201,
+                    collector_target_id=1,
+                    resource_id="201",
                     assignee="someone",
-                    status=TO_DO_STATUS,
+                    status=TicketStatus.TO_DO,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -440,22 +424,22 @@ def test_cumulative_flow(monkeypatch):
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # backlog: { 2000-01-03: -1 }
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),  # wip : { 2000-01-10: -1 }, { 2000-01-17: -1 }
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),  # ignore this
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),  # this should be the age now { 2000-01-24 : 18 }
                     ],
                 ),
@@ -485,15 +469,14 @@ def test_get_hist_stat_at_date():
         (
             """Given date is before first in
             progress date in week 2000-01-03, it should
-            return TO_DO_STATUS.""",
+            return TicketStatus.TO_DO.""",
             (
                 datetime(year=2000, month=1, day=8),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -501,35 +484,34 @@ def test_get_hist_stat_at_date():
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
             ),
-            TO_DO_STATUS,
+            TicketStatus.TO_DO,
         ),
         (
             """Given date is before first in
             progress date in week 2000-01-10, it should
-            return TO_DO_STATUS.""",
+            return TicketStatus.TO_DO.""",
             (
                 datetime(year=2000, month=1, day=15),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -537,22 +519,22 @@ def test_get_hist_stat_at_date():
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
             ),
-            TO_DO_STATUS,
+            TicketStatus.TO_DO,
         ),
         (
             """Given it is in between
@@ -561,11 +543,10 @@ def test_get_hist_stat_at_date():
             (
                 datetime(year=2000, month=1, day=22),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=DONE_STATUS,
+                    status=TicketStatus.DONE,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -573,22 +554,22 @@ def test_get_hist_stat_at_date():
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=DONE_STATUS,
+                            status=TicketStatus.DONE,
                         ),
                     ],
                 ),
             ),
-            IN_PROGRESS_STATUS,
+            TicketStatus.IN_PROGRESS,
         ),
         (
             """Given it is greater than the interval
@@ -596,11 +577,10 @@ def test_get_hist_stat_at_date():
             (
                 datetime(year=2000, month=1, day=22),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=IN_PROGRESS_STATUS,
+                    status=TicketStatus.IN_PROGRESS,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -608,17 +588,17 @@ def test_get_hist_stat_at_date():
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                     ],
                 ),
             ),
-            IN_PROGRESS_STATUS,
+            TicketStatus.IN_PROGRESS,
         ),
         (
             """Given the date exists on the interval
@@ -626,11 +606,10 @@ def test_get_hist_stat_at_date():
             (
                 datetime(year=2000, month=1, day=19),
                 Ticket(
-                    board_id=1,
-                    ticket_id=200,
-                    resource_id=200,
+                    collector_target_id=1,
+                    resource_id="200",
                     assignee="someone",
-                    status=IN_PROGRESS_STATUS,
+                    status=TicketStatus.IN_PROGRESS,
                     ticket_type="Feature",
                     priority="Highest",
                     super_ticket_id=None,
@@ -638,27 +617,27 @@ def test_get_hist_stat_at_date():
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
-                            status=TO_DO_STATUS,
+                            status=TicketStatus.TO_DO,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
-                            status=IN_PROGRESS_STATUS,
+                            status=TicketStatus.IN_PROGRESS,
                         ),
                     ],
                 ),
             ),
-            IN_PROGRESS_STATUS,
+            TicketStatus.IN_PROGRESS,
         ),
     ]
 

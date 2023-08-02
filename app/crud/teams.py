@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
-from app.models import CollectorTarget, Team, TicketBoard
+from app.models import CollectorTarget, CollectorTargetType, Team, TicketBoard
 
 from ._base import BaseCRUD
 from .collector_targets import collector_targets_crud
@@ -20,7 +20,7 @@ def is_workflow_only(session: Session, team: Team) -> bool:
     def is_ticket_board(target: CollectorTarget):
         queried_ticket_board = session.scalars(
             select(TicketBoard)
-            .where(TicketBoard.board_id.is_not(None))
+            .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
             .where(TicketBoard.id == target.id)
         ).first()
         return queried_ticket_board is not None

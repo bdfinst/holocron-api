@@ -10,15 +10,15 @@ The value is always 1.
 from typing import List, NamedTuple
 
 from app.models import Ticket
-from app.processors.v1.utils import (
+
+from .types import ChartData, DateValue
+from .utils import (
     days_between_dates,
+    get_monday_string,
     is_completed_ticket,
     is_defect_ticket,
     is_epic_or_subtask_ticket,
 )
-
-from .types import ChartData, DateValue
-from .utils import get_monday_string
 
 
 def to_lead_time(ticket: Ticket) -> DateValue:

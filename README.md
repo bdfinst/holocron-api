@@ -40,6 +40,7 @@ In addition to the fields below, all models have the following fields.
 |team_size|integer|The number of members on the team, non-nullable.|
 |valuestream_id|integer|Foreign key to `valuestreams.id`, non-nullable.*|
 |is_workflow_only|boolean|Team only has workflow data.|
+|view_owner_id|integer|Self-referential foreign key. If not null, this team is a view and the reference is to the owning team.
 
 \*Combined unique constraint.
 
@@ -73,14 +74,13 @@ In addition to the fields below, all models have the following fields.
 
 | Field          | Type     | Description                                                             |
 |----------------|----------|-------------------------------------------------------------------------|
-| collector_id   | integer  | Foreign key to `collectors.id`, non-nullable.                           |
+| collector_id   | integer  | Foreign key to `collectors.id`, non-nullable.*                           |
 | team_id        | integer  | Foreign key to `teams.id`.                                              |
 | name           | string   | The name of the resource collected.                                     |
-| url            | string   | The URL for the resource collected, non-nullable.                       |
+| url            | string   | The URL for the resource collected, non-nullable.*                       |
 | is_deleted     | boolean  | A flag for soft delete.                                                 |
-| board_id       | integer  | If target is a ticketboard, this will be the ID given by the resource.  |
-| pipeline_id    | integer  | If target is a pipeline, this will be the ID given by the resource.     |
-| repository_id  | integer  | If target is a repository, this will be the ID given by the resource.   |
+| resource_id    | string  | The ID used by the target service to identify this entity, non-nullable.*  |
+| type | enum | The type of data collected, non-nullable. Possible values: `BUILD`, `PROJECT_ANALYSIS`, `SCM`, `WORKFLOW`. |
 | trunk_branch   | string   | If target is a repository, this will be the name of the default branch. |
 | last_collected | DateTime | The time the collector target was last collected from its url source.   |
 
@@ -98,7 +98,7 @@ In addition to the fields below, all models have the following fields.
 
 |Field|Type|Description|
 |-----|----|-----------|
-|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|collector_target_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
 |last_updated|datetime|When the branch was last updated, non-nullable.|
 |name|string|The name of the branch, non-nullable.|
 |url|string|The URL of the branch, unique and non-nullable.|
@@ -108,10 +108,11 @@ In addition to the fields below, all models have the following fields.
 
 |Field|Type|Description|
 |-----|----|-----------|
-|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
+|collector_target_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
 |sha|string|The commit hash, non-nullable.*|
 |is_merged|boolean|Flag as to whether the commit was merged or directly committed.|
 |date|datetime|When the commit was made, non-nullable.|
+|author_username|string|The username of the individual who created the commit, non-nullable.|
 
 \*Combined unique constraint.
 
@@ -119,7 +120,7 @@ In addition to the fields below, all models have the following fields.
 
 |Field|Type|Description|
 |-----|----|-----------|
-|repository_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|collector_target_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
 |title|string|The title of the request, non-nullable.|
 |is_open|boolean|Flag as to whether the commit is currently open.|
 |first_opened|When the request was first opened and not in draft.|
@@ -131,25 +132,24 @@ In addition to the fields below, all models have the following fields.
 
 |Field|Type|Description|
 |-----|----|-----------|
-|pipeline_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
+|collector_target_id|integer|Foreign key to `collector_targets.id`, non-nullable.|
 |build_url|string|The URL of the build, unique and non-nullable.|
-|build_status|string|Whether the build passed or failed overall, non-nullable.|
+|build_status|enum|The overall status of the build, non-nullable. Possible values: `PASSED`, `FAILED`, `PASSED_WITH_WARNINGS`.|
 |start_time|datetime|When the build was started.|
 |end_time|datetime|When the build finished.|
 |is_deployed|boolean|Whether the pipeline executed a deploy.|
-|passed_with_warnings|boolean|If the build succeeds with failed jobs.|
 
 **tickets** - Work tickets collected from a ticketboard collector target.
 
 |Field|Type|Description|
 |-----|----|-----------|
-|board_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
-|ticket_id|integer|The ID of the ticket assigned by the resource, non-nullable.*|
+|collector_target_id|integer|Foreign key to `collector_targets.id`, non-nullable.*|
+|resource_id|string|The ID of the ticket assigned by the resource, non-nullable.*|
 |assignee|string|The email of the person assigned the ticket.|
-|status|string|The current status of the ticket, non-nullable.|
-|ticket_type|string|Whether the ticket is considered to be for features, defects, maintenance, or unplanned work.|
+|status|enum|The current status of the ticket, non-nullable. Possible values: `TO_DO`, `IN_PROGRESS`, `DONE`.|
+|ticket_type|enum|Whether the ticket is considered to be for features, defects, maintenance, or unplanned work. Possible values: `FEATURE`, `DEFECT`, `MAINTENANCE`, `UNPLANNED`.|
 |super_ticket_id|integer|Foreign key to `tickets.id`.|
-|priority|string|The priority assigned to the ticket.|
+|priority|enum|The priority assigned to the ticket. Possible values: `HIGHEST`, `HIGH`, `MEDIUM`, `LOW`, `LOWEST`.|
 
 \*Combined unique constraint.
 
@@ -159,7 +159,7 @@ In addition to the fields below, all models have the following fields.
 |-----|----|-----------|
 |ticket_id|integer|Foreign key to `tickets.id`, non-nullable.*|
 |date|datetime|When the status was changed.*|
-|status|string|What the status was changed to.|
+|status|enum|What the status was changed to. Possible values: `TO_DO`, `IN_PROGRESS`, `DONE`.|
 
 \*Combined unique constraint.
 
@@ -216,13 +216,35 @@ As there are a few moving parts, the following is a step-by-step guide to add ev
 
 ### Creating our models
 
-Model definitions are found under `app/models`. To start, we will create a file for our `forum` model `forum.py`:
+Model definitions are found under `app/models`. To start, we will create a file for our `Thread` model `thread.py`:
+
+```python
+"""Forum thread model."""
+from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
+
+from ._base import MetadataBase, ModelBase
+
+class Thread(MetadataBase, ModelBase):
+    """Model class."""
+
+    __tablename__ = "threads"
+    __table_args__ = (UniqueConstraint("resource_id", "collector_target_id",),)
+
+    resource_id: Mapped[str]
+
+    collector_target_id: Mapped[int] = mapped_column(ForeignKey("collector_targets".id, ondelete="CASCADE"))
+```
+
+The model inherits from `MetadataBase` and `ModelBase` which provide data for migrations and the definitions for the primary key and some timestamp fields respectively. In addition, we defined a relationship to the `CollectorTarget` model which we will expand upon in the next file, as well as a `resource_id` field to connect what we input in our database with the unique identifier used by whatever service we are collecting from.
+
+Next we will make our `Forum` model `forum.py`. 
 
 ```python
 """Forum model."""
 from typing import List, Optional
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from .collector_target import CollectorTarget
 from .thread import Thread
@@ -231,32 +253,14 @@ from .thread import Thread
 class Forum(CollectorTarget):
     """Model class."""
 
+    resource_id: Mapped[str]
     description: Mapped[Optional[str]]
 
-    forum_id: Mapped[Optional[int]] = mapped_column(index=True)
-    threads: Mapped[List["Thread"]] = relationship()
+    threads: Mapped[List["Thread"]] = relationship(default_factory=list)
 ```
 
-The `CollectorTarget` parent class applies several common fields that all these top level models utilize. It also inherits from `MetadataBase` and `ModelBase` which provide data for migrations and the definitions for the primary key and some timestamp fields respectively.
+The `CollectorTarget` parent class applies several common fields that all these top level models utilize including inheriting the already discussed `MetadataBase` and `ModelBase`. We also establish the other side of the relationship established in `thread.py`.
 
-Next, we will create our `thread` model in a new file `thread.py`.
-
-```python
-"""Forum thread model."""
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
-
-from ._base import MetadataBase, ModelBase
-from .forum import Forum
-
-class Thread(MetadataBase, ModelBase):
-    """Model class."""
-
-    __tablename__ = "threads"
-
-    forum_id: Mapped[int] = mapped_column(ForeignKey(Forum.id, ondelete="CASCADE"))
-    url: Mapped[str] = mapped_column(unique=True)
-```
 
 Next we need to update the `Team` model in `team.py` to include a relationship to `Forum`.
 
@@ -266,7 +270,18 @@ Next we need to update the `Team` model in `team.py` to include a relationship t
 
         ...
 
-        forums: Mapped[List["Forum"]] = relationship(overlaps="collector_targets")
+        forums: Mapped[List["Forum"]] = relationship(overlaps="collector_targets", default_factory=list)
+```
+
+In addition, we need to add a new type to our `CollectorTargetType` enum in `collector_target.py`. We'll call this data type `DISCUSSION` data.
+
+```python
+class CollectorTargetType(enum.Enum):
+    """Enum for 'type' field of CollectorTarget."""
+
+    ...
+    DISCUSSION = "DISCUSSION
+
 ```
 
 Now we just need to add the new models to `__init__.py` for easy imports.
@@ -286,6 +301,8 @@ and then
 `docker exec holocron_backend alembic revision --autogenerate` 
 
 If consolidating migration files is desired, delete any migration files that you want to merge, clear the database, and then run the command above.
+
+Note: Automatic migrations may not work as desired and should be reviewed. This is especially true with enums which can often require quite a bit of custom commands. Look through previous migration files for examples if needed.
 
 ### Schemas
 
@@ -371,7 +388,8 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Forum
+from app.exceptions import HolocronIntegrityError
+from app.models import CollectorTargetType, Forum
 
 from ._base import BaseCRUD
 from .teams import teams_crud
@@ -379,10 +397,23 @@ from .teams import teams_crud
 class ForumsCRUD(BaseCRUD[Forum]):
     """Base CRUD extension for Forum model."""
 
+    def get_entity(self, session, id_: int) -> Forum:
+        """Override get_entity to return only forum."""
+        result = session.scalars(
+            select(Forum)
+            .where(Forum.type == CollectorTargetType.DISCUSSION)
+            .where(Forum.id == id_)
+        ).first()
+        if result is None:
+            raise HolocronIntegrityError(
+                f"{Forum.__name__} id", f"Invalid id: {id_}"
+            )
+        return result
+
     def get_entities(self, session: Session) -> Sequence[Forum]:
         """Override get_entities to return only forums."""
         return session.scalars(
-            select(Forum).where(Forum.forum_id.is_not(None))
+            select(Forum).where(Forum.type == CollectorTargetType.DISCUSSION)
         ).all()
     
     @staticmethod
@@ -392,14 +423,14 @@ class ForumsCRUD(BaseCRUD[Forum]):
         return session.scalars(
             select(Forum)
             .where(Forum.team_id == team.id)
-            .where(Forum.forum_id.is_not(None))
+            .where(Forum.type == CollectorTargetType.DISCUSSION)
         ).all()
 
 
 forums_crud = ForumsCRUD(Forum)
 ```
 
-The `BaseCRUD` parent class defines several basic CRUD methods for our model. Here we override `get_entities` because otherwise it can't differentiate between the different types of collector targets, so we tell it to only grab those with a `forum_id`. We also define a similar method for getting all entities for a given `team_id`. Finally, we instantiate our class.
+The `BaseCRUD` parent class defines several basic CRUD methods for our model. Here we override `get_entity` and `get_entities` because otherwise it can't differentiate between the different types of collector targets, so we tell it to only grab those with the proper type. We also define a similar method for getting all entities for a given `team_id`. Finally, we instantiate our class.
 
 Next, let's make `threads.py`.
 
@@ -414,11 +445,10 @@ class ThreadsCRUD(BaseMetricCRUD[Thread]):
     """Base CRUD extension for Thread model."""
 
 
-threads_crud = ThreadsCRUD(Thread, Forum, "form_id")
+threads_crud = ThreadsCRUD(Thread, Forum)
 ```
 
-Here we inherit `BaseMetricCRUD` which is a class that inherits `BaseCRUD` and also defines a generic method to get all entities for a given team. We don't need any new methods or overrides here so we then just instantiate our class. Additionally, `Thread` has a foreign key to `Form` named `form_id`
-which we need to pass in the constructor.
+Here we inherit `BaseMetricCRUD` which is a class that inherits `BaseCRUD` and also defines a generic method to get all entities for a given team. We don't need any new methods or overrides here so we then just instantiate our class. 
 
 Now we just need to once again add our new class instances to the `__init__.py` for easy imports.
 
@@ -435,21 +465,21 @@ Let's create `forums.py`.
 
 ```python
 """Forum routes."""
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import forums_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas import ForumSchema
 from app.security import get_sanitized_id
-
-router = Blueprint("forums", __name__, url_prefix="/forums")
 
 schema = ForumSchema()
 
 
-@router.route("", methods=["GET"])
-def list_forums():
+def list_forums() -> Tuple[Any, int]:
     """Get forums."""
     with generate_session() as session:
         raw_forums = forums_crud.get_entities(session)
@@ -458,8 +488,8 @@ def list_forums():
     return jsonify(result), 200
 
 
-@router.route("/team/<team_id>", methods=["GET"])
-def list_forums_for_team(team_id: str):
+@requires_security([requires_admin, requires_team_access])
+def list_forums_for_team(team_id: str) -> Tuple[Any, int]:
     """Get forums for a given team id."""
     with generate_session() as session:
         try:
@@ -472,8 +502,7 @@ def list_forums_for_team(team_id: str):
     return jsonify(result), 200
 
 
-@router.route("/<forum_id>", methods=["GET"])
-def get_forum(forum_id: str):
+def get_forum(forum_id: str) -> Tuple[Any, int]:
     """Get forum by id."""
     with generate_session() as session:
         try:
@@ -483,6 +512,15 @@ def get_forum(forum_id: str):
             return "Resource not found", 404
         result = schema.dump(raw_forum)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("forums", __name__, url_prefix="/forums")
+    router.route("", methods=["GET"])(list_forums)
+    router.route("/team/<team_id>", methods=["GET"])(list_forums_for_team)
+    router.route("/<forum_id>", methods=["GET"])(get_project)
+    return router
 ```
 
 Here we created our a router and instantiated our schema class before defining our endpoints as functions. In each endpoint we connect to the database and run the corresponding CRUD operation as well as the schema dump. We include some error handling to return 404s when appropriate, otherwise we return with a 200 code.
@@ -490,20 +528,21 @@ Here we created our a router and instantiated our schema class before defining o
 Now we can make the endpoints for the `thread` model with `threads.py`.
 
 ```python
+from typing import Any, Tuple
+
 from flask import Blueprint, jsonify
 
 from app.crud import threads_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
+from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas import ThreadSchema
 from app.security import get_sanitized_id
-
-router = Blueprint("threads", __name__, url_prefix="/threads")
 
 schema = ThreadSchema()
 
 
-@router.route("/team/<team_id>", methods=["GET"])
+@requires_security([requires_admin, requires_team_access])
 def list_threads_for_team(team_id: str):
     """Get threads for a given team id."""
     with generate_session() as session:
@@ -517,7 +556,7 @@ def list_threads_for_team(team_id: str):
     return jsonify(result), 200
 
 
-@router.route("/<thread_id>", methods=["GET"])
+@requires_security([requires_admin])
 def get_thread(thread_id: str):
     """Get thread by id."""
     with generate_session() as session:
@@ -528,6 +567,14 @@ def get_thread(thread_id: str):
             return "Resource not found", 404
         result = schema.dump(raw_thread)
     return jsonify(result), 200
+
+
+def create_router() -> Blueprint:
+    """Router factory."""
+    router = Blueprint("threads", __name__, url_prefix="/threads")
+    router.route("/team/<team_id>", methods=["GET"])(list_threads_for_team)
+    router.route("/<thread_id>", methods["GET"])(get_thread)
+    return router
 ```
 
 Then we register these routers in the main router located in `__init__.py`.
@@ -549,7 +596,6 @@ And now our endpoints are added to the application. If you check them out, they 
 Next, we want to update our OpenAPI docs to include these new endpoints. This is accomplished by expanding the docstring of the endpoint function. We will start with `forums.py`.
 
 ```python
-@router.route("", methods=["GET"])
 def list_forums():
     """Get forums.
 
@@ -571,7 +617,6 @@ def list_forums():
     ...
 
 
-@router.route("/team/<team_id>", methods=["GET"])
 def list_forums_for_team(team_id: str):
     """Get forums for a given team id.
 
@@ -602,7 +647,6 @@ def list_forums_for_team(team_id: str):
     ...
 
 
-@router.route("/<forum_id>", methods=["GET"])
 def get_forum(forum_id: str):
     """Get forum by id.
 
@@ -656,7 +700,7 @@ def test_get_entities(mock_sqlalchemy, mock_session):
     """Test get_entities method."""
     expected = (
         "SELECT * FROM collector_targets "
-        + "WHERE collector_targets.forum_id IS NOT NULL"
+        + "WHERE collector_targets.type = :type_1"
     )
 
     result = forums_crud.get_entities(mock_session)
@@ -669,7 +713,7 @@ def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     expected = (
       "SELECT * FROM collector_targets "
       + "WHERE collector_targets.team_id = :team_id_1 "
-      + "WHERE collector_targets.forum_id IS NOT NULL"
+      + "WHERE collector_targets.type = :type_1"
     )
 
     result = forums_crud.get_entities_for_team(mock_session, 1)

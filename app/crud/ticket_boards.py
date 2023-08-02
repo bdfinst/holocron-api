@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
-from app.models import TicketBoard
+from app.models import CollectorTargetType, TicketBoard
 
 from ._base import BaseCRUD
 from .teams import teams_crud
@@ -18,7 +18,7 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
         """Override get_entity to return only ticket board."""
         result = session.scalars(
             select(TicketBoard)
-            .where(TicketBoard.board_id.is_not(None))
+            .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
             .where(TicketBoard.id == id_)
         ).first()
         if result is None:
@@ -30,7 +30,7 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
     def get_entities(self, session: Session) -> Sequence[TicketBoard]:
         """Override get_entities to return only ticket boards."""
         return session.scalars(
-            select(TicketBoard).where(TicketBoard.board_id.is_not(None))
+            select(TicketBoard).where(TicketBoard.type == CollectorTargetType.WORKFLOW)
         ).all()
 
     @staticmethod
@@ -40,7 +40,7 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
         return session.scalars(
             select(TicketBoard)
             .where(TicketBoard.team_id == team.id)
-            .where(TicketBoard.board_id.is_not(None))
+            .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
         ).all()
 
 

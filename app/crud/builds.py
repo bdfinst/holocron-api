@@ -8,4 +8,4 @@ class BuildCRUD(BaseMetricCRUD[Build]):
     """Base CRUD extension for Build model."""
 
 
-builds_crud = BuildCRUD(Build, Pipeline, "pipeline_id")
+builds_crud = BuildCRUD(Build, Pipeline)

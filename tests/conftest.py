@@ -1,11 +1,9 @@
 """Test fixtures and configuration."""
-import warnings
 from unittest.mock import MagicMock
 
 from pytest import MonkeyPatch, fixture
 
 import app
-from app.routes.v2 import create_v2_router
 from tests.mocks import mock_delete, mock_select, session
 
 
@@ -36,16 +34,15 @@ def mock_session():
 def application(monkeypatch):
     """Run application factory."""
     monkeypatch.setattr(app.app.Database, "establish_connection", MagicMock())
-    monkeypatch.setattr(app.app, "organizations_cache_v1", MagicMock())
     monkeypatch.setattr(app.app, "organizations_cache_v2", MagicMock())
     monkeypatch.setattr(app.app, "set_user", MagicMock())
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
     monkeypatch.setattr(
-        app.routes.v1.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
+        app.routes.v2.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
     )
     monkeypatch.setattr(
-        app.routes.v1,
+        app.routes.v2,
         "FEATURE_FLAGS",
         {
             "FEATURE_COST_METRICS": True,

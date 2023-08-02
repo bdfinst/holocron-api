@@ -18,7 +18,7 @@ def test_process_code_review_trend():
                     merged_at=None,
                     first_opened=datetime(year=2000, month=1, day=25),
                     last_updated=datetime(year=2000, month=1, day=25),
-                    repository_id=1,
+                    collector_target_id=1,
                 )
             ],
             {},
@@ -36,7 +36,7 @@ def test_process_code_review_trend():
                     merged_at=None,
                     first_opened=datetime(year=2000, month=1, day=25),
                     last_updated=datetime(year=2000, month=1, day=25),
-                    repository_id=1,
+                    collector_target_id=1,
                 ),
                 # week { "2000-01-03": 5 }
                 GitRequest(
@@ -46,7 +46,7 @@ def test_process_code_review_trend():
                     merged_at=datetime(year=2000, month=1, day=9),
                     first_opened=datetime(year=2000, month=1, day=4),
                     last_updated=datetime(year=2000, month=1, day=25),
-                    repository_id=1,
+                    collector_target_id=1,
                 ),
                 # week { "2000-01-10": 11 }
                 GitRequest(
@@ -56,7 +56,7 @@ def test_process_code_review_trend():
                     merged_at=datetime(year=2000, month=1, day=15),
                     first_opened=datetime(year=2000, month=1, day=4),
                     last_updated=datetime(year=2000, month=1, day=25),
-                    repository_id=1,
+                    collector_target_id=1,
                 ),
                 # week { "2000-01-03": 0.5 }
                 GitRequest(
@@ -66,7 +66,7 @@ def test_process_code_review_trend():
                     merged_at=datetime(year=2000, month=1, day=5, hour=12),
                     first_opened=datetime(year=2000, month=1, day=5),
                     last_updated=datetime(year=2000, month=1, day=25),
-                    repository_id=1,
+                    collector_target_id=1,
                 ),
             ],
             {

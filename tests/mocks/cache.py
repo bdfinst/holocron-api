@@ -36,11 +36,6 @@ class MetricsV2Tuple(NamedTuple):
     organization_id: int
 
 
-result_v1 = {
-    "name": "org_name_test",
-    "valuestreams": [{"name": "vs_name_test", "teams": [{"name": "team_name_test"}]}],
-}
-
 result_v2 = [
     MetricsV2Schema().dump(
         MetricsV2Tuple(
@@ -54,5 +49,4 @@ result_v2 = [
     )
 ]
 
-cache_v1 = MockCache(result_v1)
 cache_v2 = MockCache(result_v2)

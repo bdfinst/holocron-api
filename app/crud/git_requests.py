@@ -8,4 +8,4 @@ class GitRequestsCRUD(BaseMetricCRUD[GitRequest]):
     """Base CRUD extension for GitRequest model."""
 
 
-git_requests_crud = GitRequestsCRUD(GitRequest, Repository, "repository_id")
+git_requests_crud = GitRequestsCRUD(GitRequest, Repository)

@@ -13,9 +13,6 @@ from app.models import (
     Ticket,
     Valuestream,
 )
-from app.processors.v1.repo_build import get_latest_builds
-from app.processors.v1.utils import flat_map
-from app.processors.v1.wip_load import process_wip_load
 
 from .code_review_trend import process_code_review_trend
 from .cumulative_flow import process_cumulative_flow
@@ -25,9 +22,11 @@ from .effort import process_effort
 from .integration_frequency import process_integration_frequency
 from .lead_time import process_lead_time
 from .maintainability import process_maintainability_score
+from .repo_build import get_latest_builds
 from .team_history import process_team_history
 from .types import ChartData
-from .utils import average, get_monday_string
+from .utils import average, flat_map, get_monday_string
+from .wip_load import process_wip_load
 
 
 class Age(NamedTuple):
@@ -250,7 +249,10 @@ def process_team(
             if gr.is_open and (datetime.now() - gr.last_updated) > timedelta(hours=1)
         ],
         stale_branches=[
-            b for b in branches if (datetime.now() - b.last_updated) > timedelta(days=1)
+            b
+            for b in branches
+            if ((datetime.now() - b.last_updated) > timedelta(days=1))
+            and not b.is_default
         ],
         latest_builds=builds,
         active_issues=[i for i in issues if i.closed_date is None],

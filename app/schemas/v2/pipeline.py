@@ -4,9 +4,10 @@ from typing import Tuple
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
-from app.models import Pipeline
-from app.schemas.v1._base import SchemaBase
-from app.schemas.v1.collector_target_config import ConfigItemV1Schema
+from app.models import CollectorTargetType, Pipeline
+
+from ._base import SchemaBase
+from .collector_target_config import ConfigItemV2Schema
 
 
 class PipelineV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -17,7 +18,8 @@ class PipelineV2Schema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Pipeline
         include_relationships = True
-        exclude: Tuple[str, ...] = ("builds", "pipeline_id")
+        exclude: Tuple[str, ...] = ("builds",)
 
     team_id = auto_field()
-    config = fields.Nested(ConfigItemV1Schema, many=True)
+    type = fields.Enum(CollectorTargetType, by_value=True)
+    config = fields.Nested(ConfigItemV2Schema, many=True)

@@ -3,13 +3,12 @@ from marshmallow import Schema
 from marshmallow.fields import Boolean, Dict, Field, Int, Nested, Number, String
 
 from app.config import FEATURE_FLAGS
-from app.schemas.v1 import (
-    BranchV1Schema,
-    BuildV1Schema,
-    GitRequestV1Schema,
-    ProjectIssueV1Schema,
-)
-from app.schemas.v1._base import camelcase
+
+from ._base import camelcase
+from .branch import BranchV2Schema
+from .build import BuildV2Schema
+from .git_request import GitRequestV2Schema
+from .project_issue import ProjectIssueV2Schema
 
 
 class MetricsSchemaBase(Schema):
@@ -75,11 +74,11 @@ class MetricsV2Schema(MetricsSchemaBase):
     value_stream_name = String()
     value_stream_id = Number()
     stale_backlog_tickets = Number()
-    stale_git_requests = Nested(GitRequestV1Schema, many=True)
-    stale_branches = Nested(BranchV1Schema, many=True)
-    latest_builds = Nested(BuildV1Schema, many=True)
+    stale_git_requests = Nested(GitRequestV2Schema, many=True)
+    stale_branches = Nested(BranchV2Schema, many=True)
+    latest_builds = Nested(BuildV2Schema, many=True)
     if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
-        active_issues = Nested(ProjectIssueV1Schema, many=True)
+        active_issues = Nested(ProjectIssueV2Schema, many=True)
     historical_data = Nested(HistoricalDataV2Schema, many=True)
     age_of_tickets_in_backlog = Nested(AgeV2Schema, many=True)
 
