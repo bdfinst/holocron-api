@@ -180,7 +180,7 @@ def upgrade():
         "UPDATE builds SET build_status = 'FAILED' WHERE build_status = 'failed'"
     )
     op.execute(
-        "UPDATE builds SET build_status = 'PASSED WITH WARNINGS' WHERE passed_with_warnings = true"
+        "UPDATE builds SET build_status = 'PASSED_WITH_WARNINGS' WHERE passed_with_warnings = true"
     )
     op.execute(
         "DELETE FROM builds WHERE (build_status != 'PASSED' AND build_status != 'FAILED' AND build_status != 'PASSED WITH WARNINGS')"
