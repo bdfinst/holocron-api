@@ -22,7 +22,7 @@ from tests.testdata import (
 team_json = {
     "name": "test",
     "teamSize": 1,
-    "users": [],
+    "userIds": [1],
     "collectorTargetIds": [21],
     "valuestreamId": 1,
 }
@@ -87,6 +87,13 @@ def test_requires_valid_team_data_create(
     """Test requires_valid_team_data function create success."""
     setattr(mock_request, "json", team_json)
     assert requires_valid_team_data(wrapped_test_func)() == wrapped_test_func()
+
+
+def test_requires_valid_team_data_400(mock_request):
+    """Test requires_valid_team_data function 400."""
+    setattr(mock_request, "json", {})
+    _, status_code = requires_valid_team_data(wrapped_test_func())()
+    assert status_code == 400
 
 
 def test_requires_valid_team_data_404(
@@ -242,6 +249,13 @@ def test_requires_valid_team_view_data_create(
     """Test requires_valid_team_view_data function create success."""
     setattr(mock_request, "json", team_view_json)
     assert requires_valid_team_view_data(wrapped_test_func)() == wrapped_test_func()
+
+
+def test_requires_valid_team_view_data_400(mock_request):
+    """Test requires_valid_team_data function 400."""
+    setattr(mock_request, "json", {})
+    _, status_code = requires_valid_team_view_data(wrapped_test_func())()
+    assert status_code == 400
 
 
 def test_requires_valid_team_view_data_404(

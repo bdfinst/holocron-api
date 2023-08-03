@@ -3,15 +3,20 @@ from functools import wraps
 from typing import Callable, Tuple
 
 from flask import request
+from marshmallow import ValidationError
 from sqlalchemy.orm import Session
 
 from app.crud import collector_targets_crud, ticket_boards_crud, valuestreams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.security import get_sanitized_id
+from app.schemas.v2 import TeamV2Schema, TeamViewV2Schema
+from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
 USED_COLLECTOR_TARGET_MSG = "collectorTargetIds - already in use"
 TEAM_NAME_ALREADY_EXISTS_MSG = "name - already exists"
+
+team_schema = TeamV2Schema()
+team_view_schema = TeamViewV2Schema()
 
 
 def is_ticket_board(session: Session, collector_target_id: int) -> bool:
@@ -115,11 +120,15 @@ def requires_valid_team_data(original_func: Callable) -> Callable:
     @wraps(original_func)
     def wrapper(*args, **kwargs):
         try:
+            team_schema.load(request.json)
             is_valid, invalid_msg = (
                 is_valid_team_data_for_update(*args, **kwargs)
                 if kwargs
                 else is_valid_team_data_for_create(*args, **kwargs)
             )
+        except ValidationError as err:
+            log_security_event(MALFORMED_REQ_PARAMS_MSG)
+            return err.messages, 400
         except HolocronIntegrityError:
             return "Resource not found", 404
         return original_func(*args, **kwargs) if is_valid else (invalid_msg, 400)
@@ -178,11 +187,15 @@ def requires_valid_team_view_data(original_func: Callable) -> Callable:
     @wraps(original_func)
     def wrapper(*args, **kwargs):
         try:
+            team_view_schema.load(request.json)
             is_valid, invalid_msg = (
                 is_valid_team_view_data_for_update(*args, **kwargs)
                 if kwargs
                 else is_valid_team_view_data_for_create(*args, **kwargs)
             )
+        except ValidationError as err:
+            log_security_event(MALFORMED_REQ_PARAMS_MSG)
+            return err.messages, 400
         except HolocronIntegrityError:
             return "Resource not found", 404
         return original_func(*args, **kwargs) if is_valid else (invalid_msg, 400)
