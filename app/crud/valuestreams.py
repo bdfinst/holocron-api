@@ -80,11 +80,10 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
         valuestream.name = json["name"]
         valuestream.organization_id = json["organization_id"]
 
-        valuestream.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
-        ]
-
         try:
+            valuestream.users = [
+                users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            ]
             session.add(valuestream)
             session.commit()
             session.refresh(valuestream)
