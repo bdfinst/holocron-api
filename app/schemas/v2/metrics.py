@@ -58,7 +58,10 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
     low_priority_defects_created = Number()
     lowest_priority_defects_created = Number()
     if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
-        maintainability_score = Number()
+        maintainability_issues = Number()
+        maintainability_low_severity_issues = Number()
+        maintainability_medium_severity_issues = Number()
+        maintainability_high_severity_issues = Number()
 
 
 class MetricsV2Schema(MetricsSchemaBase):
