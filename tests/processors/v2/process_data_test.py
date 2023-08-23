@@ -1,5 +1,5 @@
 """Processor process_data test."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.processors.v2 import cumulative_flow, effort, maintainability, process_data
 from app.processors.v2.cumulative_flow import CumulativeFlowChartData
@@ -45,7 +45,11 @@ def test_process_organization(monkeypatch):
     """Integration testing for the overall process organization."""
     monkeypatch.setattr(cumulative_flow, "datetime", mock_dt)
     monkeypatch.setattr(effort, "datetime", mock_dt)
-    monkeypatch.setattr(maintainability, "datetime", mock_dt)
+    monkeypatch.setattr(
+        maintainability,
+        "datetime",
+        MockDateTime(datetime(year=2000, month=1, day=16).replace(tzinfo=timezone.utc)),
+    )
     monkeypatch.setattr(
         process_data, "FEATURE_FLAGS", {"FEATURE_DEPLOY_FREQUENCY": True}
     )
@@ -95,7 +99,10 @@ def test_process_organization(monkeypatch):
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
                     lowest_priority_defects_created=0,
-                    maintainability_score=1,
+                    maintainability_issues=1,
+                    maintainability_high_severity_issues=0,
+                    maintainability_medium_severity_issues=0,
+                    maintainability_low_severity_issues=1,
                 ),
                 HistoricalData(
                     week="2000-01-10",
@@ -124,7 +131,10 @@ def test_process_organization(monkeypatch):
                     medium_priority_defects_created=0,
                     low_priority_defects_created=0,
                     lowest_priority_defects_created=0,
-                    maintainability_score=4,
+                    maintainability_issues=2,
+                    maintainability_high_severity_issues=0,
+                    maintainability_medium_severity_issues=1,
+                    maintainability_low_severity_issues=1,
                 ),
             ],
             age_of_tickets_in_backlog=[],

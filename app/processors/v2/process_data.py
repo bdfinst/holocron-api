@@ -21,7 +21,7 @@ from .deploy_frequency import process_deploy_frequency
 from .effort import process_effort
 from .integration_frequency import process_integration_frequency
 from .lead_time import process_lead_time
-from .maintainability import process_maintainability_score
+from .maintainability import process_maintainability_data
 from .repo_build import get_latest_builds
 from .team_history import process_team_history
 from .types import ChartData
@@ -64,7 +64,10 @@ class HistoricalData(NamedTuple):
     medium_priority_defects_created: int
     low_priority_defects_created: int
     lowest_priority_defects_created: int
-    maintainability_score: int
+    maintainability_issues: int
+    maintainability_low_severity_issues: int
+    maintainability_medium_severity_issues: int
+    maintainability_high_severity_issues: int
 
 
 class TeamMetrics(NamedTuple):
@@ -136,8 +139,23 @@ def build_historical_data(
             ),
             total_tickets_in_backlog=len(data["backlog"].get(week, [])),
             total_tickets_in_progress=len(data["wip"].get(week, [])),
-            maintainability_score=sum(
-                data["maintainability_score"].get(week, [])  # type: ignore
+            maintainability_issues=sum(
+                data["maintainability_issues"].get(week, [])  # type: ignore
+            ),
+            maintainability_low_severity_issues=sum(
+                data["maintainability_low_severity_issues"].get(
+                    week, []
+                )  # type: ignore
+            ),
+            maintainability_medium_severity_issues=sum(
+                data["maintainability_medium_severity_issues"].get(
+                    week, []
+                )  # type: ignore
+            ),
+            maintainability_high_severity_issues=sum(
+                data["maintainability_high_severity_issues"].get(
+                    week, []
+                )  # type: ignore
             ),
             total_throughput=len(data["throughput"].get(week, [])),
             ticket_lead_times=[Age(age) for age in data["lead_time"].get(week, [])],
@@ -190,7 +208,12 @@ def process_team(
     wip_load = process_wip_load(tickets)
 
     issues = flat_map(team.projects, lambda project: project.issues)
-    maintainability_score = process_maintainability_score(issues)
+    (
+        m_issues,
+        m_high_severity_issues,
+        m_medium_severity_issues,
+        m_low_severity_issues,
+    ) = process_maintainability_data(issues)
 
     historical_data = build_historical_data(
         team,
@@ -210,7 +233,10 @@ def process_team(
             "review_age": review_frequency,
             "backlog": cumulative_flow.backlog,
             "wip": cumulative_flow.wip,
-            "maintainability_score": maintainability_score,
+            "maintainability_issues": m_issues,
+            "maintainability_low_severity_issues": m_low_severity_issues,
+            "maintainability_medium_severity_issues": m_medium_severity_issues,
+            "maintainability_high_severity_issues": m_high_severity_issues,
             "throughput": lead_time.throughput,
             "lead_time": lead_time.lead_time,
             "deploys": deploy_frequency,

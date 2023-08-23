@@ -1,21 +1,21 @@
-"""Test process_maintainability_score."""
-from datetime import datetime
+"""Test process_maintainability_data."""
+from datetime import datetime, timezone
 
 from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType
 from app.processors.v2 import maintainability
-from app.processors.v2.maintainability import process_maintainability_score
+from app.processors.v2.maintainability import process_maintainability_data
 
 
 class MockDatetime:
     """Mock Datetime class."""
 
-    def now(self):
+    def now(self, tz=timezone.utc):
         """Mock now method."""
-        return datetime(2020, 2, 1)
+        return datetime(2020, 2, 1).replace(tzinfo=timezone.utc)
 
 
-def test_process_maintainability_score(monkeypatch):
-    """Test process_maintainability_score function."""
+def test_process_maintainability_data(monkeypatch):
+    """Test process_maintainability_data function."""
     monkeypatch.setattr(maintainability, "datetime", MockDatetime())
     cases = [
         (
@@ -52,17 +52,43 @@ def test_process_maintainability_score(monkeypatch):
                     created_date=datetime(2020, 1, 1),
                     closed_date=None,
                 ),
+                ProjectIssue(
+                    resource_id="4",
+                    package="test",
+                    collector_target_id=1,
+                    severity=ProjectIssueSeverity.HIGH,
+                    type=ProjectIssueType.MAINTAINABILITY,
+                    issue_url="test.com/4",
+                    created_date=datetime(2020, 1, 1),
+                    closed_date=datetime(2020, 1, 21),
+                ),
             ],
-            {
-                "2020-01-06": [1],
-                "2020-01-13": [1],
-                "2020-01-20": [1, 3],
-                "2020-01-27": [3],
-            },
+            (
+                {  # all issues date map
+                    "2020-01-06": [1, 1],
+                    "2020-01-13": [1, 1],
+                    "2020-01-20": [1, 1, 1],
+                    "2020-01-27": [1],
+                },
+                {  # low severity issues date map
+                    "2020-01-06": [1],
+                    "2020-01-13": [1],
+                    "2020-01-20": [1],
+                },
+                {  # medium severity issues date map
+                    "2020-01-20": [1],
+                    "2020-01-27": [1],
+                },
+                {  # high severity issues date map
+                    "2020-01-06": [1],
+                    "2020-01-13": [1],
+                    "2020-01-20": [1],
+                },
+            ),
         )
     ]
 
     for case in cases:
         _, case_input, expected = case
-        actual = process_maintainability_score(case_input)
+        actual = process_maintainability_data(case_input)
         assert expected == actual
