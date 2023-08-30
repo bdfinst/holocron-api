@@ -1,9 +1,15 @@
 """Utilities."""
 from datetime import datetime, timedelta, timezone
-from typing import Callable, List, Optional, TypeVar
+from typing import Callable, Iterator, List, Optional, Tuple, TypeVar
 
 from app import config
-from app.models import Ticket, TicketStatus, TicketType
+from app.models import (
+    ProjectIssue,
+    ProjectIssueSeverity,
+    Ticket,
+    TicketStatus,
+    TicketType,
+)
 
 T = TypeVar("T")
 V = TypeVar("V")
@@ -144,3 +150,22 @@ def is_between_dates(
     if date_to_check > second_date:
         return False
     return True
+
+
+def get_issues_historical_data_stream(
+    issues: Iterator[ProjectIssue],
+) -> Iterator[Tuple[str, ProjectIssueSeverity]]:
+    """Yield issues metrics."""
+    for issue in issues:
+        end_date = (
+            issue.closed_date
+            if issue.closed_date is not None
+            else get_monday(datetime.now() + timedelta(days=7))
+        ).astimezone(timezone.utc)
+        date_to_check = get_monday(issue.created_date).astimezone(
+            timezone.utc
+        ) + timedelta(days=7)
+        while date_to_check <= end_date and date_to_check < datetime.now(timezone.utc):
+            monday_string = get_monday_string(date_to_check)
+            date_to_check += timedelta(days=7)
+            yield monday_string, issue.severity

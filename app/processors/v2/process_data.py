@@ -26,6 +26,7 @@ from .repo_build import get_latest_builds
 from .team_history import process_team_history
 from .types import ChartData
 from .utils import average, flat_map, get_monday_string
+from .vulnerability import process_vulnerability_data
 from .wip_load import process_wip_load
 
 
@@ -68,6 +69,10 @@ class HistoricalData(NamedTuple):
     maintainability_low_severity_issues: int
     maintainability_medium_severity_issues: int
     maintainability_high_severity_issues: int
+    vulnerabilities: int
+    high_severity_vulnerabilities: int
+    medium_severity_vulnerabilities: int
+    low_severity_vulnerabilities: int
 
 
 class TeamMetrics(NamedTuple):
@@ -157,6 +162,16 @@ def build_historical_data(
                     week, []
                 )  # type: ignore
             ),
+            vulnerabilities=sum(data["vulnerabilities"].get(week, [])),  # type: ignore
+            high_severity_vulnerabilities=sum(
+                data["high_severity_vulnerabilities"].get(week, [])  # type: ignore
+            ),
+            medium_severity_vulnerabilities=sum(
+                data["medium_severity_vulnerabilities"].get(week, [])  # type: ignore
+            ),
+            low_severity_vulnerabilities=sum(
+                data["low_severity_vulnerabilities"].get(week, [])  # type: ignore
+            ),
             total_throughput=len(data["throughput"].get(week, [])),
             ticket_lead_times=[Age(age) for age in data["lead_time"].get(week, [])],
             total_deploys=len(data["deploys"].get(week, [])),
@@ -215,6 +230,13 @@ def process_team(
         m_low_severity_issues,
     ) = process_maintainability_data(issues)
 
+    (
+        v_issues,
+        v_high_severity_issues,
+        v_medium_severity_issues,
+        v_low_severity_issues,
+    ) = process_vulnerability_data(issues)
+
     historical_data = build_historical_data(
         team,
         {
@@ -237,6 +259,10 @@ def process_team(
             "maintainability_low_severity_issues": m_low_severity_issues,
             "maintainability_medium_severity_issues": m_medium_severity_issues,
             "maintainability_high_severity_issues": m_high_severity_issues,
+            "vulnerabilities": v_issues,
+            "high_severity_vulnerabilities": v_high_severity_issues,
+            "medium_severity_vulnerabilities": v_medium_severity_issues,
+            "low_severity_vulnerabilities": v_low_severity_issues,
             "throughput": lead_time.throughput,
             "lead_time": lead_time.lead_time,
             "deploys": deploy_frequency,
