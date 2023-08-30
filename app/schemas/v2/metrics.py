@@ -62,6 +62,10 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
         maintainability_low_severity_issues = Number()
         maintainability_medium_severity_issues = Number()
         maintainability_high_severity_issues = Number()
+        vulnerabilities = Number()
+        high_severity_vulnerabilities = Number()
+        medium_severity_vulnerabilities = Number()
+        low_severity_vulnerabilities = Number()
 
 
 class MetricsV2Schema(MetricsSchemaBase):

@@ -34,6 +34,26 @@ issues = [
         created_date=datetime(2000, 1, 1),
         closed_date=None,
     ),
+    ProjectIssue(
+        resource_id="4",
+        package="test",
+        collector_target_id=1,
+        severity=ProjectIssueSeverity.MEDIUM,
+        type=ProjectIssueType.VULNERABILITY,
+        issue_url="test.com/4",
+        created_date=datetime(2000, 1, 8),
+        closed_date=None,
+    ),
+    ProjectIssue(
+        resource_id="5",
+        package="test",
+        collector_target_id=1,
+        severity=ProjectIssueSeverity.HIGH,
+        type=ProjectIssueType.VULNERABILITY,
+        issue_url="test.com/5",
+        created_date=datetime(2000, 1, 8),
+        closed_date=None,
+    ),
 ]
 
 

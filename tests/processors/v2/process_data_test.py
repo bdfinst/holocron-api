@@ -1,7 +1,7 @@
 """Processor process_data test."""
 from datetime import datetime, timezone
 
-from app.processors.v2 import cumulative_flow, effort, maintainability, process_data
+from app.processors.v2 import cumulative_flow, effort, process_data, utils
 from app.processors.v2.cumulative_flow import CumulativeFlowChartData
 from app.processors.v2.cycle_time_defect import CycleTimeDefectChartData
 from app.processors.v2.effort import EffortChartData
@@ -46,7 +46,7 @@ def test_process_organization(monkeypatch):
     monkeypatch.setattr(cumulative_flow, "datetime", mock_dt)
     monkeypatch.setattr(effort, "datetime", mock_dt)
     monkeypatch.setattr(
-        maintainability,
+        utils,
         "datetime",
         MockDateTime(datetime(year=2000, month=1, day=16).replace(tzinfo=timezone.utc)),
     )
@@ -70,7 +70,7 @@ def test_process_organization(monkeypatch):
             stale_git_requests=git_requests,
             stale_branches=branches,
             latest_builds=[builds[1]],
-            active_issues=[issues[1], issues[2]],
+            active_issues=[issues[1], issues[2], issues[3], issues[4]],
             historical_data=[
                 HistoricalData(
                     week="2000-01-03",
@@ -103,6 +103,10 @@ def test_process_organization(monkeypatch):
                     maintainability_high_severity_issues=0,
                     maintainability_medium_severity_issues=0,
                     maintainability_low_severity_issues=1,
+                    vulnerabilities=1,
+                    high_severity_vulnerabilities=0,
+                    medium_severity_vulnerabilities=0,
+                    low_severity_vulnerabilities=1,
                 ),
                 HistoricalData(
                     week="2000-01-10",
@@ -135,6 +139,10 @@ def test_process_organization(monkeypatch):
                     maintainability_high_severity_issues=0,
                     maintainability_medium_severity_issues=1,
                     maintainability_low_severity_issues=1,
+                    vulnerabilities=3,
+                    high_severity_vulnerabilities=1,
+                    medium_severity_vulnerabilities=1,
+                    low_severity_vulnerabilities=1,
                 ),
             ],
             age_of_tickets_in_backlog=[],

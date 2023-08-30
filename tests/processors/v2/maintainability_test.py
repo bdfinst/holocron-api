@@ -1,25 +1,24 @@
 """Test process_maintainability_data."""
 from datetime import datetime, timezone
+from unittest.mock import MagicMock
 
 from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType
-from app.processors.v2 import maintainability
+from app.processors.v2 import utils
 from app.processors.v2.maintainability import process_maintainability_data
-
-
-class MockDatetime:
-    """Mock Datetime class."""
-
-    def now(self, tz=timezone.utc):
-        """Mock now method."""
-        return datetime(2020, 2, 1).replace(tzinfo=timezone.utc)
 
 
 def test_process_maintainability_data(monkeypatch):
     """Test process_maintainability_data function."""
-    monkeypatch.setattr(maintainability, "datetime", MockDatetime())
+    monkeypatch.setattr(
+        utils,
+        "datetime",
+        MagicMock(
+            now=lambda *_, **__: datetime(2020, 2, 1).replace(tzinfo=timezone.utc)
+        ),
+    )
     cases = [
         (
-            """Should calculate maintainability score.""",
+            """Should calculate maintainability issues.""",
             [
                 ProjectIssue(
                     resource_id="1",
