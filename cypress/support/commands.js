@@ -25,7 +25,6 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-const apiV2Url = `${Cypress.config('baseUrl')}/api/v2`
 const timeout = 240000
 
 cy.utils = {
@@ -36,15 +35,13 @@ cy.utils = {
 }
 
 Cypress.Commands.add('mockAuth', () => {
-  if (Cypress.config('mode') == 'pipeline') {
-    cy.intercept('*', req => {
-      req.headers.authorization = Cypress.env('TOKEN')
-    })
-  }
+  cy.intercept('*', req => {
+    req.headers.authorization = Cypress.env('token')
+  })
 })
 
 Cypress.Commands.add('visitAPI', () => {
-  cy.visit(apiV2Url, { timeout })
+  cy.visit('/api/v2', { timeout })
 })
 
 Cypress.on('uncaught:exception', (err, runnable) => {
