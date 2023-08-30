@@ -795,11 +795,9 @@ For brevity, the tests for `threads.py` routes won't be included, but of course 
 
 And once all that is done coverage should be complete.
 
-# e2e tests
-We are using cypress for our e2e tests. To run e2e tests locally on dev
-environment see `dev-environment`. For e2e
-tests in pipeline, we do not need any of the dependencies, and
-just `package.json` which has the scripts command `npm run test:e2e-ci` which uses pipeline's cypress.
+## E2E Testing
+
+For running e2e testing in dev-environment, run `npm run cypress:open` or `npm run cypress:run`.
 
 # access control
 The API has the following access control groups and

@@ -1,9 +1,0 @@
-{
-  "video": true,
-  "baseUrl": "https://holocron.staging.dso.mil",
-  "chromeWebSecurity": false,
-  "pluginsFile": false,
-  "mode": "pipeline",
-  "defaultCommandTimeout": 30000,
-  "responseTimeout": 120000
-}

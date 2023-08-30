@@ -1,20 +1,29 @@
-const apiV2Url = `${Cypress.config('baseUrl')}/api/v2`
-const headers = { authorization: Cypress.env('TOKEN') }
-
 Cypress.Commands.add('apiGetValueStreams', () =>
-  cy.request({ url: `${apiV2Url}/valueStreams`, headers }),
+  cy.request({ url: '/api/v2/valueStreams', headers: {
+      authorization: Cypress.env('token')
+    }
+  }),
 )
 
 Cypress.Commands.add('apiGetTeams', () =>
-  cy.request({ url: `${apiV2Url}/teams`, headers }),
+  cy.request({ url: '/api/v2/teams', headers: {
+      authorization: Cypress.env('token')
+    }
+  }),
 )
 
 Cypress.Commands.add('apiGetUsers', () => {
-  cy.request({ url: `${apiV2Url}/users`, headers })
+  cy.request({ url: '/api/v2/users', headers: {
+      authorization: Cypress.env('token')
+    } 
+  })
 })
 
 Cypress.Commands.add('apiGetTicketBoards', () => {
-  cy.request({ url: `${apiV2Url}/ticketboards`, headers })
+  cy.request({ url: '/api/v2/ticketboards', headers: {
+      authorization: Cypress.env('token')
+    }
+  })
 })
 
 Cypress.Commands.add(
@@ -27,13 +36,15 @@ Cypress.Commands.add(
       const [firstUser] = users
       cy.request({
         method: 'POST',
-        url: `${apiV2Url}/valuestreams`,
+        url: '/api/v2/valuestreams',
         body: {
           name: valueStreamName,
           organizationId,
           userIds: [firstUser.id],
         },
-        headers,
+        headers: {
+          authorization: Cypress.env('token')
+        },
       }).then(resp => {
         expect(resp.status).to.equal(201)
         cy.wrap({ valuestream: resp.body })
@@ -44,8 +55,10 @@ Cypress.Commands.add(
 Cypress.Commands.add('apiDeleteValueStream', vsId =>
   cy.request({
     method: 'DELETE',
-    url: `${apiV2Url}/valuestreams/${vsId}`,
-    headers,
+    url: `/api/v2/valuestreams/${vsId}`,
+    headers: {
+      authorization: Cypress.env('token')
+    },
     failOnStatusCode: false,
   }),
 )
@@ -53,8 +66,10 @@ Cypress.Commands.add('apiDeleteValueStream', vsId =>
 Cypress.Commands.add('apiDeleteOrganization', orgId =>
   cy.request({
     method: 'DELETE',
-    url: `${apiV2Url}/organizations/${orgId}`,
-    headers,
+    url: `/api/v2/organizations/${orgId}`,
+    headers: {
+      authorization: Cypress.env('token')
+    },
     failOnStatusCode: false,
   }),
 )
@@ -62,8 +77,10 @@ Cypress.Commands.add('apiDeleteOrganization', orgId =>
 Cypress.Commands.add('apiDeleteTeam', teamId =>
   cy.request({
     method: 'DELETE',
-    url: `${apiV2Url}/teams/${teamId}`,
-    headers,
+    url: `/api/v2/teams/${teamId}`,
+    headers: {
+      authorization: Cypress.env('token')
+    },
     failOnStatusCode: false,
   }),
 )
@@ -76,9 +93,11 @@ Cypress.Commands.add('apiCreateOrganization', orgName =>
     const [firstUser] = users
     cy.request({
       method: 'POST',
-      url: `${apiV2Url}/organizations`,
+      url: '/api/v2/organizations',
       body: { name: orgName, userIds: [firstUser.id] },
-      headers,
+      headers: {
+        authorization: Cypress.env('token')
+      },
     }).then(resp => {
       expect(resp.status).to.equal(201)
       cy.wrap({ organization: resp.body })
@@ -94,9 +113,11 @@ Cypress.Commands.add('apiCreateTeam', (teamName,collectorTargetIds, teamSize, va
     const [firstUser] = users
     cy.request({
       method: 'POST',
-      url: `${apiV2Url}/teams`,
+      url: '/api/v2/teams',
       body: { name: teamName, userIds: [firstUser.id], collectorTargetIds: collectorTargetIds, teamSize:teamSize, valuestreamId: valuestreamId},
-      headers,
+      headers: {
+        authorization: Cypress.env('token')
+      },
     }).then(resp => {
       expect(resp.status).to.equal(201)
       cy.wrap({ team: resp.body })
@@ -112,9 +133,11 @@ Cypress.Commands.add('apiUpdateTeam', (teamName,collectorTargetIds, teamSize, va
     const [firstUser] = users
     cy.request({
       method: 'PUT',
-      url: `${apiV2Url}/teams/${teamId}`,
+      url: `/api/v2/teams/${teamId}`,
       body: { name: teamName, userIds: [firstUser.id], collectorTargetIds: collectorTargetIds, teamSize:teamSize, valuestreamId: valuestreamId},
-      headers,
+      headers: {
+        authorization: Cypress.env('token')
+      },
     }).then(resp => {
       expect(resp.status).to.equal(200)
       cy.wrap({ team: resp.body })

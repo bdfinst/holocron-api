@@ -32,7 +32,6 @@ const tearDown = (team, organization, valueStream) => {
 
 
 describe('Test team CRUD', () => {
-  const screenshotFolderName = 'test_team_crud'
   let dummyOrganization,
     dummyValueStream,
     teamName,
@@ -57,7 +56,7 @@ describe('Test team CRUD', () => {
       dummyOrganization = organization
       dummyValueStream = valuestream
     })
-    cy.apiGetAvailableTicketBoard().then(({id})=>{
+    cy.apiGetAvailableTicketBoard().then(({id}) => {
       ticketBoardId = id
     })
 
@@ -68,10 +67,12 @@ describe('Test team CRUD', () => {
         dummyTeam = team
     })
   })
+
   it('can update a team', ()=>{
     newTeamName = cy.utils.randomName(8)
     cy.apiUpdateTeam(newTeamName,[ticketBoardId], 3, dummyValueStream.id, dummyTeam.id)
   })
+
   it('can delete a team', ()=>{
     cy.apiDeleteTeam(dummyTeam.id)
   })
