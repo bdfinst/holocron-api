@@ -52,7 +52,16 @@ def strip_returns(string: str) -> str:
 
 def return_user(response: Response) -> Response:
     """Add the current user to the response headers."""
-    user_json = json.dumps(getattr(request, "user", None))
+    if not SSO_ENABLED:
+        default_value = {
+            "is_org_leadership": True,
+            "is_admin": True,
+            "sso_id": "-1",
+            "username": "name",
+        }
+    else:
+        default_value = None
+    user_json = json.dumps(getattr(request, "user", default_value))
     user_json = strip_returns(user_json)
     response.headers["X-User"] = user_json
     return response
