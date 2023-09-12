@@ -57,15 +57,14 @@ class HistoricalDataV2Schema(MetricsSchemaBase):
     medium_priority_defects_created = Number()
     low_priority_defects_created = Number()
     lowest_priority_defects_created = Number()
-    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
-        maintainability_issues = Number()
-        maintainability_low_severity_issues = Number()
-        maintainability_medium_severity_issues = Number()
-        maintainability_high_severity_issues = Number()
-        vulnerabilities = Number()
-        high_severity_vulnerabilities = Number()
-        medium_severity_vulnerabilities = Number()
-        low_severity_vulnerabilities = Number()
+    maintainability_issues = Number()
+    maintainability_low_severity_issues = Number()
+    maintainability_medium_severity_issues = Number()
+    maintainability_high_severity_issues = Number()
+    vulnerabilities = Number()
+    high_severity_vulnerabilities = Number()
+    medium_severity_vulnerabilities = Number()
+    low_severity_vulnerabilities = Number()
 
 
 class MetricsV2Schema(MetricsSchemaBase):
@@ -84,8 +83,7 @@ class MetricsV2Schema(MetricsSchemaBase):
     stale_git_requests = Nested(GitRequestV2Schema, many=True)
     stale_branches = Nested(BranchV2Schema, many=True)
     latest_builds = Nested(BuildV2Schema, many=True)
-    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
-        active_issues = Nested(ProjectIssueV2Schema, many=True)
+    active_issues = Nested(ProjectIssueV2Schema, many=True)
     historical_data = Nested(HistoricalDataV2Schema, many=True)
     age_of_tickets_in_backlog = Nested(AgeV2Schema, many=True)
 
