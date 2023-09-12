@@ -38,9 +38,8 @@ def create_v2_router() -> Blueprint:
     if FEATURE_FLAGS["FEATURE_COST_METRICS"]:
         router.register_blueprint(create_pay_rate_router())
     router.register_blueprint(create_pipeline_router())
-    if FEATURE_FLAGS["FEATURE_PROJECT_ANALYSIS"]:
-        router.register_blueprint(create_project_issue_router())
-        router.register_blueprint(create_project_router())
+    router.register_blueprint(create_project_issue_router())
+    router.register_blueprint(create_project_router())
     router.register_blueprint(create_repository_router())
     router.register_blueprint(create_team_router())
     router.register_blueprint(create_ticket_board_router())

@@ -47,7 +47,6 @@ def application(monkeypatch):
         {
             "FEATURE_COST_METRICS": True,
             "FEATURE_EXTERNAL_CONTRIBUTORS": True,
-            "FEATURE_PROJECT_ANALYSIS": True,
         },
     )
     application = app.create_app()
