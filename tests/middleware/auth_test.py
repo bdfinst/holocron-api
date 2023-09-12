@@ -82,6 +82,19 @@ def test_return_user(mock_request):
     assert result.headers["X-User"] == '{"username": "1"}'
 
 
+def test_return_user_sso_disabled(mock_request, monkeypatch):
+    """Test return_user function."""
+    monkeypatch.setattr(auth, "SSO_ENABLED", False)
+    response = Response()
+
+    result = return_user(response)
+
+    assert (
+        result.headers["X-User"]
+        == '{"is_org_leadership": true, "is_admin": true, "sso_id": "-1", "username": "name"}'
+    )
+
+
 def wrapped_test_func(*args, **kwargs):
     """Mock function for wrapping decorators."""
     return "success"

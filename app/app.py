@@ -66,8 +66,8 @@ def create_app() -> Flask:
 
     if config.SSO_ENABLED:
         app.before_request(set_user)
-        app.after_request(return_user)
 
+    app.after_request(return_user)
     patch_flasgger()
 
     app.register_blueprint(create_v2_router())

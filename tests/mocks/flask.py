@@ -21,6 +21,8 @@ class MockRequest:
         self.path = "/test"
         self.json = '{"key": "value"}'
         self.mimetype = "application/json"
+        if hasattr(self, "user"):
+            del self.user
 
 
 request = MockRequest()
