@@ -40,7 +40,7 @@ in_progress_history_types = [
 tickets = [
     Ticket(
         collector_target_id=1,
-        resource_id=1,
+        resource_id="1",
         assignee="nobody",
         status=TicketStatus.DONE,
         ticket_type=TicketType.DEFECT,
@@ -50,7 +50,7 @@ tickets = [
     ),
     Ticket(
         collector_target_id=2,
-        resource_id=2,
+        resource_id="2",
         assignee="somebody",
         status=TicketStatus.IN_PROGRESS,
         ticket_type=TicketType.FEATURE,
