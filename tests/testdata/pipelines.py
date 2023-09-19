@@ -1,13 +1,13 @@
 """Test data for pipelines."""
 from datetime import datetime
 
-from app.models import Build, Pipeline
+from app.models import Build, BuildStatus, Pipeline
 
 builds = [
     Build(
         collector_target_id=1,
         build_url="https://test-build/asf.com/-/1",
-        build_status="PASSED",
+        build_status=BuildStatus.PASSED,
         start_time=datetime(year=2000, month=1, day=3, minute=30),
         end_time=datetime(year=2000, month=1, day=3, minute=45),
         is_deployed=True,
@@ -15,7 +15,7 @@ builds = [
     Build(
         collector_target_id=1,
         build_url="https://test-build/asf.com/-/2",
-        build_status="PASSED",
+        build_status=BuildStatus.PASSED,
         start_time=datetime(year=2000, month=1, day=5, minute=30),
         end_time=datetime(year=2000, month=1, day=5, minute=45),
         is_deployed=True,
