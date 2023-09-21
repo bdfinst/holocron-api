@@ -44,6 +44,110 @@ Cypress.Commands.add('visitAPI', () => {
   cy.visit('/api/v2', { timeout })
 })
 
+Cypress.Commands.add(
+  'apiCreateOrganization',
+  body =>
+    cy.request({
+      method: 'POST',
+      url: `/api/v2/organizations`,
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add(
+  'apiDeleteOrganization',
+  organizationId =>
+    cy.request({
+      method: 'DELETE',
+      url: `/api/v2/organizations/${organizationId}`,
+      headers: {
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add(
+  'apiCreateValueStream',
+  body =>
+    cy.request({
+      method: 'POST',
+      url: `/api/v2/valuestreams`,
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add(
+  'apiDeleteValueStream',
+  valueStreamId =>
+    cy.request({
+      method: 'DELETE',
+      url: `/api/v2/valuestreams/${valueStreamId}`,
+      headers: {
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+
+Cypress.Commands.add(
+  'apiCreateTeam',
+  body =>
+    cy.request({
+      method: 'POST',
+      url: `/api/v2/teams`,
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add(
+  'apiUpdateTeam',
+  (teamId, body) =>
+    cy.request({
+      method: 'PUT',
+      url: `/api/v2/teams/${teamId}`,
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add(
+  'apiDeleteTeam',
+  teamId =>
+    cy.request({
+      method: 'DELETE',
+      url: `/api/v2/teams/${teamId}`,
+      headers: {
+        Authorization: Cypress.env('token'),
+      },
+    }),
+)
+
+Cypress.Commands.add('apiCreateMockUser', () => {
+  cy.request({
+    url: '/api/v2',
+    headers: {
+      Authorization: Cypress.env('token'),
+    },
+  })
+},
+)
+
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test in case anything

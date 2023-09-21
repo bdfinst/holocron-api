@@ -1,79 +1,64 @@
-const setUp = (organizationName, valueStreamName) =>
-  cy.apiCreateOrganization(organizationName).then(({ organization }) => {
-    cy.apiCreateValueStream(valueStreamName, organization.id).then(
-      ({ valuestream }) => {
-        cy.wrap({
-          organization,
-          valuestream,
-        })
-      },
-    )
-  })
-
-const tearDown = (team, organization, valueStream) => {
-  const teamWasCreated = !!team
-  const vsWasCreated = !!valueStream
-  const orgWasCreated = !!organization
-  if (teamWasCreated && vsWasCreated && orgWasCreated) {
-    cy.apiDeleteTeam(team.id).then(() => {
-      cy.apiDeleteValueStream(valueStream.id).then(() => {
-        cy.apiDeleteOrganization(organization.id)
-      })
-    })
-  } else if (!teamWasCreated && vsWasCreated && orgWasCreated) {
-    cy.apiDeleteValueStream(valueStream.id).then(() => {
-      cy.apiDeleteOrganization(organization.id)
-    })
-  } else if (!teamWasCreated && !vsWasCreated && orgWasCreated) {
-    cy.apiDeleteOrganization(organization.id)
-  }
-}
-
-
-
 describe('Test team CRUD', () => {
-  let dummyOrganization,
-    dummyValueStream,
-    teamName,
-    orgName,
-    vsName,
-    dummyTeam,
-    newTeamName,
-    ticketBoardId
-
-  beforeEach(cy.mockAuth)
+  let organization, valueStream, team, mockUser
 
   after(() => {
-    tearDown(dummyTeam, dummyOrganization, dummyValueStream)
+    if (!!team && !!valueStream && !!organization) {
+      cy.apiDeleteTeam(team.id).then(() => {
+        return cy.apiDeleteValueStream(valueStream.id)
+      }).then(() => {
+        return cy.apiDeleteOrganization(organization.id)
+      })
+    } else if (!team && !!valueStream && !!organization) {
+      cy.apiDeleteValueStream(valueStream.id).then(() => {
+        return cy.apiDeleteOrganization(organization.id)
+      })
+    } else if (!team && !valueStream && !!organization) {
+      cy.apiDeleteOrganization(organization.id)
+    }
   })
 
   before(() => {
-    teamName = cy.utils.randomName(8)
-    orgName = cy.utils.randomName(8)
-    vsName = cy.utils.randomName(8)
-
-    setUp(orgName, vsName).then(({ organization, valuestream }) => {
-      dummyOrganization = organization
-      dummyValueStream = valuestream
+    cy.apiCreateMockUser().then(response => {
+      mockUser = JSON.parse(response.headers['x-user'])
+      return cy.apiCreateOrganization({
+        name: cy.utils.randomName(8),
+        userIds: [mockUser.id],
+      })
+    }).then(response => {
+      organization = response.body
+      return cy.apiCreateValueStream({
+        name: cy.utils.randomName(8),
+        userIds: [mockUser.id],
+        organizationId: organization.id
+      })
+    }).then(response => {
+      valueStream = response.body
     })
-    cy.apiGetAvailableTicketBoard().then(({id}) => {
-      ticketBoardId = id
-    })
-
   })
   
   it('can create a team', () => {
-    cy.apiCreateTeam(teamName,[ticketBoardId], 3, dummyValueStream.id).then(({team})=>{
-        dummyTeam = team
+    cy.apiCreateTeam({
+      name: cy.utils.randomName(8),
+      teamSize: 5,
+      userIds: [mockUser.id],
+      valuestreamId: valueStream.id,
+      collectorTargetIds: [],
+    }).then(response => {
+      team = response.body
     })
   })
 
   it('can update a team', ()=>{
-    newTeamName = cy.utils.randomName(8)
-    cy.apiUpdateTeam(newTeamName,[ticketBoardId], 3, dummyValueStream.id, dummyTeam.id)
+    cy.apiUpdateTeam(team.id, {
+      name: team.name,
+      teamSize: 3,
+      userIds: [mockUser.id],
+      valuestreamId: valueStream.id,
+      collectorTargetIds: [],
+    })
   })
 
   it('can delete a team', ()=>{
-    cy.apiDeleteTeam(dummyTeam.id)
+    cy.apiDeleteTeam(team.id)
   })
 })
