@@ -54,9 +54,9 @@ def return_user(response: Response) -> Response:
     """Add the current user to the response headers."""
     if not SSO_ENABLED:
         default_value = {
-            "is_org_leadership": True,
-            "is_admin": True,
-            "sso_id": "-1",
+            "isOrgLeadership": True,
+            "isAdmin": True,
+            "ssoId": "-1",
             "username": "name",
         }
     else:

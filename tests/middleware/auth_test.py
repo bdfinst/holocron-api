@@ -91,7 +91,7 @@ def test_return_user_sso_disabled(mock_request, monkeypatch):
 
     assert (
         result.headers["X-User"]
-        == '{"is_org_leadership": true, "is_admin": true, "sso_id": "-1", "username": "name"}'
+        == '{"isOrgLeadership": true, "isAdmin": true, "ssoId": "-1", "username": "name"}'
     )
 
 
