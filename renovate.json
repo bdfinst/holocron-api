@@ -1,0 +1,15 @@
+{
+    "baseBranches": ["master"],
+    "configWarningReuseIssue": false,
+    "draftPR": false,
+    "labels": ["kind::maintenance", "renovate"],
+    "packageRules": [
+        {
+            "matchDatasources": ["docker"],
+            "matchFileNames": ["Dockerfile"],
+            "groupName": "Ironbank",
+            "registryUrls": ["https://registry1.dso.mil"]
+        }
+    ],
+    "separateMajorMinor": false
+}
