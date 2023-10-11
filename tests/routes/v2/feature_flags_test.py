@@ -1,18 +1,5 @@
 """FeatureFlags route tests."""
-from pytest import fixture
-
 from app.config import FEATURE_FLAGS
-from app.middleware import log, rate_limiter
-from tests.mocks import request
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    yield request
-    request.reset()
 
 
 def test_list_feature_flags(client, mock_request):

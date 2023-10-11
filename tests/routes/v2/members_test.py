@@ -1,10 +1,9 @@
 """Member route tests."""
 from pytest import fixture
 
-from app import security
-from app.middleware import auth, log, rate_limiter
+from app.middleware import auth
 from app.routes.v2 import members
-from tests.mocks import crud, request
+from tests.mocks import crud
 
 
 @fixture
@@ -13,17 +12,6 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(members, "members_crud", crud)
     monkeypatch.setattr(members, "teams_crud", crud)
     monkeypatch.setattr(members, "teams_members_crud", crud)
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(auth, "request", request)
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
 
 
 @fixture

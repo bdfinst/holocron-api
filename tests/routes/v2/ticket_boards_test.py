@@ -1,19 +1,9 @@
 """TicketBoard route tests."""
 from pytest import fixture
 
-from app.middleware import auth, log, rate_limiter
+from app.middleware import auth
 from app.routes.v2 import ticket_boards
-from tests.mocks import crud, request
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(auth, "request", request)
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    yield request
-    request.reset()
+from tests.mocks import crud
 
 
 @fixture
