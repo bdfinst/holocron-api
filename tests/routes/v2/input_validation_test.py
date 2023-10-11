@@ -2,7 +2,7 @@
 from pytest import fixture
 
 from app import security
-from app.middleware import log
+from app.middleware import log, rate_limiter
 from app.routes.v2 import organizations
 from tests.mocks import crud, request
 
@@ -18,6 +18,7 @@ def mock_crud(monkeypatch):
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(rate_limiter, "request", request)
     monkeypatch.setattr(security, "request", request)
 
 

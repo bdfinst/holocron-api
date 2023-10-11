@@ -23,6 +23,7 @@ MODE = os.environ.get("MODE", "production")
 
 REQUEST_IP_HEADER = os.environ.get("REQUEST_IP_HEADER", "X-Forwarded-For")
 
+RATE_LIMITING_IP_WHITELIST = os.environ.get("RATE_LIMITING_IP_WHITELIST", "")
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
 PIPLINE_PASSED_STATUS = "success"
 
