@@ -1,6 +1,6 @@
 """Security middlewares."""
 import logging
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union, cast
 
 from flask import request
 
@@ -8,7 +8,9 @@ from app import config
 
 # Security Settings that are configurable
 # The default rate limits provided to the rate limiter
-DEFAULT_LIMITS: Optional[List[Union[str, Callable[[], str]]]] = ["300/day", "50/hour"]
+DEFAULT_LIMITS = cast(
+    Optional[List[Union[str, Callable[[], str]]]], config.RATE_LIMITS.split(",")
+)
 # IP addresses to whitelist from rate limiting
 RATE_LIMITING_IP_WHITELIST = config.RATE_LIMITING_IP_WHITELIST.split(",")
 # The max input characters the user can use for naming

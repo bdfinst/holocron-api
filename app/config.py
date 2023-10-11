@@ -22,6 +22,7 @@ MAX_CONTENT_LENGTH = 100 * 1000
 MODE = os.environ.get("MODE", "production")
 
 REQUEST_IP_HEADER = os.environ.get("REQUEST_IP_HEADER", "X-Forwarded-For")
+RATE_LIMITS = os.environ.get("RATE_LIMITS", "300/day,50/hour")
 
 RATE_LIMITING_IP_WHITELIST = os.environ.get("RATE_LIMITING_IP_WHITELIST", "")
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
