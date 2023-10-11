@@ -3,22 +3,10 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
-from app import security
 from app.exceptions import HolocronIntegrityError
-from app.middleware import auth, log, rate_limiter
+from app.middleware import auth
 from app.routes.v2 import organizations
-from tests.mocks import crud, request
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(auth, "request", request)
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
+from tests.mocks import crud
 
 
 @fixture

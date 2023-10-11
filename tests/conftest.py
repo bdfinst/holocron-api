@@ -4,7 +4,9 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 import app
-from tests.mocks import mock_delete, mock_select, session
+from app import security
+from app.middleware import auth, log, rate_limiter
+from tests.mocks import mock_delete, mock_select, request, session
 
 
 @fixture(scope="session")
@@ -28,6 +30,17 @@ def mock_session():
     """Yield mock database session."""
     yield session
     session.reset()
+
+
+@fixture
+def mock_request(monkeypatch):
+    """Patch and yield mock request object."""
+    monkeypatch.setattr(auth, "request", request)
+    monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(security, "request", request)
+    monkeypatch.setattr(rate_limiter, "request", request)
+    yield request
+    request.reset()
 
 
 @fixture

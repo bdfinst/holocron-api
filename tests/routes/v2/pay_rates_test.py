@@ -1,27 +1,14 @@
 """PayRates route tests."""
 from pytest import fixture
 
-from app import security
-from app.middleware import auth, log, rate_limiter
 from app.routes.v2 import pay_rates
-from tests.mocks import crud, request
+from tests.mocks import crud
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(pay_rates, "pay_rates_crud", crud)
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(auth, "request", request)
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
 
 
 def test_list_pay_rates(client, mock_crud, mock_request):

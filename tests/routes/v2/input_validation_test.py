@@ -2,9 +2,8 @@
 from pytest import fixture
 
 from app import security
-from app.middleware import log, rate_limiter
 from app.routes.v2 import organizations
-from tests.mocks import crud, request
+from tests.mocks import crud
 
 
 @fixture
@@ -12,14 +11,6 @@ def mock_crud(monkeypatch):
     """Patch CRUD."""
     monkeypatch.setattr(organizations, "organizations_crud", crud)
     monkeypatch.setattr(security, "MAX_INPUT_CHAR_LEN", 50)
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    monkeypatch.setattr(security, "request", request)
 
 
 def test_input_validators(client, mock_crud, mock_request):
