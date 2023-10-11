@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
-from app.middleware import auth, log
+from app.middleware import auth, log, rate_limiter
 from app.routes.v2 import metrics
 from tests.mocks import cache_v2, crud, request
 from tests.testdata import create_team, create_valuestream
@@ -14,6 +14,7 @@ def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
     monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(rate_limiter, "request", request)
     yield request
     request.reset()
 

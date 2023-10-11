@@ -5,7 +5,7 @@ from pytest import fixture
 
 from app import security
 from app.exceptions import HolocronIntegrityError
-from app.middleware import auth, business_logic_teams, log
+from app.middleware import auth, business_logic_teams, log, rate_limiter
 from app.routes.v2 import teams
 from tests.mocks import crud, request, team_history_crud
 from tests.testdata import create_team, create_team_view
@@ -25,6 +25,7 @@ def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(auth, "request", request)
     monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(rate_limiter, "request", request)
     monkeypatch.setattr(security, "request", request)
     yield request
     request.reset()

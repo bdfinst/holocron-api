@@ -9,6 +9,8 @@ from app import config
 # Security Settings that are configurable
 # The default rate limits provided to the rate limiter
 DEFAULT_LIMITS: Optional[List[Union[str, Callable[[], str]]]] = ["300/day", "50/hour"]
+# IP addresses to whitelist from rate limiting
+RATE_LIMITING_IP_WHITELIST = config.RATE_LIMITING_IP_WHITELIST.split(",")
 # The max input characters the user can use for naming
 # their items (example valuestream, organization, team name)
 # that they create in the database

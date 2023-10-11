@@ -2,7 +2,7 @@
 from pytest import fixture
 
 from app.config import FEATURE_FLAGS
-from app.middleware import log
+from app.middleware import log, rate_limiter
 from tests.mocks import request
 
 
@@ -10,6 +10,7 @@ from tests.mocks import request
 def mock_request(monkeypatch):
     """Mock request object."""
     monkeypatch.setattr(log, "request", request)
+    monkeypatch.setattr(rate_limiter, "request", request)
     yield request
     request.reset()
 
