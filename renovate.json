@@ -6,7 +6,6 @@
     "packageRules": [
         {
             "matchDatasources": ["docker"],
-            "matchFileNames": ["Dockerfile"],
             "groupName": "Ironbank",
             "registryUrls": ["https://registry1.dso.mil"]
         }
