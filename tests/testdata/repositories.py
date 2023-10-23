@@ -29,6 +29,7 @@ git_requests = [
         last_updated=datetime(year=2000, month=1, day=3),
         merged_at=None,
         url="https://test-mr/-/23",
+        author_username="test user",
     ),
 ]
 
