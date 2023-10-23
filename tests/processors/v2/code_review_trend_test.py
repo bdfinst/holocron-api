@@ -19,6 +19,7 @@ def test_process_code_review_trend():
                     first_opened=datetime(year=2000, month=1, day=25),
                     last_updated=datetime(year=2000, month=1, day=25),
                     collector_target_id=1,
+                    author_username="test username",
                 )
             ],
             {},
@@ -37,6 +38,7 @@ def test_process_code_review_trend():
                     first_opened=datetime(year=2000, month=1, day=25),
                     last_updated=datetime(year=2000, month=1, day=25),
                     collector_target_id=1,
+                    author_username="test username",
                 ),
                 # week { "2000-01-03": 5 }
                 GitRequest(
@@ -47,6 +49,7 @@ def test_process_code_review_trend():
                     first_opened=datetime(year=2000, month=1, day=4),
                     last_updated=datetime(year=2000, month=1, day=25),
                     collector_target_id=1,
+                    author_username="test username",
                 ),
                 # week { "2000-01-10": 11 }
                 GitRequest(
@@ -57,6 +60,7 @@ def test_process_code_review_trend():
                     first_opened=datetime(year=2000, month=1, day=4),
                     last_updated=datetime(year=2000, month=1, day=25),
                     collector_target_id=1,
+                    author_username="test username",
                 ),
                 # week { "2000-01-03": 0.5 }
                 GitRequest(
@@ -67,6 +71,7 @@ def test_process_code_review_trend():
                     first_opened=datetime(year=2000, month=1, day=5),
                     last_updated=datetime(year=2000, month=1, day=25),
                     collector_target_id=1,
+                    author_username="test username",
                 ),
             ],
             {
