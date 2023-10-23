@@ -11,9 +11,6 @@ function validate {
 }
 
 function run_linters {
-	echo Running pylint...
-	poetry run pylint --reports=y --recursive=y --persistent=n --verbose .
-	validate
   echo Running black...
   poetry run black . --check
   validate
@@ -23,8 +20,11 @@ function run_linters {
   echo Running pydocstyle...
   poetry run pydocstyle .
   validate
-	echo Running mypy...
+  echo Running mypy...
   poetry run mypy .
+  validate
+  echo Running pylint...
+  poetry run pylint --reports=y --recursive=y --persistent=n --verbose .
   validate
 }
 
