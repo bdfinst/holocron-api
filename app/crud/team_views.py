@@ -37,7 +37,6 @@ class TeamViewsCRUD(BaseCRUD[Team]):
         team_view: Team = self.get_entity(session, id_)
 
         team_view.name = json["name"]
-        team_view.view_owner_id = json["view_owner_id"]
 
         team_view.collector_targets = [
             collector_targets_crud.get_entity(session, target_id)
