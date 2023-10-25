@@ -9,12 +9,8 @@
       "groupName": "Ironbank",
       "registryUrls": ["https://registry1.dso.mil"],
       "patch": true
-    },
-    {
-      "matchDatasources": ["pypi"],
-      "groupName": "Python",
-      "matchFileNames": ["pyproject.toml"]
     }
   ],
+  "ignorePaths": ["requirements.txt"],
   "separateMajorMinor": false
 }
