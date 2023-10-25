@@ -11,9 +11,7 @@ from tests.utils import first_argument
 
 json = {
     "target": "targetvalue",
-    "access_token": "accesstoken",
     "target_url": "targeturl",
-    "collector_name": "collectorname",
     "collector_interval_seconds": "collectorintervalseconds",
     "look_back_days": "lookbackdays",
     "collector_targets_intrvl_secs": "collectortargetsintrvlsecs",
@@ -30,9 +28,7 @@ def mock_collector_crud(monkeypatch):
         MagicMock(
             return_value=Collector(
                 target="",
-                access_token="",
                 target_url="",
-                collector_name="",
                 collector_interval_seconds="",
                 look_back_days="",
                 collector_targets_intrvl_secs="",
@@ -47,9 +43,7 @@ def test_update_entity(mock_session, mock_collector_crud):
     """Test update_entity method."""
     expected_value = Collector(
         target="targetvalue",
-        access_token="accesstoken",
         target_url="targeturl",
-        collector_name="collectorname",
         collector_interval_seconds="collectorintervalseconds",
         look_back_days="lookbackdays",
         collector_targets_intrvl_secs="collectortargetsintrvlsecs",
