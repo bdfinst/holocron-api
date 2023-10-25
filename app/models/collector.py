@@ -12,9 +12,7 @@ class Collector(MetadataBase, ModelBase):
     __tablename__ = "collectors"
 
     target: Mapped[str]
-    access_token: Mapped[Optional[str]]
     target_url: Mapped[Optional[str]]
-    collector_name: Mapped[Optional[str]]
     collector_interval_seconds: Mapped[Optional[int]]
     look_back_days: Mapped[Optional[int]]
     collector_targets_intrvl_secs: Mapped[Optional[int]]
