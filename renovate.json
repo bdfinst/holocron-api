@@ -14,6 +14,7 @@
   "ignorePaths": ["requirements.txt"],
   "postUpgradeTasks": {
     "commands": ["poetry export -o requirements.txt --without-hashes --with=dev"],
+    "fileFilters": ["requirements.txt"],
     "executionMode": "branch"
   },
   "separateMajorMinor": false
