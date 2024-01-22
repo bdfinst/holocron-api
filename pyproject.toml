@@ -57,10 +57,12 @@ branch = true
 skip_empty = true
 show_missing = true
 
+[tool.pylint.MASTER]
+ignore-patterns = ["tests", "alembic"]
+
 [tool.pylint.'MESSAGES CONTROL']
 disable = ["R0903", "R0801", "W1203"]
 max-line-length = 88
-ignore = ["tests", "alembic", ".cache"]
 good-names = ["id"]
 
 [build-system]
