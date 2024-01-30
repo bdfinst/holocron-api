@@ -1,4 +1,5 @@
 """Request logging middleware."""
+
 import logging
 
 from flask import request

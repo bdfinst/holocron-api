@@ -1,4 +1,5 @@
 """Test data for repositories."""
+
 from datetime import datetime
 
 from app.models import Branch, Commit, GitRequest, Repository

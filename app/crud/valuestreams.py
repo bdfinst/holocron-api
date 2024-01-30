@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for Valuestream model."""
+
 import logging
 from typing import Any, Dict, Sequence
 

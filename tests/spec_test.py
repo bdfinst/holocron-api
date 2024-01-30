@@ -1,4 +1,5 @@
 """OpenAPI spec tests."""
+
 from flask import Flask
 from openapi_spec_validator import validate_spec
 

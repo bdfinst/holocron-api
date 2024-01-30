@@ -1,4 +1,5 @@
 """Team History CRUD tests."""
+
 from pytest import fixture
 
 from app.crud import team_history

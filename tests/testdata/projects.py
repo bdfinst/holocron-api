@@ -1,4 +1,5 @@
 """Test data for projects."""
+
 from datetime import datetime
 
 from app.models import Project, ProjectIssue, ProjectIssueSeverity, ProjectIssueType

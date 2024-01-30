@@ -6,6 +6,7 @@ The value of that entry -1 if that is not the last week of activity for
 the ticket, otherwise the value is the age of the ticket (business days not counting
 weekends).
 """
+
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from typing import Dict, List, NamedTuple, Union

@@ -5,6 +5,7 @@ Revises: 5015a0b4da89
 Create Date: 2023-04-03 17:48:52.883059
 
 """
+
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 

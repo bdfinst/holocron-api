@@ -1,4 +1,5 @@
 """Security Middlewares test."""
+
 from functools import wraps
 from typing import Callable
 from unittest.mock import MagicMock

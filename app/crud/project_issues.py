@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for ProjectIssue model."""
+
 from app.models import Project, ProjectIssue
 
 from ._base_metric import BaseMetricCRUD

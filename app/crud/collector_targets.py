@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for CollectorTarget model."""
+
 from app.models import CollectorTarget
 
 from ._base import BaseCRUD

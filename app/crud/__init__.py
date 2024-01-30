@@ -1,4 +1,5 @@
 """Database functions."""
+
 from .branches import branches_crud
 from .builds import builds_crud
 from .collector_targets import collector_targets_crud

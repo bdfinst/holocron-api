@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for TicketBoard model."""
+
 from typing import Sequence
 
 from sqlalchemy import select

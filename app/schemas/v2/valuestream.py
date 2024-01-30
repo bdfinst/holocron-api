@@ -1,4 +1,5 @@
 """Schema for Valuestream model."""
+
 from typing import Any, Dict
 
 from marshmallow import fields, validate

@@ -1,4 +1,5 @@
 """Base classes for model-based database operations."""
+
 from typing import Generic, Sequence, Type, TypeVar
 
 from sqlalchemy import delete, select

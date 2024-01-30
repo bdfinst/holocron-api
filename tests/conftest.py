@@ -1,4 +1,5 @@
 """Test fixtures and configuration."""
+
 from unittest.mock import MagicMock
 
 from pytest import MonkeyPatch, fixture

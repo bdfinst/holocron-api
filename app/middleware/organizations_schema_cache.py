@@ -1,4 +1,5 @@
 """Organizations schema cache."""
+
 from app.crud import organizations_crud
 from app.processors.v2 import process_organization as process_organization_v2
 from app.schemas.v2 import MetricsV2Schema

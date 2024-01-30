@@ -1,4 +1,5 @@
 """Build instance model."""
+
 import enum
 from datetime import datetime
 

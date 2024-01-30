@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for Commit model."""
+
 from app.models import Commit, Repository
 
 from ._base_metric import BaseMetricCRUD

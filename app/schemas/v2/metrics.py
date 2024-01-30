@@ -1,4 +1,5 @@
 """Metric schema objects."""
+
 from marshmallow import Schema
 from marshmallow.fields import Boolean, Dict, Field, Int, Nested, Number, String
 

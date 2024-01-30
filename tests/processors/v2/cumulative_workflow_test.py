@@ -1,4 +1,5 @@
 """Test process_cumulative_flow."""
+
 from datetime import datetime
 
 from app.models import StatusHistory, Ticket, TicketStatus
@@ -239,7 +240,7 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.IN_PROGRESS,
-                        )  # age of 5 + 5 + 5 + 3 = 18 should be here
+                        ),  # age of 5 + 5 + 5 + 3 = 18 should be here
                         # for wip for this week (2000-01-24)
                     ],
                 )

@@ -1,4 +1,5 @@
 """Holocron team member model."""
+
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 

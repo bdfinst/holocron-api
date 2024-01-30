@@ -1,4 +1,5 @@
 """Mock datetime."""
+
 from datetime import timezone
 
 

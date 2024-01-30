@@ -1,4 +1,5 @@
 """Application entrypoint."""
+
 import atexit
 import logging
 from datetime import datetime

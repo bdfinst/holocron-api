@@ -1,4 +1,5 @@
 """Models."""
+
 from ._base import MetadataBase, ModelBase
 from .branch import Branch
 from .build import Build, BuildStatus

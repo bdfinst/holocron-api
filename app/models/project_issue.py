@@ -1,4 +1,5 @@
 """Project issue instance model."""
+
 import enum
 from datetime import datetime
 from typing import Optional

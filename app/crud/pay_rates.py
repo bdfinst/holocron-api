@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for PayRate model."""
+
 from typing import Any, Dict
 
 from sqlalchemy import select

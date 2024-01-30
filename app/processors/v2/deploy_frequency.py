@@ -4,6 +4,7 @@ Deploy frequency is weekly data represented by the deploys key.
 One list entry is for each deployment made during the week.
 The value is always 1.
 """
+
 from typing import List
 
 from app import config

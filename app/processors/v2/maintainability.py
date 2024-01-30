@@ -9,6 +9,7 @@ maintainability_low_severity_issues
 which should total to the number of maintainability issues
 in the week which is the maintainability_issues key.
 """
+
 from typing import Dict, List, Tuple
 
 from app.models import ProjectIssue, ProjectIssueSeverity, ProjectIssueType

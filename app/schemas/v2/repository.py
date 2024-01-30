@@ -1,4 +1,5 @@
 """Schema for Repository model."""
+
 from typing import Tuple
 
 from marshmallow import fields

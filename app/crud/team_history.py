@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for Team History model."""
+
 import logging
 from typing import Sequence
 

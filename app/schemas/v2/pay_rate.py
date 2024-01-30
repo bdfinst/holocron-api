@@ -1,4 +1,5 @@
 """Schema for PayRate model."""
+
 from typing import Any, Dict, List
 
 from marshmallow import Schema, ValidationError, fields, validate

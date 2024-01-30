@@ -1,4 +1,5 @@
 """Schema for collector target config items."""
+
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from app.models.collector_target import ConfigItem

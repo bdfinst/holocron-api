@@ -1,4 +1,5 @@
 """Test data for users."""
+
 from app.models import User
 
 

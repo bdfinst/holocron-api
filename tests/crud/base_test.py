@@ -1,4 +1,5 @@
 """Tests for base CRUD classes."""
+
 import pytest
 from pytest import fixture
 

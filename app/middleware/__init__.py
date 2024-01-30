@@ -1,4 +1,5 @@
 """Middleware."""
+
 from .auth import (
     requires_admin,
     requires_org_access,

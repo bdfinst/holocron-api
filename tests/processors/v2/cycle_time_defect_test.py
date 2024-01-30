@@ -1,4 +1,5 @@
 """Test process_cycle_time_defect."""
+
 from datetime import datetime
 
 from app.models import StatusHistory, Ticket, TicketPriority, TicketStatus, TicketType

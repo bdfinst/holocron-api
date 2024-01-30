@@ -1,4 +1,5 @@
 """Rate Limiter tests."""
+
 from pytest import fixture
 
 from app import security

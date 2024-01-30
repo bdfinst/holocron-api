@@ -1,4 +1,5 @@
 """SCM repository model."""
+
 from typing import List, Optional
 
 from sqlalchemy import String

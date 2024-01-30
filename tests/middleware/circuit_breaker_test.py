@@ -1,4 +1,5 @@
 """Circuit breaker middleware tests."""
+
 from datetime import datetime
 from unittest.mock import MagicMock
 

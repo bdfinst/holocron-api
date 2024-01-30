@@ -1,4 +1,5 @@
 """Schema Cache."""
+
 import logging
 import time
 from dataclasses import dataclass, field

@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for CollectorCRUD model."""
+
 import logging
 from typing import Any, Dict
 

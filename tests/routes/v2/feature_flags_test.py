@@ -1,4 +1,5 @@
 """FeatureFlags route tests."""
+
 from app.config import FEATURE_FLAGS
 
 

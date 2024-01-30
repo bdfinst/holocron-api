@@ -6,6 +6,7 @@ of numbers where each item represents the GitRequest, and
 the number for the item is the amount in days the
 GitRequest was open from last_updated to merged_at.
 """
+
 from typing import List
 
 from app.models import GitRequest

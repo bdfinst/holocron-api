@@ -1,4 +1,5 @@
 """Schema for Project model."""
+
 from typing import Tuple
 
 from marshmallow import fields

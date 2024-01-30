@@ -1,4 +1,5 @@
 """Holocron team model."""
+
 from typing import List, Optional
 
 from sqlalchemy import Column, ForeignKey, Integer, Table, UniqueConstraint

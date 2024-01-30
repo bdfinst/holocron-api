@@ -1,4 +1,5 @@
 """Authentication middleware tests."""
+
 from unittest.mock import MagicMock
 
 from flask import Response

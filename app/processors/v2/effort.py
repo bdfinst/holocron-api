@@ -7,6 +7,7 @@ Type of ticket determines type of effort.
 Value for time is number of days the ticket was in progress that week.
 Value for money is the time value multiplied by the assignee's pay rate.
 """
+
 from datetime import datetime, timedelta
 from typing import Dict, List, NamedTuple
 

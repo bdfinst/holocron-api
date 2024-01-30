@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for Ticket model."""
+
 from app.models import Ticket, TicketBoard
 
 from ._base_metric import BaseMetricCRUD
