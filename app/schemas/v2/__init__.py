@@ -1,4 +1,5 @@
 """V2 schemas."""
+
 from .branch import BranchV2Schema
 from .build import BuildV2Schema
 from .collector_target_config import ConfigItemV2Schema

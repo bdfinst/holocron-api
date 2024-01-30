@@ -1,4 +1,5 @@
 """Base classes for migration metadata and model inheritance."""
+
 from datetime import datetime
 from typing import Optional
 

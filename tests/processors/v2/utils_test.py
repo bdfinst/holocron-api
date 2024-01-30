@@ -1,4 +1,5 @@
 """Processor utils test."""
+
 from datetime import datetime
 
 from pytest import fixture, raises

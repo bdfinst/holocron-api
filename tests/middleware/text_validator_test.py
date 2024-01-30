@@ -1,4 +1,5 @@
 """Test text validation middleware."""
+
 from pytest import fixture
 
 from app import security

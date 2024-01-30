@@ -7,6 +7,7 @@ Throughput is weekly data represented by the throughput key.
 One list entry for each ticket that was closed during the week.
 The value is always 1.
 """
+
 from typing import List, NamedTuple
 
 from app.models import Ticket

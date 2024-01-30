@@ -1,4 +1,5 @@
 """Users CRUD tests."""
+
 from unittest.mock import MagicMock
 
 from pytest import fixture

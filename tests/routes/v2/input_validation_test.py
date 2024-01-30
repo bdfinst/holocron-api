@@ -1,4 +1,5 @@
 """Input validaton test for route schemas."""
+
 from pytest import fixture
 
 from app import security

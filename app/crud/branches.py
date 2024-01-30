@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for Branch model."""
+
 from app.models import Branch, Repository
 
 from ._base_metric import BaseMetricCRUD

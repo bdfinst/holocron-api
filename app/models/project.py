@@ -1,4 +1,5 @@
 """Project model."""
+
 from typing import List
 
 from sqlalchemy.orm import Mapped, relationship

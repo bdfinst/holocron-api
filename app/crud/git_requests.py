@@ -1,4 +1,5 @@
 """BaseCRUD extension and instance for GitRequest model."""
+
 from app.models import GitRequest, Repository
 
 from ._base_metric import BaseMetricCRUD

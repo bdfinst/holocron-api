@@ -1,4 +1,5 @@
 """Schema for TicketBoard model."""
+
 from typing import Tuple
 
 from marshmallow import fields

@@ -2,6 +2,7 @@
 
 WIP load data is a number representing the current number of WIP tickets.
 """
+
 from typing import List
 
 from app.models import Ticket

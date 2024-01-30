@@ -1,4 +1,5 @@
 """Test data for teams."""
+
 from app.models import Team
 
 from .pipelines import mock_pipelines, mock_pipelines_last_collected

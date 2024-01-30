@@ -1,4 +1,5 @@
 """Valuestream routes."""
+
 from typing import Any, Tuple
 
 from flask import Blueprint, jsonify, request

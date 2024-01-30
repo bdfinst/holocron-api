@@ -1,4 +1,5 @@
 """Business logic teams test."""
+
 from unittest.mock import MagicMock
 
 from pytest import fixture

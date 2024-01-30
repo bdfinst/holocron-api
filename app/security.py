@@ -1,4 +1,5 @@
 """Security middlewares."""
+
 import logging
 from typing import Callable, List, Optional, Tuple, Union, cast
 

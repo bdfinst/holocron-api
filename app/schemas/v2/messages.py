@@ -1,4 +1,5 @@
 """Schemas for non-model based responses."""
+
 from marshmallow import Schema, fields
 
 

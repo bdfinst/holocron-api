@@ -1,4 +1,5 @@
 """Process metrics data."""
+
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, NamedTuple, Set
 

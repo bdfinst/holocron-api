@@ -1,4 +1,5 @@
 """V2 routes."""
+
 from flask import Blueprint
 
 from app.config import FEATURE_FLAGS

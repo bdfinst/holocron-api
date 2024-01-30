@@ -2,6 +2,7 @@
 
 Build data contains the latest build for each repository.
 """
+
 from collections import deque
 from typing import Deque, List
 

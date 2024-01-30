@@ -1,4 +1,5 @@
 """Test data for ticket_boards."""
+
 from datetime import datetime, timedelta
 
 from app.models import (

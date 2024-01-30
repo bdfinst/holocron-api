@@ -1,4 +1,5 @@
 """Mock for all CRUD modules."""
+
 from app.exceptions import HolocronIntegrityError
 from app.models import Team, TeamHistory
 

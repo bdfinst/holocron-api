@@ -1,4 +1,5 @@
 """Authentication middleware."""
+
 import json
 from enum import Enum
 from functools import wraps

@@ -1,4 +1,5 @@
 """Database mocks."""
+
 from unittest.mock import MagicMock
 
 

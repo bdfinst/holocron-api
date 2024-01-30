@@ -1,4 +1,5 @@
 """Test data for pipelines."""
+
 from datetime import datetime
 
 from app.models import Build, BuildStatus, Pipeline

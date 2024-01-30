@@ -1,4 +1,5 @@
 """Schema for Build model."""
+
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 

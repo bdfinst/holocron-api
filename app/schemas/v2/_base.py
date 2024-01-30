@@ -1,4 +1,5 @@
 """Base schema class for model base."""
+
 from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import auto_field
 

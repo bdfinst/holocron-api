@@ -1,4 +1,5 @@
 """Test process_lead_time."""
+
 from datetime import datetime
 
 from app.models import StatusHistory, Ticket, TicketStatus

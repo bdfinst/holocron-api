@@ -1,4 +1,5 @@
 """SCM merge/pull request model."""
+
 from datetime import datetime
 from typing import Optional
 

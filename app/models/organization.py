@@ -1,4 +1,5 @@
 """Holocron organization model."""
+
 from typing import List
 
 from sqlalchemy import Column, ForeignKey, Integer, Table

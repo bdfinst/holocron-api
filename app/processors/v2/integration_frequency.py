@@ -6,6 +6,7 @@ Integrations has a list entry for each commit in trunk.
 Direct integrations has a list entry for each commit in trunk that wasn't merged.
 The values are always 1.
 """
+
 import logging
 from typing import List, NamedTuple
 

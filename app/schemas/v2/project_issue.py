@@ -1,4 +1,5 @@
 """Schema for ProjectIssue Model."""
+
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 

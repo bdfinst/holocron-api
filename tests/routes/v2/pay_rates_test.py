@@ -1,4 +1,5 @@
 """PayRates route tests."""
+
 from pytest import fixture
 
 from app.routes.v2 import pay_rates

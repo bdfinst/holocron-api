@@ -1,4 +1,5 @@
 """Establish database connection."""
+
 from contextlib import contextmanager
 from typing import Generator, Optional
 

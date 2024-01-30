@@ -1,4 +1,5 @@
 """Utilities."""
+
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Iterator, List, Optional, Tuple, TypeVar
 

@@ -1,4 +1,5 @@
 """Test process_code_review_trend."""
+
 from datetime import datetime
 
 from app.models import GitRequest

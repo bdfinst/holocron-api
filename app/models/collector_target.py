@@ -1,4 +1,5 @@
 """Holocron collector target model."""
+
 import enum
 from typing import List, Optional
 

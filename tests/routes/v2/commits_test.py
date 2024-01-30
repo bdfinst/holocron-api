@@ -1,4 +1,5 @@
 """Commit route tests."""
+
 from pytest import fixture
 
 from app.middleware import auth

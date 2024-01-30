@@ -1,4 +1,5 @@
 """Testing integration frequency."""
+
 from datetime import datetime
 
 from app.models import Commit

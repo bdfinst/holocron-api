@@ -1,4 +1,5 @@
 """CSP Middleware."""
+
 from flask import Response
 
 # list is not all-inclusive, some hashes are considered unsafe

@@ -1,4 +1,5 @@
 """Testing process_effort."""
+
 from datetime import datetime
 
 from app.models import StatusHistory, Ticket, TicketStatus, TicketType

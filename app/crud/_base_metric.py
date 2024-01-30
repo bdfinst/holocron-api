@@ -1,4 +1,5 @@
 """Base classes for metric-based database operations."""
+
 from typing import Sequence, Type, TypeVar
 
 from sqlalchemy import select

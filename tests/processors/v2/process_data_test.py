@@ -1,4 +1,5 @@
 """Processor process_data test."""
+
 from datetime import datetime, timezone
 
 from app.processors.v2 import cumulative_flow, effort, process_data, utils

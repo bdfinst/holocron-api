@@ -1,4 +1,5 @@
 """Input validation module."""
+
 from marshmallow import ValidationError, validate
 
 from app.security import MAX_INPUT_CHAR_LEN, VALID_NAME_CHARS

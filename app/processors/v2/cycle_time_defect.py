@@ -7,6 +7,7 @@ Defect rate is weekly data with keys for each priority.
 One list entry for each defect ticket opened with the given priority in the week.
 The value is always 1.
 """
+
 from typing import Dict, List, NamedTuple
 
 from app.models import Ticket, TicketPriority, TicketType

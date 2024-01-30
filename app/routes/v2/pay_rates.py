@@ -1,4 +1,5 @@
 """PayRate routes."""
+
 from typing import Any, Mapping, Tuple, cast
 
 from flask import Blueprint, jsonify, request

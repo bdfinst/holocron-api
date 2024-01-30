@@ -1,4 +1,5 @@
 """Cache tests."""
+
 from unittest.mock import MagicMock
 
 from marshmallow import Schema, fields

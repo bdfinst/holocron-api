@@ -1,4 +1,5 @@
 """Types."""
+
 from typing import Dict, List, NamedTuple
 
 

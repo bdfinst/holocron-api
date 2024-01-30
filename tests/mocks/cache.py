@@ -1,4 +1,5 @@
 """Mock for all cache modules."""
+
 from typing import NamedTuple
 
 from app.exceptions import HolocronIntegrityError

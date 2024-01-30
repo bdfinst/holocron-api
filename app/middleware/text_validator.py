@@ -1,4 +1,5 @@
 """Text validation middleware."""
+
 import re
 from typing import Optional, Tuple
 

@@ -1,4 +1,5 @@
 """Test data for organizations."""
+
 from app.models import Organization
 
 from .users import mock_users

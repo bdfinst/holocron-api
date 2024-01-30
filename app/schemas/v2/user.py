@@ -1,4 +1,5 @@
 """Schema for User model."""
+
 from typing import Tuple
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
