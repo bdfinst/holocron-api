@@ -42,4 +42,8 @@ FEATURE_FLAGS = {
         "FEATURE_EXTERNAL_CONTRIBUTORS", "false"
     ).lower()
     == "true",
+    "FEATURE_COLLECTOR_CONFIGURATION": os.environ.get(
+        "FEATURE_COLLECTOR_CONFIGURATION", "false"
+    ).lower()
+    == "true",
 }

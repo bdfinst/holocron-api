@@ -6,6 +6,7 @@ from app.config import FEATURE_FLAGS
 
 from .branches import create_router as create_branch_router
 from .builds import create_router as create_build_router
+from .collectors import create_router as create_collector_router
 from .commits import create_router as create_commit_router
 from .feature_flags import create_router as create_feature_flag_router
 from .git_requests import create_router as create_git_request_router
@@ -29,6 +30,8 @@ def create_v2_router() -> Blueprint:
     router = Blueprint("v2", "v2", url_prefix="/api/v2")
     router.register_blueprint(create_branch_router())
     router.register_blueprint(create_build_router())
+    if FEATURE_FLAGS["FEATURE_COLLECTOR_CONFIGURATION"]:
+        router.register_blueprint(create_collector_router())
     router.register_blueprint(create_commit_router())
     router.register_blueprint(create_feature_flag_router())
     router.register_blueprint(create_git_request_router())
