@@ -13,7 +13,6 @@ class Collector(MetadataBase, ModelBase):
     __tablename__ = "collectors"
 
     target: Mapped[str]
-    target_url: Mapped[Optional[str]]
     collector_interval_seconds: Mapped[Optional[int]]
     look_back_days: Mapped[Optional[int]]
     collector_targets_intrvl_secs: Mapped[Optional[int]]

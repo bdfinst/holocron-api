@@ -2,6 +2,7 @@
 
 from .branch import BranchV2Schema
 from .build import BuildV2Schema
+from .collector import CollectorV2Schema
 from .collector_target_config import ConfigItemV2Schema
 from .commit import CommitV2Schema
 from .git_request import GitRequestV2Schema

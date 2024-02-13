@@ -21,7 +21,6 @@ class CollectorsCRUD(BaseCRUD[Collector]):
         """Update collector in database."""
         collector: Collector = self.get_entity(session, id_)
         collector.target = json["target"]
-        collector.target_url = json["target_url"]
         collector.collector_interval_seconds = json["collector_interval_seconds"]
         collector.look_back_days = json["look_back_days"]
         collector.collector_targets_intrvl_secs = json["collector_targets_intrvl_secs"]
