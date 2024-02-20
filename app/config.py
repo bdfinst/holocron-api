@@ -29,21 +29,19 @@ RATE_LIMITING_IP_WHITELIST = os.environ.get("RATE_LIMITING_IP_WHITELIST", "")
 MIN_EXPECTED_CYCLE_TIME_HOURS = 1 / 12
 PIPLINE_PASSED_STATUS = "success"
 
+
+def feature_enable_check(feature_name: str) -> bool:
+    """Check if feature is enabled according to environment variables."""
+    return os.environ.get(feature_name, "false").lower() == "true"
+
+
 FEATURE_FLAGS = {
-    "FEATURE_TEAM_VIEWS": os.environ.get("FEATURE_TEAM_VIEWS", "false").lower()
-    == "true",
-    "FEATURE_COST_METRICS": os.environ.get("FEATURE_COST_METRICS", "false").lower()
-    == "true",
-    "FEATURE_DEPLOY_FREQUENCY": os.environ.get(
-        "FEATURE_DEPLOY_FREQUENCY", "false"
-    ).lower()
-    == "true",
-    "FEATURE_EXTERNAL_CONTRIBUTORS": os.environ.get(
-        "FEATURE_EXTERNAL_CONTRIBUTORS", "false"
-    ).lower()
-    == "true",
-    "FEATURE_COLLECTOR_CONFIGURATION": os.environ.get(
-        "FEATURE_COLLECTOR_CONFIGURATION", "false"
-    ).lower()
-    == "true",
+    feature_name: feature_enable_check(feature_name)
+    for feature_name in (
+        "FEATURE_TEAM_VIEWS",
+        "FEATURE_COST_METRICS",
+        "FEATURE_DEPLOY_FREQUENCY",
+        "FEATURE_EXTERNAL_CONTRIBUTORS",
+        "FEATURE_COLLECTOR_CONFIGURATION",
+    )
 }
