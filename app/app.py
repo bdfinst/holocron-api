@@ -22,6 +22,7 @@ from app.middleware import (
 )
 from app.processors.v2 import team_history
 from app.routes.v2 import create_v2_router
+from app.routes.v3 import create_v3_router
 from app.security import on_unexpected_http_methods
 from app.spec import generate_spec, patch_flasgger, serve_spec
 
@@ -74,6 +75,11 @@ def create_app() -> Flask:
     app.register_blueprint(create_v2_router())
     v2_spec = generate_spec(app, "v2")
     serve_spec(app, v2_spec, "v2")
+
+    if config.MODE == "development":
+        app.register_blueprint(create_v3_router())
+        v3_spec = generate_spec(app, "v3")
+        serve_spec(app, v3_spec, "v3")
 
     limiter.init_app(app)
     Database.establish_connection()

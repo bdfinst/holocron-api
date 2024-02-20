@@ -9,8 +9,8 @@ flasgger_inline_style_hashes = [
     "'sha256-1fdCXxcHyanQoxIfyXxjg5BQQ8b9Dm8zrCS6yEdEbrg='",
 ]
 flasgger_script_hashes = [
-    "'sha256-BT/bry9Z9efIe9Hn+0V/f9f+ypp3OhHEGnMNWqGEyeA='",
     "'sha256-qtMLOFWFqUIRtMNOstHHl6UVOKx0xOX5b76VB2gUmqw='",
+    "'sha256-S5h8YasgyL6BUcV6G2bpb3KY390HX4Id+fDYn0Np6Qk='",
 ]
 
 DEFAULT_SRC = "default-src 'self';"
