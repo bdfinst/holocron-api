@@ -32,3 +32,23 @@ class BaseMetricCRUD(BaseCRUD[T]):
             )
             .where(self.target_model.team_id == team.id)
         ).all()
+
+    def get_entities_for_team_paginated(
+        self,
+        session: Session,
+        team_id: int,
+        offset=0,
+        limit=100,
+    ) -> Sequence[T]:
+        """Get paginated entities for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        return session.scalars(
+            select(self.model)
+            .join(
+                self.target_model,
+                getattr(self.model, "collector_target_id") == self.target_model.id,
+            )
+            .where(self.target_model.team_id == team.id)
+            .offset(offset)
+            .limit(limit)
+        ).all()

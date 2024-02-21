@@ -34,6 +34,17 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
             select(Pipeline).where(Pipeline.type == CollectorTargetType.BUILD)
         ).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Pipeline]:
+        """Override get_entities_paginated to return only pipelines."""
+        return session.scalars(
+            select(Pipeline)
+            .where(Pipeline.type == CollectorTargetType.BUILD)
+            .offset(offset)
+            .limit(limit)
+        ).all()
+
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> Sequence[Pipeline]:
         """Get all pipelines for a given team."""
@@ -42,6 +53,20 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
             select(Pipeline)
             .where(Pipeline.team_id == team.id)
             .where(Pipeline.type == CollectorTargetType.BUILD)
+        ).all()
+
+    @staticmethod
+    def get_entities_for_team_paginated(
+        session: Session, team_id: int, offset=0, limit=100
+    ) -> Sequence[Pipeline]:
+        """Get paginated pipelines for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        return session.scalars(
+            select(Pipeline)
+            .where(Pipeline.team_id == team.id)
+            .where(Pipeline.type == CollectorTargetType.BUILD)
+            .offset(offset)
+            .limit(limit)
         ).all()
 
 

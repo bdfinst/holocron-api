@@ -45,6 +45,19 @@ def mock_organizations_crud(monkeypatch):
             ]
         ),
     )
+    monkeypatch.setattr(
+        organizations_crud,
+        "get_entities_paginated",
+        MagicMock(
+            return_value=[
+                create_organization(
+                    valuestreams=[
+                        create_valuestream(teams=[create_team(), create_team_view()])
+                    ]
+                )
+            ]
+        ),
+    )
 
 
 def test_get_entity_without_team_views(mock_session, mock_organizations_crud):
@@ -63,6 +76,19 @@ def test_get_entities_without_team_views(mock_session, mock_organizations_crud):
     ]
 
     result = organizations_crud.get_entities_without_team_views(mock_session)
+
+    assert expected == result
+
+
+def test_get_entities_without_team_views_paginated(
+    mock_session, mock_organizations_crud
+):
+    """Test get_entities_without_team_views_paginated method."""
+    expected = [
+        create_organization(valuestreams=[create_valuestream(teams=[create_team()])])
+    ]
+
+    result = organizations_crud.get_entities_without_team_views_paginated(mock_session)
 
     assert expected == result
 

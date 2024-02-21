@@ -7,7 +7,7 @@ from app.crud import _base_metric
 from app.crud._base import BaseCRUD
 from app.crud._base_metric import BaseMetricCRUD
 from app.exceptions import HolocronIntegrityError
-from app.models import MetadataBase, ModelBase, Pipeline, Repository, TicketBoard
+from app.models import MetadataBase, ModelBase, Repository
 from tests.mocks import crud
 from tests.utils import first_argument
 
@@ -47,6 +47,17 @@ def test_get_entities(mock_session):
     expected = "SELECT * FROM models"
 
     result = test_crud.get_entities(mock_session)
+
+    assert result[0].statement == expected
+
+
+def test_get_entities_paginated(mock_session):
+    """Test get_entities_paginated method."""
+    offset = 5
+    limit = 10
+    expected = f"SELECT * FROM models OFFSET {offset} LIMIT {limit}"
+
+    result = test_crud.get_entities_paginated(mock_session, offset=offset, limit=limit)
 
     assert result[0].statement == expected
 
@@ -93,5 +104,21 @@ def test_get_entities_for_team(mock_session):
     instance = CRUDClass(ValidModel, Repository)
 
     result = instance.get_entities_for_team(mock_session, 1)
+
+    assert result[0].statement == expected
+
+
+def test_get_entities_for_team_paginated(mock_session):
+    """Test get_entities_for_team_paginated method."""
+    offset = 3
+    limit = 7
+    expected = (
+        "SELECT * FROM models JOIN collector_targets ON collector_targets.id = :id_1 "
+        + "WHERE collector_targets.team_id = :team_id_1 "
+        + f"OFFSET {offset} LIMIT {limit}"
+    )
+    instance = CRUDClass(ValidModel, Repository)
+
+    result = instance.get_entities_for_team_paginated(mock_session, 1, 3, 7)
 
     assert result[0].statement == expected

@@ -33,6 +33,17 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             select(Team).where(Team.view_owner_id.is_not(None))
         ).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Team]:
+        """Get paginated team views."""
+        return session.scalars(
+            select(Team)
+            .where(Team.view_owner_id.is_not(None))
+            .offset(offset)
+            .limit(limit)
+        ).all()
+
     def update_entity(self, session: Session, json: Dict[str, Any], id_: int) -> Team:
         """Update a team view in the database."""
         team_view: Team = self.get_entity(session, id_)

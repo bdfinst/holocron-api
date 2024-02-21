@@ -32,6 +32,17 @@ class ProjectsCRUD(BaseCRUD[Project]):
             select(Project).where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
         ).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Project]:
+        """Override get_entities_paginated to return only projects."""
+        return session.scalars(
+            select(Project)
+            .where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
+            .offset(offset)
+            .limit(limit)
+        ).all()
+
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> Sequence[Project]:
         """Get all projects for a given team."""
@@ -40,6 +51,20 @@ class ProjectsCRUD(BaseCRUD[Project]):
             select(Project)
             .where(Project.team_id == team.id)
             .where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
+        ).all()
+
+    @staticmethod
+    def get_entities_for_team_paginated(
+        session: Session, team_id: int, offset=0, limit=100
+    ) -> Sequence[Project]:
+        """Get paginated projects for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        return session.scalars(
+            select(Project)
+            .where(Project.team_id == team.id)
+            .where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
+            .offset(offset)
+            .limit(limit)
         ).all()
 
 
