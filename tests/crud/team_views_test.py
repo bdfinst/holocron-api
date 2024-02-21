@@ -85,6 +85,17 @@ def test_get_entities(mock_session, mock_sqlalchemy):
     assert result[0].statement == expected
 
 
+def test_get_entities_paginated(mock_session, mock_sqlalchemy):
+    """Test get_entities_paginated method."""
+    expected = (
+        "SELECT * FROM teams "
+        + "WHERE teams.view_owner_id IS NOT NULL "
+        + "OFFSET 0 LIMIT 100"
+    )
+    result = team_views_crud.get_entities_paginated(mock_session)
+    assert result[0].statement == expected
+
+
 def test_create_entity(
     mock_session,
     mock_team_collector_targets,

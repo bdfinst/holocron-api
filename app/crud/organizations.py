@@ -60,6 +60,26 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
             result.append(new_org)
         return result
 
+    def get_entities_without_team_views_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Organization]:
+        """Get paginated organizations without team views."""
+        organizations: Sequence[Organization] = self.get_entities_paginated(
+            session, offset=offset, limit=limit
+        )
+        result = []
+        for org in organizations:
+            new_org = Organization(
+                name=org.name,
+                users=org.users,
+                valuestreams=[
+                    get_valuestream_without_team_views(vs) for vs in org.valuestreams
+                ],
+            )
+            new_org.id = org.id
+            result.append(new_org)
+        return result
+
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Organization:
         """Insert organization in database."""

@@ -15,6 +15,16 @@ class MockQuery:
         self.statement += f" WHERE {condition}"
         return self
 
+    def offset(self, number):
+        """Add an offset to the statement."""
+        self.statement += f" OFFSET {number}"
+        return self
+
+    def limit(self, number):
+        """Add a limit to the statement."""
+        self.statement += f" LIMIT {number}"
+        return self
+
     def all(self):
         """Return an array of MagicMocks with the statements."""
         mock = MagicMock()

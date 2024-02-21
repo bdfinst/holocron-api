@@ -34,6 +34,17 @@ class RepositoriesCRUD(BaseCRUD[Repository]):
             select(Repository).where(Repository.type == CollectorTargetType.SCM)
         ).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Repository]:
+        """Override get_entities_paginated to return only repositories."""
+        return session.scalars(
+            select(Repository)
+            .where(Repository.type == CollectorTargetType.SCM)
+            .offset(offset)
+            .limit(limit)
+        ).all()
+
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> Sequence[Repository]:
         """Get all repositories for a given team."""
@@ -42,6 +53,20 @@ class RepositoriesCRUD(BaseCRUD[Repository]):
             select(Repository)
             .where(Repository.team_id == team.id)
             .where(Repository.type == CollectorTargetType.SCM)
+        ).all()
+
+    @staticmethod
+    def get_entities_for_team_paginated(
+        session: Session, team_id: int, offset=0, limit=100
+    ) -> Sequence[Repository]:
+        """Get paginated repositories for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        return session.scalars(
+            select(Repository)
+            .where(Repository.team_id == team.id)
+            .where(Repository.type == CollectorTargetType.SCM)
+            .offset(offset)
+            .limit(limit)
         ).all()
 
 

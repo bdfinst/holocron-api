@@ -22,6 +22,12 @@ class BaseCRUD(Generic[T]):
         """Get all entities."""
         return session.scalars(select(self.model)).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[T]:
+        """Get paginated entities."""
+        return session.scalars(select(self.model).offset(offset).limit(limit)).all()
+
     def get_entity(self, session: Session, id_: int) -> T:
         """Get entity by id."""
         result = session.scalars(select(self.model).where(self.model.id == id_)).first()

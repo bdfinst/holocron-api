@@ -10,9 +10,8 @@ from app.crud import teams as teams_crud_mod
 from app.crud import teams_crud
 from app.crud.teams import is_workflow_only
 from app.exceptions import HolocronIntegrityError
-from app.models import Team, TicketBoard
 from tests.mocks import mock_select
-from tests.testdata import create_repository, create_team, create_ticket_board
+from tests.testdata import create_team, create_ticket_board
 from tests.utils import first_argument
 
 json = {
@@ -95,6 +94,17 @@ def test_get_entities_without_team_views(mock_session, mock_sqlalchemy):
     """Test get_entities_without_team_views method."""
     expected = "SELECT * FROM teams " + "WHERE teams.view_owner_id IS NULL"
     result = teams_crud.get_entities_without_team_views(mock_session)
+    assert result[0].statement == expected
+
+
+def test_get_entities_without_team_views_paginated(mock_session, mock_sqlalchemy):
+    """Test get_entities_without_team_views_paginated method."""
+    expected = (
+        "SELECT * FROM teams "
+        + "WHERE teams.view_owner_id IS NULL "
+        + "OFFSET 0 LIMIT 100"
+    )
+    result = teams_crud.get_entities_without_team_views_paginated(mock_session)
     assert result[0].statement == expected
 
 

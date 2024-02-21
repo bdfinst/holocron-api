@@ -47,6 +47,27 @@ class ValuestreamsCRUD(BaseCRUD[Valuestream]):
             result.append(new_vs)
         return result
 
+    def get_entities_without_team_views_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Valuestream]:
+        """Get paginated valuestreams without team views."""
+        valuestreams: Sequence[Valuestream] = self.get_entities_paginated(
+            session, offset=offset, limit=limit
+        )
+        result = []
+        for valuestream in valuestreams:
+            new_vs = Valuestream(
+                name=valuestream.name,
+                organization_id=valuestream.organization_id,
+                users=valuestream.users,
+                teams=[
+                    team for team in valuestream.teams if team.view_owner_id is None
+                ],
+            )
+            new_vs.id = valuestream.id
+            result.append(new_vs)
+        return result
+
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Valuestream:
         """Insert valuestream in database."""

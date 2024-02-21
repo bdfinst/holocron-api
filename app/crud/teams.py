@@ -45,6 +45,14 @@ class TeamsCRUD(BaseCRUD[Team]):
         """Get all teams without team views."""
         return session.scalars(select(Team).where(Team.view_owner_id.is_(None))).all()
 
+    def get_entities_without_team_views_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Team]:
+        """Get paginated teams without team views."""
+        return session.scalars(
+            select(Team).where(Team.view_owner_id.is_(None)).offset(offset).limit(limit)
+        ).all()
+
     @staticmethod
     def create_entity(session: Session, json: Dict[str, Any]) -> Team:
         """Insert team in database."""

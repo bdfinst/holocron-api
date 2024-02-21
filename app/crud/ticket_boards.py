@@ -34,6 +34,17 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
             select(TicketBoard).where(TicketBoard.type == CollectorTargetType.WORKFLOW)
         ).all()
 
+    def get_entities_paginated(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[TicketBoard]:
+        """Override get_entities_paginated to return only ticket boards."""
+        return session.scalars(
+            select(TicketBoard)
+            .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
+            .offset(offset)
+            .limit(limit)
+        ).all()
+
     @staticmethod
     def get_entities_for_team(session: Session, team_id: int) -> Sequence[TicketBoard]:
         """Get all ticket boards for a given team."""
@@ -42,6 +53,20 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
             select(TicketBoard)
             .where(TicketBoard.team_id == team.id)
             .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
+        ).all()
+
+    @staticmethod
+    def get_entities_for_team_paginated(
+        session: Session, team_id: int, offset=0, limit=100
+    ) -> Sequence[TicketBoard]:
+        """Get paginated ticket boards for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        return session.scalars(
+            select(TicketBoard)
+            .where(TicketBoard.team_id == team.id)
+            .where(TicketBoard.type == CollectorTargetType.WORKFLOW)
+            .offset(offset)
+            .limit(limit)
         ).all()
 
 

@@ -49,6 +49,19 @@ def test_get_entities(mock_sqlalchemy, mock_session):
     assert result[0].statement == expected
 
 
+def test_get_entities_paginated(mock_sqlalchemy, mock_session):
+    """Test get_entities_paginated method."""
+    expected = (
+        "SELECT * FROM collector_targets "
+        + "WHERE collector_targets.type = :type_1 "
+        + "OFFSET 0 LIMIT 100"
+    )
+
+    result = projects_crud.get_entities_paginated(mock_session)
+
+    assert result[0].statement == expected
+
+
 def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     """Test get_entities_for_team method."""
     expected = (
@@ -58,5 +71,19 @@ def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     )
 
     result = projects_crud.get_entities_for_team(mock_session, 1)
+
+    assert result[0].statement == expected
+
+
+def test_get_entities_for_team_paginated(mock_sqlalchemy, mock_session):
+    """Test get_entities_for_team_paginated method."""
+    expected = (
+        "SELECT * FROM collector_targets "
+        + "WHERE collector_targets.team_id = :team_id_1 "
+        + "WHERE collector_targets.type = :type_1 "
+        + "OFFSET 0 LIMIT 100"
+    )
+
+    result = projects_crud.get_entities_for_team_paginated(mock_session, 1)
 
     assert result[0].statement == expected
