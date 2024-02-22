@@ -2,7 +2,7 @@
 
 from typing import Generic, Sequence, Type, TypeVar
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
@@ -17,6 +17,11 @@ class BaseCRUD(Generic[T]):
     def __init__(self, model: Type[T]):
         """Initialize with the given model."""
         self.model = model
+
+    def get_count(self, session: Session) -> int:
+        """Get row count."""
+        # pylint: disable-next=E1102; false positive
+        return session.scalars(func.count(self.model.id)).all()[0]
 
     def get_entities(self, session: Session) -> Sequence[T]:
         """Get all entities."""

@@ -42,6 +42,15 @@ class ModelCRUD(BaseCRUD[ValidModel]):
 test_crud = ModelCRUD(ValidModel)
 
 
+def test_get_count(mock_session):
+    """Test get_count method."""
+    expected = "SELECT COUNT(*) FROM ValidModel.id"
+
+    result = test_crud.get_count(mock_session)
+
+    assert result.statement == expected
+
+
 def test_get_entities(mock_session):
     """Test get_entities method."""
     expected = "SELECT * FROM models"
