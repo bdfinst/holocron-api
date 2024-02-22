@@ -53,6 +53,14 @@ def mock_delete(model):
     return MockQuery(f"DELETE FROM {model.__tablename__}")
 
 
+class MockFunc:
+    """Mock class to represent sqlalchemy.func class."""
+
+    def count(self, column):
+        """Mock for count method."""
+        return MockQuery(f"SELECT COUNT(*) FROM {column}")
+
+
 class MockDatabase:
     """Mock class to represent the database session."""
 
@@ -76,3 +84,4 @@ class MockDatabase:
 
 
 session = MockDatabase()
+mock_func = MockFunc()

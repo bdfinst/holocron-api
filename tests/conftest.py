@@ -7,7 +7,7 @@ from pytest import MonkeyPatch, fixture
 import app
 from app import security
 from app.middleware import auth, log, rate_limiter
-from tests.mocks import mock_delete, mock_select, request, session
+from tests.mocks import mock_delete, mock_func, mock_select, request, session
 
 
 @fixture(scope="session")
@@ -23,6 +23,7 @@ def mock_sqlalchemy_base(session_patch):
     """Patch sqlalchemy."""
     session_patch.setattr(app.crud._base, "delete", mock_delete)
     session_patch.setattr(app.crud._base, "select", mock_select)
+    session_patch.setattr(app.crud._base, "func", mock_func)
     session_patch.setattr(app.crud._base_metric, "select", mock_select)
 
 
