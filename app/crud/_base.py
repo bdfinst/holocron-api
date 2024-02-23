@@ -21,7 +21,8 @@ class BaseCRUD(Generic[T]):
     def get_count(self, session: Session) -> int:
         """Get row count."""
         # pylint: disable-next=E1102; false positive
-        return session.scalars(func.count(self.model.id)).all()[0]
+        query = session.query(func.count()).select_from(self.model)
+        return query.scalar()
 
     def get_entities(self, session: Session) -> Sequence[T]:
         """Get all entities."""

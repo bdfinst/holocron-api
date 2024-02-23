@@ -2,7 +2,7 @@
 
 from typing import Sequence, Type, TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import CollectorTarget, ModelBase
@@ -20,6 +20,24 @@ class BaseMetricCRUD(BaseCRUD[T]):
         """Initialize with the given model with collector target parent."""
         self.target_model = target_model
         super().__init__(model)
+
+    def get_count_for_team(self, session: Session, team_id: int) -> int:
+        """Get row count for a given team."""
+        team = teams_crud.get_entity(session, team_id)
+        query = (
+            session.query(
+                # pylint: disable-next=E1102; false positive
+                func.count()
+            )
+            .select_from(self.model)
+            .join(
+                self.target_model,
+                getattr(self.model, "collector_target_id") == self.target_model.id,
+            )
+            .where(self.target_model.team_id == team.id)
+        )
+
+        return query.scalar()
 
     def get_entities_for_team(self, session: Session, team_id: int) -> Sequence[T]:
         """Get all entities for a given team."""

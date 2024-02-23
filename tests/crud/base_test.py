@@ -44,7 +44,7 @@ test_crud = ModelCRUD(ValidModel)
 
 def test_get_count(mock_session):
     """Test get_count method."""
-    expected = "SELECT COUNT(*) FROM ValidModel.id"
+    expected = "SELECT COUNT(*) FROM models"
 
     result = test_crud.get_count(mock_session)
 
@@ -128,6 +128,20 @@ def test_get_entities_for_team_paginated(mock_session):
     )
     instance = CRUDClass(ValidModel, Repository)
 
-    result = instance.get_entities_for_team_paginated(mock_session, 1, 3, 7)
+    result = instance.get_entities_for_team_paginated(mock_session, 1, offset, limit)
 
     assert result[0].statement == expected
+
+
+def test_get_count_for_team(mock_session):
+    """Test get_count_for_team method."""
+    expected = (
+        "SELECT COUNT(*) FROM models "
+        + "JOIN collector_targets ON collector_targets.id = :id_1 "
+        + "WHERE collector_targets.team_id = :team_id_1"
+    )
+    instance = CRUDClass(ValidModel, Repository)
+
+    result = instance.get_count_for_team(mock_session, 1)
+
+    assert result.statement == expected
