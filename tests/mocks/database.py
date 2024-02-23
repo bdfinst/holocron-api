@@ -38,8 +38,17 @@ class MockQuery:
         return mock
 
     def join(self, target_model, condition):
-        """Mock for sqlalchemy join function."""
-        self.statement += " " + f"JOIN {target_model.__tablename__} ON {condition}"
+        """Add a join clause to the statement."""
+        self.statement += f" JOIN {target_model.__tablename__} ON {condition}"
+        return self
+
+    def select_from(self, model):
+        """Add a from to the statement."""
+        self.statement += f" FROM {model.__tablename__}"
+        return self
+
+    def scalar(self):
+        """Mock scalar method."""
         return self
 
 
@@ -56,9 +65,9 @@ def mock_delete(model):
 class MockFunc:
     """Mock class to represent sqlalchemy.func class."""
 
-    def count(self, column):
+    def count(self):
         """Mock for count method."""
-        return MockQuery(f"SELECT COUNT(*) FROM {column}")
+        return MockQuery("SELECT COUNT(*)")
 
 
 class MockDatabase:
@@ -66,6 +75,7 @@ class MockDatabase:
 
     scalars = MagicMock(side_effect=lambda x: x)
     execute = MagicMock(side_effect=lambda x: x)
+    query = MagicMock(side_effect=lambda x: x)
     add = MagicMock()
     commit = MagicMock()
     refresh = MagicMock()
@@ -76,6 +86,7 @@ class MockDatabase:
         """Reset the mocks."""
         self.scalars = MagicMock(side_effect=lambda x: x)
         self.execute = MagicMock(side_effect=lambda x: x)
+        self.query = MagicMock(side_effect=lambda x: x)
         self.add = MagicMock()
         self.commit = MagicMock()
         self.refresh = MagicMock()
