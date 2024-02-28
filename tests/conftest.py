@@ -7,6 +7,7 @@ from pytest import MonkeyPatch, fixture
 import app
 from app import security
 from app.middleware import auth, log, rate_limiter
+from app.routes.v3 import create_v3_router
 from tests.mocks import mock_delete, mock_func, mock_select, request, session
 
 
@@ -68,6 +69,7 @@ def application(monkeypatch):
     )
     application = app.create_app()
     application.config.update({"TESTING": True})
+    application.register_blueprint(create_v3_router())
     return application
 
 

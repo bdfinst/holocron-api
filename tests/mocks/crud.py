@@ -11,11 +11,29 @@ class MockCRUD:
         """Mock get_entities method."""
         return []
 
+    def get_entities_paginated(self, session, offset, limit):
+        """Mock get_entities_paginated method."""
+        return []
+
     def get_entities_for_team(self, session, id):
         """Mock get_entities_for_team method."""
         if id == -1:
             raise HolocronIntegrityError("err", "err")
         return []
+
+    def get_entities_for_team_paginated(self, session, id, offset, limit):
+        """Mock get_entities_for_team_paginated method."""
+        if id == -1:
+            raise HolocronIntegrityError("err", "err")
+        return []
+
+    def get_count(self, session):
+        """Mock get_count method."""
+        return 1
+
+    def get_count_for_team(self, session, id):
+        """Mock get_count_for_team method."""
+        return 1
 
     def get_entities_without_team_views(self, session):
         """Mock get_entities_without_team_views method."""

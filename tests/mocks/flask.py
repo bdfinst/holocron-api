@@ -11,6 +11,8 @@ class MockRequest:
     path = "/test"
     json = '{"key": "value"}'
     mimetype = "application/json"
+    args = {"per_page": "100", "page": "1"}
+    url = "myurl/endpoint?per_page=100&page=1"
 
     def reset(self):
         """Reset the mocks."""
@@ -21,6 +23,8 @@ class MockRequest:
         self.path = "/test"
         self.json = '{"key": "value"}'
         self.mimetype = "application/json"
+        self.args = {"per_page": "100", "page": "1"}
+        self.url = "myurl/endpoint?per_page=100&page=1"
         if hasattr(self, "user"):
             del self.user
 
