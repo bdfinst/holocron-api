@@ -67,6 +67,15 @@ def application(monkeypatch):
             "FEATURE_COLLECTOR_CONFIGURATION": True,
         },
     )
+    monkeypatch.setattr(
+        app.routes.v3,
+        "FEATURE_FLAGS",
+        {
+            "FEATURE_COST_METRICS": True,
+            "FEATURE_EXTERNAL_CONTRIBUTORS": True,
+            "FEATURE_COLLECTOR_CONFIGURATION": True,
+        },
+    )
     application = app.create_app()
     application.config.update({"TESTING": True})
     application.register_blueprint(create_v3_router())
