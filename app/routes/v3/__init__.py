@@ -3,7 +3,6 @@
 from flask import Blueprint
 
 from app.config import FEATURE_FLAGS
-from app.routes.v2.builds import create_router as create_build_router
 from app.routes.v2.collectors import create_router as create_collector_router
 from app.routes.v2.commits import create_router as create_commit_router
 from app.routes.v2.feature_flags import create_router as create_feature_flag_router
@@ -23,6 +22,7 @@ from app.routes.v2.users import create_router as create_user_router
 from app.routes.v2.valuestreams import create_router as create_valuestream_router
 
 from .branches import create_router as create_branch_router
+from .builds import create_router as create_build_router
 
 
 def create_v3_router() -> Blueprint:
