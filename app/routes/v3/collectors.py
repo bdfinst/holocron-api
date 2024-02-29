@@ -92,7 +92,8 @@ def get_collector(collector_id: str) -> Tuple[Any, int]:
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_collector)
-    return jsonify(result), 200
+    response = jsonify(result)
+    return response, 200
 
 
 @requires_security([requires_admin])
@@ -138,7 +139,8 @@ def update_collector(collector_id: str) -> Tuple[Any, int]:
         except HolocronIntegrityError as err:
             return err.messages, 400
         result = schema.dump(raw_collector)
-    return jsonify(result), 200
+    response = jsonify(result)
+    return response, 200
 
 
 def create_router() -> Blueprint:

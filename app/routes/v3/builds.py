@@ -103,7 +103,8 @@ def get_build(build_id: str) -> Tuple[Any, int]:
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_build)
-    return jsonify(result), 200
+    response = jsonify(result)
+    return response, 200
 
 
 def create_router() -> Blueprint:

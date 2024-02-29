@@ -103,7 +103,7 @@ def get_branch(branch_id: str) -> Tuple[Any, int]:
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_branch)
-        response = jsonify(result)
+    response = jsonify(result)
     return response, 200
 
 

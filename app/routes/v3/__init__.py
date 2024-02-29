@@ -4,7 +4,6 @@ from flask import Blueprint
 
 from app.config import FEATURE_FLAGS
 from app.routes.v2.feature_flags import create_router as create_feature_flag_router
-from app.routes.v2.git_requests import create_router as create_git_request_router
 from app.routes.v2.members import create_router as create_member_router
 from app.routes.v2.metrics import create_router as create_metrics_router
 from app.routes.v2.organizations import create_router as create_organization_router
@@ -23,6 +22,7 @@ from .branches import create_router as create_branch_router
 from .builds import create_router as create_build_router
 from .collectors import create_router as create_collector_router
 from .commits import create_router as create_commit_router
+from .git_requests import create_router as create_git_request_router
 
 
 def create_v3_router() -> Blueprint:
