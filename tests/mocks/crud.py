@@ -39,6 +39,10 @@ class MockCRUD:
         """Mock get_entities_without_team_views method."""
         return []
 
+    def get_entities_without_team_views_paginated(self, session, offset, limit):
+        """Mock get_entities_without_team_views method."""
+        return []
+
     def get_entity(self, session, id):
         """Mock get_entity method."""
         if id == -1:
