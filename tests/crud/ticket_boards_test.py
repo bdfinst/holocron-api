@@ -6,13 +6,37 @@ from pytest import fixture, raises
 
 from app.crud import ticket_boards, ticket_boards_crud
 from app.exceptions import HolocronIntegrityError
-from tests.mocks import mock_select
+from tests.mocks import mock_func, mock_select
 
 
 @fixture
 def mock_sqlalchemy(monkeypatch):
     """Patch sqlalchemy."""
     monkeypatch.setattr(ticket_boards, "select", mock_select)
+    monkeypatch.setattr(ticket_boards, "func", mock_func)
+
+
+def test_get_count(mock_sqlalchemy, mock_session):
+    """Test get_count method."""
+    expected = (
+        "SELECT COUNT(*) FROM collector_targets "
+        + "WHERE collector_targets.type = :type_1"
+    )
+    result = ticket_boards_crud.get_count(mock_session)
+
+    assert result.statement == expected
+
+
+def test_get_count_for_team(mock_sqlalchemy, mock_session):
+    """Test get_count_for_team method."""
+    expected = (
+        "SELECT COUNT(*) FROM collector_targets "
+        + "WHERE collector_targets.team_id = :team_id_1 "
+        + "WHERE collector_targets.type = :type_1"
+    )
+    result = ticket_boards_crud.get_count_for_team(mock_session, 1)
+
+    assert result.statement == expected
 
 
 def test_get_entity(mock_sqlalchemy, mock_session):
