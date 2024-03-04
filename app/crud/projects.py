@@ -2,7 +2,7 @@
 
 from typing import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
@@ -14,6 +14,31 @@ from .teams import teams_crud
 
 class ProjectsCRUD(BaseCRUD[Project]):
     """Base CRUD extension for Project model."""
+
+    def get_count(self, session) -> int:
+        """Override get_count to only count projects."""
+        query = (
+            # pylint: disable-next=E1102; false positive
+            session.query(func.count())
+            .select_from(Project)
+            .where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
+        )
+        return query.scalar()
+
+    def get_count_for_team(self, session: Session, team_id: int) -> int:
+        """Override get_count_for_team to only count projects."""
+        team = teams_crud.get_entity(session, team_id)
+        query = (
+            session.query(
+                # pylint: disable-next=E1102; false positive
+                func.count()
+            )
+            .select_from(Project)
+            .where(Project.team_id == team.id)
+            .where(Project.type == CollectorTargetType.PROJECT_ANALYSIS)
+        )
+
+        return query.scalar()
 
     def get_entity(self, session, id_: int) -> Project:
         """Override get_entity to return only project."""
