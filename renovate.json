@@ -6,9 +6,14 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "groupName": "Ironbank",
       "registryUrls": ["https://registry1.dso.mil"],
-      "patch": true
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "matchDatasources": ["docker"],
+      "registryUrls": ["https://registry1.dso.mil"],
+      "matchUpdateTypes": ["patch"]
     }
   ],
   "ignorePaths": ["requirements.txt"],
@@ -17,5 +22,5 @@
     "fileFilters": ["requirements.txt"],
     "executionMode": "branch"
   },
-  "separateMajorMinor": false
+  "seperateMinorPatch": true
 }
