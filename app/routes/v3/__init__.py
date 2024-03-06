@@ -5,12 +5,6 @@ from flask import Blueprint
 from app.config import FEATURE_FLAGS
 from app.routes.v2.feature_flags import create_router as create_feature_flag_router
 from app.routes.v2.metrics import create_router as create_metrics_router
-from app.routes.v2.repositories import create_router as create_repository_router
-from app.routes.v2.teams import create_router as create_team_router
-from app.routes.v2.ticket_boards import create_router as create_ticket_board_router
-from app.routes.v2.tickets import create_router as create_ticket_router
-from app.routes.v2.users import create_router as create_user_router
-from app.routes.v2.valuestreams import create_router as create_valuestream_router
 
 from .branches import create_router as create_branch_router
 from .builds import create_router as create_build_router
@@ -23,6 +17,12 @@ from .pay_rates import create_router as create_pay_rate_router
 from .pipelines import create_router as create_pipeline_router
 from .project_issues import create_router as create_project_issue_router
 from .projects import create_router as create_project_router
+from .repositories import create_router as create_repository_router
+from .teams import create_router as create_team_router
+from .ticket_boards import create_router as create_ticket_board_router
+from .tickets import create_router as create_ticket_router
+from .users import create_router as create_user_router
+from .valuestreams import create_router as create_valuestream_router
 
 
 def create_v3_router() -> Blueprint:

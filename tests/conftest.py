@@ -59,6 +59,9 @@ def application(monkeypatch):
         app.routes.v2.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
     )
     monkeypatch.setattr(
+        app.routes.v3.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
+    )
+    monkeypatch.setattr(
         app.routes.v2,
         "FEATURE_FLAGS",
         {
