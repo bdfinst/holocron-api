@@ -61,10 +61,12 @@ def create_app() -> Flask:
     app.config.from_object(config)
     app.register_error_handler(405, on_unexpected_http_methods)
     app.before_request(log_request)
-    app.before_request(circuit_breaker_check)
     app.before_request(validate_text)
     app.after_request(set_csp)
-    app.after_request(circuit_breaker_validation)
+
+    if config.CIRCUIT_BREAKER_ENABLED:
+        app.before_request(circuit_breaker_check)
+        app.after_request(circuit_breaker_validation)
 
     if config.SSO_ENABLED:
         app.before_request(set_user)
@@ -81,7 +83,8 @@ def create_app() -> Flask:
         v3_spec = generate_spec(app, "v3")
         serve_spec(app, v3_spec, "v3")
 
-    limiter.init_app(app)
+    if config.RATE_LIMITER_ENABLED:
+        limiter.init_app(app)
     Database.establish_connection()
     register_background_tasks()
 
