@@ -11,7 +11,7 @@ from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas.v2 import MemberV2Schema, TeamMemberV2Schema, TeamV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 member_schema = MemberV2Schema()
 team_member_schema = TeamMemberV2Schema()
@@ -37,18 +37,15 @@ def list_members() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/MemberV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = members_crud.get_count(session)
+        page_info = get_pagination_info(request.args, members_crud.get_count(session))
         raw_members = members_crud.get_entities_paginated(
-            session, offset=offset, limit=limit
+            session, offset=page_info.offset, limit=page_info.limit
         )
         members = [member_schema.dump(member) for member in raw_members]
     result = {"result": members}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

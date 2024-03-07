@@ -17,7 +17,7 @@ from app.middleware import (
 )
 from app.schemas.v2 import ValuestreamV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = ValuestreamV2Schema()
 
@@ -53,24 +53,23 @@ def list_valuestreams() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/ExistingValuestreamV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = valuestreams_crud.get_count(session)
+        page_info = get_pagination_info(
+            request.args, valuestreams_crud.get_count(session)
+        )
         raw_valuestreams = (
             valuestreams_crud.get_entities_without_team_views_paginated(
-                session, limit=limit, offset=offset
+                session, limit=page_info.limit, offset=page_info.offset
             )
             if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
             else valuestreams_crud.get_entities_paginated(
-                session, limit=limit, offset=offset
+                session, limit=page_info.limit, offset=page_info.offset
             )
         )
         valuestreams = [schema.dump(valuestream) for valuestream in raw_valuestreams]
     result = {"result": valuestreams}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

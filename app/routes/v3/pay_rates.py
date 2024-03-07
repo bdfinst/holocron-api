@@ -10,7 +10,7 @@ from app.database import generate_session
 from app.middleware import requires_org_leadership, requires_security
 from app.schemas.v2 import MultiplePayRateV2Schema, PayRateV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = PayRateV2Schema()
 many_schema = MultiplePayRateV2Schema()
@@ -48,16 +48,15 @@ def list_pay_rates() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/PayRateV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = pay_rates_crud.get_count(session)
-        raw_pay_rates = pay_rates_crud.get_entities(session)
+        page_info = get_pagination_info(request.args, pay_rates_crud.get_count(session))
+        raw_pay_rates = pay_rates_crud.get_entities_paginated(
+            session, limit=page_info.limit, offset=page_info.offset
+        )
         pay_rates = [schema.dump(pay_rate) for pay_rate in raw_pay_rates]
     result = {"result": pay_rates}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

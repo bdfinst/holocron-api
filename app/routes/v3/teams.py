@@ -21,7 +21,7 @@ from app.middleware import (
 )
 from app.schemas.v2 import TeamV2Schema, TeamViewV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = TeamV2Schema()
 schema_view = TeamViewV2Schema()
@@ -58,22 +58,21 @@ def list_teams() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/ExistingTeamV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = teams_crud.get_count(session)
+        page_info = get_pagination_info(request.args, teams_crud.get_count(session))
         raw_teams = (
             teams_crud.get_entities_without_team_views_paginated(
-                session, limit=limit, offset=offset
+                session, limit=page_info.limit, offset=page_info.offset
             )
             if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else teams_crud.get_entities_paginated(session, limit=limit, offset=offset)
+            else teams_crud.get_entities_paginated(
+                session, limit=page_info.limit, offset=page_info.offset
+            )
         )
         teams = [schema.dump(team) for team in raw_teams]
     result = {"result": teams}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return jsonify(result), 200
 
 
@@ -269,18 +268,17 @@ def list_team_views() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/ExistingTeamV2View'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = team_views_crud.get_count(session)
+        page_info = get_pagination_info(
+            request.args, team_views_crud.get_count(session)
+        )
         raw_teams = team_views_crud.get_entities_paginated(
-            session, limit=limit, offset=offset
+            session, limit=page_info.limit, offset=page_info.offset
         )
         teams = [schema_view.dump(team) for team in raw_teams]
     result = {"result": teams}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 
