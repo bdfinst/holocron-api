@@ -7,17 +7,19 @@ from pytest import fixture
 from app.exceptions import HolocronIntegrityError
 from app.middleware import auth, business_logic_teams
 from app.routes.v3 import teams
-from tests.mocks import crud, team_history_crud
+from tests.mocks import MockCRUD, team_history_crud
 from tests.testdata import create_team, create_team_view
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(teams, "teams_crud", crud)
     monkeypatch.setattr(teams, "team_views_crud", crud)
     monkeypatch.setattr(auth, "teams_crud", crud)
     monkeypatch.setattr(teams, "team_history_crud", team_history_crud)
+    yield crud
 
 
 @fixture
@@ -67,14 +69,12 @@ def test_list_teams(client, mock_request, mock_crud):
     assert resp.status_code == 200
 
 
-def test_list_teams_feature_team_views(client, mock_crud, mock_request, monkeypatch):
+def test_list_teams_feature_team_views(client, mock_crud, mock_request):
     """Test GET /api/v3/teams endpoint feature team views."""
     expected = {"result": []}
     get_entities_without_team_views = MagicMock(return_value=[])
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "get_entities_without_team_views_paginated",
-        get_entities_without_team_views,
+    mock_crud.get_entities_without_team_views_paginated = (
+        get_entities_without_team_views
     )
 
     resp = client.get("/api/v3/teams")
@@ -106,15 +106,11 @@ def test_get_team_404(client, mock_crud, mock_request, monkeypatch):
     assert resp.status_code == 404
 
 
-def test_get_team_feature_team_views(client, mock_request, monkeypatch):
+def test_get_team_feature_team_views(client, mock_crud, mock_request):
     """Test GET /api/v3/teams/:id endpoint."""
     expected = {"id": 1}
     get_entity_no_team_view = MagicMock(return_value=expected)
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "get_entity_no_team_view",
-        get_entity_no_team_view,
-    )
+    mock_crud.get_entity_no_team_view = get_entity_no_team_view
 
     resp = client.get("/api/v3/teams/1")
 
@@ -123,15 +119,13 @@ def test_get_team_feature_team_views(client, mock_request, monkeypatch):
     get_entity_no_team_view.assert_called_once()
 
 
-def test_get_team_404_feature_team_views(client, mock_request, monkeypatch):
+def test_get_team_404_feature_team_views(client, mock_crud, mock_request):
     """Test GET /api/v3/teams/:id endpoint."""
     expected = "Resource not found"
     get_entity_no_team_view = MagicMock(
         side_effect=HolocronIntegrityError("foo", "bar")
     )
-    monkeypatch.setattr(
-        teams.teams_crud, "get_entity_no_team_view", get_entity_no_team_view
-    )
+    mock_crud.get_entity_no_team_view = get_entity_no_team_view
 
     resp = client.get("/api/v3/teams/-1")
 
@@ -140,9 +134,7 @@ def test_get_team_404_feature_team_views(client, mock_request, monkeypatch):
     get_entity_no_team_view.assert_called_once()
 
 
-def test_create_team(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
-):
+def test_create_team(client, mock_crud, mock_admin, mock_requires_valid_team_data):
     """Test POST /api/v3/teams endpoint."""
     json = {
         "name": "test",
@@ -151,20 +143,15 @@ def test_create_team(
         "userIds": [1],
         "collectorTargetIds": [1],
     }
-
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "create_entity",
-        MagicMock(
-            return_value=create_team(
-                name="test",
-                team_size=1,
-                users=[],
-                pipelines=[],
-                repositories=[],
-                ticket_boards=[],
-            )
-        ),
+    mock_crud.create_entity = MagicMock(
+        return_value=create_team(
+            name="test",
+            team_size=1,
+            users=[],
+            pipelines=[],
+            repositories=[],
+            ticket_boards=[],
+        )
     )
 
     resp = client.post("/api/v3/teams", json=json)
@@ -251,9 +238,7 @@ def test_create_team_database_error(
     assert resp.status_code == 400
 
 
-def test_update_team(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
-):
+def test_update_team(client, mock_crud, mock_admin, mock_requires_valid_team_data):
     """Test PUT /api/v3/teams/1 endpoint."""
     json = {
         "name": "test2",
@@ -275,25 +260,16 @@ def test_update_team(
         valuestreamId=1,
         members=[],
     )
-
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "get_entity",
-        MagicMock(return_value=create_team(team_size=1)),
-    )
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "update_entity",
-        MagicMock(
-            return_value=create_team(
-                team_size=1,
-                name="test2",
-                pipelines=[],
-                repositories=[],
-                ticket_boards=[],
-                users=[],
-            )
-        ),
+    mock_crud.get_entity = MagicMock(return_value=create_team(team_size=1))
+    mock_crud.update_entity = MagicMock(
+        return_value=create_team(
+            team_size=1,
+            name="test2",
+            pipelines=[],
+            repositories=[],
+            ticket_boards=[],
+            users=[],
+        )
     )
 
     resp = client.put("/api/v3/teams/1", json=json)
@@ -348,7 +324,7 @@ def test_update_team_validation_error(
 
 
 def test_update_team_database_error(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, mock_admin, mock_requires_valid_team_data
 ):
     """Test PUT /api/v3/teams/1 endpoint."""
     json = {
@@ -360,15 +336,7 @@ def test_update_team_database_error(
     }
     expected = {"error": "error"}
 
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "get_entity",
-        MagicMock(
-            return_value=create_team(
-                name="error",
-            )
-        ),
-    )
+    mock_crud.get_entity = MagicMock(return_value=create_team(name="error"))
 
     resp = client.put("/api/v3/teams/1", json=json)
 
@@ -429,7 +397,6 @@ def test_get_team_view_404(
 def test_create_team_view(
     client,
     mock_crud,
-    monkeypatch,
     mock_admin,
     mock_request,
     mock_requires_valid_team_view_data,
@@ -437,23 +404,19 @@ def test_create_team_view(
     """Test POST /api/v3/teams/views endpoint."""
     json = {"name": "test_view", "collectorTargetIds": [1], "viewOwnerId": 1}
 
-    monkeypatch.setattr(
-        teams.teams_crud,
-        "create_entity",
-        MagicMock(
-            return_value=create_team(
-                id=2,
-                name="test_view",
-                team_size=1,
-                users=[],
-                pipelines=[],
-                projects=[],
-                repositories=[],
-                ticket_boards=[],
-                view_owner_id=1,
-                valuestream_id=1,
-            )
-        ),
+    mock_crud.create_entity = MagicMock(
+        return_value=create_team(
+            id=2,
+            name="test_view",
+            team_size=1,
+            users=[],
+            pipelines=[],
+            projects=[],
+            repositories=[],
+            ticket_boards=[],
+            view_owner_id=1,
+            valuestream_id=1,
+        )
     )
 
     resp = client.post("/api/v3/teams/views", json=json)
@@ -490,7 +453,7 @@ def test_create_team_view_database_error(
 
 
 def test_update_team_view(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_view_data
+    client, mock_crud, mock_admin, mock_requires_valid_team_view_data
 ):
     """Test PUT /api/v3/teams/1 endpoint."""
     json = {"name": "test_view2", "collectorTargetIds": [1], "viewOwnerId": 1}
@@ -504,19 +467,15 @@ def test_update_team_view(
         viewOwnerId=1,
     )
 
-    monkeypatch.setattr(
-        teams.team_views_crud,
-        "update_entity",
-        MagicMock(
-            return_value=create_team_view(
-                name="test_view2",
-                pipelines=[],
-                projects=[],
-                repositories=[],
-                ticket_boards=[],
-                view_owner_id=1,
-            )
-        ),
+    mock_crud.update_entity = MagicMock(
+        return_value=create_team_view(
+            name="test_view2",
+            pipelines=[],
+            projects=[],
+            repositories=[],
+            ticket_boards=[],
+            view_owner_id=1,
+        )
     )
 
     resp = client.put("/api/v3/teams/views/1", json=json)

@@ -7,14 +7,16 @@ from pytest import fixture
 from app.exceptions import HolocronIntegrityError
 from app.middleware import auth
 from app.routes.v3 import valuestreams
-from tests.mocks import crud
+from tests.mocks import MockCRUD
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(valuestreams, "valuestreams_crud", crud)
     monkeypatch.setattr(auth, "valuestreams_crud", crud)
+    yield crud
 
 
 @fixture
@@ -49,15 +51,13 @@ def test_list_valuestreams(
 
 
 def test_list_valuestreams_team_views(
-    client, mock_request, mock_crud, monkeypatch, mock_feature_team_views_true
+    client, mock_request, mock_crud, mock_feature_team_views_true
 ):
     """Test GET /api/v3/valuestreams endpoint team view feature."""
     expected = {"result": []}
     get_entities_without_team_views = MagicMock(return_value=[])
-    monkeypatch.setattr(
-        valuestreams.valuestreams_crud,
-        "get_entities_without_team_views_paginated",
-        get_entities_without_team_views,
+    mock_crud.get_entities_without_team_views_paginated = (
+        get_entities_without_team_views
     )
 
     resp = client.get("/api/v3/valuestreams")
@@ -92,16 +92,12 @@ def test_get_valuestream_404(
 
 
 def test_get_valuestream_feature_team_views(
-    client, mock_request, mock_feature_team_views_true, monkeypatch
+    client, mock_request, mock_crud, mock_feature_team_views_true
 ):
     """Test GET /api/v3/valuestreams/:id endpoint feature team views."""
     expected = {"id": 1}
     get_entity_without_team_views = MagicMock(return_value=expected)
-    monkeypatch.setattr(
-        valuestreams.valuestreams_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
-    )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v3/valuestreams/1")
 
@@ -111,18 +107,14 @@ def test_get_valuestream_feature_team_views(
 
 
 def test_get_valuestream_404_feature_team_views(
-    client, mock_request, mock_feature_team_views_true, monkeypatch
+    client, mock_request, mock_crud, mock_feature_team_views_true
 ):
     """Test GET /api/v3/valuestreams/:id endpoint feature team views."""
     expected = "Resource not found"
     get_entity_without_team_views = MagicMock(
         side_effect=HolocronIntegrityError("foo", "bar")
     )
-    monkeypatch.setattr(
-        valuestreams.valuestreams_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
-    )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v3/valuestreams/-1")
 

@@ -7,14 +7,16 @@ from pytest import fixture
 from app.exceptions import HolocronIntegrityError
 from app.middleware import auth
 from app.routes.v3 import organizations
-from tests.mocks import crud
+from tests.mocks import MockCRUD
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(organizations, "organizations_crud", crud)
     monkeypatch.setattr(auth, "organizations_crud", crud)
+    yield crud
 
 
 @fixture
@@ -49,15 +51,13 @@ def test_list_organizations(
 
 
 def test_list_organizations_team_views(
-    client, mock_crud, mock_request, monkeypatch, mock_feature_team_views_true
+    client, mock_crud, mock_request, mock_feature_team_views_true
 ):
     """Test GET /api/v3/organizations endpoint team views feature."""
     expected = {"result": []}
     get_entities_without_team_views = MagicMock(return_value=[])
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entities_without_team_views_paginated",
-        get_entities_without_team_views,
+    mock_crud.get_entities_without_team_views_paginated = (
+        get_entities_without_team_views
     )
 
     resp = client.get("/api/v3/organizations")
@@ -94,17 +94,13 @@ def test_get_organization_404(
 def test_get_organization_feature_team_views(
     client,
     mock_request,
+    mock_crud,
     mock_feature_team_views_true,
-    monkeypatch,
 ):
     """Test GET /api/v3/organizations/:id endpoint team views feature."""
     expected = {"id": 1}
     get_entity_without_team_views = MagicMock(return_value=expected)
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
-    )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v3/organizations/1")
 
@@ -116,19 +112,15 @@ def test_get_organization_feature_team_views(
 def test_get_organization_feature_team_views_404(
     client,
     mock_request,
+    mock_crud,
     mock_feature_team_views_true,
-    monkeypatch,
 ):
     """Test GET /api/v3/organizations/:id endpoint team views feature."""
     expected = "Resource not found"
     get_entity_without_team_views = MagicMock(
         side_effect=HolocronIntegrityError("foo", "bar")
     )
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
-    )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v3/organizations/1")
 
