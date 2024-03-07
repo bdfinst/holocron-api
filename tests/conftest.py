@@ -7,7 +7,6 @@ from pytest import MonkeyPatch, fixture
 import app
 from app import security
 from app.middleware import auth, log, rate_limiter
-from app.routes.v3 import create_v3_router
 from tests.mocks import mock_delete, mock_func, mock_select, request, session
 
 
@@ -55,6 +54,7 @@ def application(monkeypatch):
     monkeypatch.setattr(app.app, "set_user", MagicMock())
     monkeypatch.setattr(app.app, "atexit", MagicMock())
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
+    monkeypatch.setattr(app.app.config, "FEATURE_FLAGS", {"FEATURE_API_V3": True})
     monkeypatch.setattr(
         app.routes.v2.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
     )
@@ -81,7 +81,6 @@ def application(monkeypatch):
     )
     application = app.create_app()
     application.config.update({"TESTING": True})
-    application.register_blueprint(create_v3_router())
     return application
 
 
