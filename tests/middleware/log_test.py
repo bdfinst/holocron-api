@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from pytest import fixture, mark
+from pytest import fixture
 
 from app.middleware import log, log_request
 from tests.mocks import request
@@ -17,7 +17,6 @@ def mock_request(monkeypatch):
     request.reset()
 
 
-@mark.skip(reason="testing header logs")
 def test_log_request(mock_request, monkeypatch):
     """Test log_request function."""
     log_mock = MagicMock()
