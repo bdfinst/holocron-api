@@ -12,7 +12,7 @@ from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_org_access, requires_security
 from app.schemas.v2 import OrganizationV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = OrganizationV2Schema()
 
@@ -48,16 +48,17 @@ def list_organizations() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/ExistingOrganizationV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = organizations_crud.get_count(session)
+        page_info = get_pagination_info(
+            request.args, organizations_crud.get_count(session)
+        )
         raw_organizations = (
             organizations_crud.get_entities_without_team_views_paginated(
-                session, offset=offset, limit=limit
+                session, offset=page_info.offset, limit=page_info.limit
             )
             if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
             else organizations_crud.get_entities_paginated(
-                session, offset=offset, limit=limit
+                session, offset=page_info.offset, limit=page_info.limit
             )
         )
         organizations = [
@@ -65,9 +66,7 @@ def list_organizations() -> Tuple[Any, int]:
         ]
     result = {"result": organizations}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

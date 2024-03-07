@@ -10,7 +10,7 @@ from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security
 from app.schemas.v2 import UserV2Schema
 from app.security import get_sanitized_id
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = UserV2Schema()
 
@@ -46,18 +46,15 @@ def list_users() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/UserV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = users_crud.get_count(session)
+        page_info = get_pagination_info(request.args, users_crud.get_count(session))
         raw_users = users_crud.get_entities_paginated(
-            session, limit=limit, offset=offset
+            session, limit=page_info.limit, offset=page_info.offset
         )
         users = [schema.dump(user) for user in raw_users]
     result = {"result": users}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

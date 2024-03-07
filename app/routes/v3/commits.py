@@ -10,7 +10,7 @@ from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas.v2 import CommitV2Schema
 from app.security import get_sanitized_id
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = CommitV2Schema()
 
@@ -55,22 +55,21 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
         404:
           description: Team or team view not found
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     db_id = get_sanitized_id(team_id)
     with generate_session() as session:
         try:
-            count = commits_crud.get_count_for_team(session, db_id)
+            page_info = get_pagination_info(
+                request.args, commits_crud.get_count_for_team(session, db_id)
+            )
             raw_commits = commits_crud.get_entities_for_team_paginated(
-                session, db_id, offset=offset, limit=limit
+                session, db_id, offset=page_info.offset, limit=page_info.limit
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
         commits = [schema.dump(commit) for commit in raw_commits]
     result = {"result": commits}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 

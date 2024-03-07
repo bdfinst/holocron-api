@@ -10,7 +10,7 @@ from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
 from app.schemas.v2 import RepositoryV2Schema
 from app.security import get_sanitized_id
-from app.utils.pagination import construct_next_page_url, get_limit_offset_page
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = RepositoryV2Schema()
 
@@ -46,18 +46,17 @@ def list_repositories() -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/RepositoryV2'
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     with generate_session() as session:
-        count = repositories_crud.get_count(session)
+        page_info = get_pagination_info(
+            request.args, repositories_crud.get_count(session)
+        )
         raw_repositories = repositories_crud.get_entities_paginated(
-            session, limit=limit, offset=offset
+            session, limit=page_info.limit, offset=page_info.offset
         )
         repositories = [schema.dump(repository) for repository in raw_repositories]
     result = {"result": repositories}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 
@@ -101,22 +100,21 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
         404:
           description: Team or team view not found
     """
-    limit, offset, page = get_limit_offset_page(request.args)
     db_id = get_sanitized_id(team_id)
     with generate_session() as session:
         try:
-            count = repositories_crud.get_count_for_team(session, db_id)
+            page_info = get_pagination_info(
+                request.args, repositories_crud.get_count_for_team(session, db_id)
+            )
             raw_repositories = repositories_crud.get_entities_for_team_paginated(
-                session, db_id, limit=limit, offset=offset
+                session, db_id, limit=page_info.limit, offset=page_info.offset
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
         repositories = [schema.dump(repository) for repository in raw_repositories]
     result = {"result": repositories}
     response = jsonify(result)
-    response.headers["next-page"] = construct_next_page_url(
-        request.url, limit, offset, page, count
-    )  # type: ignore
+    response = set_pagination_header(response, request.url, page_info)
     return response, 200
 
 
