@@ -6,21 +6,17 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "registryUrls": ["https://registry1.dso.mil"],
       "matchUpdateTypes": ["major", "minor"],
       "enabled": false
-    },
-    {
-      "matchDatasources": ["docker"],
-      "registryUrls": ["https://registry1.dso.mil"],
-      "matchUpdateTypes": ["patch"]
     }
   ],
   "ignorePaths": ["requirements.txt"],
   "postUpgradeTasks": {
-    "commands": ["poetry export -o requirements.txt --without-hashes --with=dev"],
+    "commands": [
+      "poetry export -o requirements.txt --without-hashes --with=dev"
+    ],
     "fileFilters": ["requirements.txt"],
     "executionMode": "branch"
   },
-  "seperateMinorPatch": true
+  "separateMinorPatch": true
 }
