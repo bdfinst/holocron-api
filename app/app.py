@@ -78,7 +78,7 @@ def create_app() -> Flask:
     v2_spec = generate_spec(app, "v2")
     serve_spec(app, v2_spec, "v2")
 
-    if config.MODE == "development":
+    if config.FEATURE_FLAGS["FEATURE_API_V3"]:
         app.register_blueprint(create_v3_router())
         v3_spec = generate_spec(app, "v3")
         serve_spec(app, v3_spec, "v3")
