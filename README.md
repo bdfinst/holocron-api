@@ -298,7 +298,7 @@ After creating/updating a model, a new migration file needs to be created. You c
 
 and then 
 
-`docker exec holocron_backend alembic revision --autogenerate` 
+`docker exec holocron_backend alembic revision --autogenerate -m "brief description of the migration"` 
 
 If consolidating migration files is desired, delete any migration files that you want to merge, clear the database, and then run the command above.
 
