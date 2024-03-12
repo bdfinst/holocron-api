@@ -8,11 +8,11 @@ from app.crud import git_requests_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v2 import GitRequestV2Schema
+from app.schemas.v3 import GitRequestV3Schema
 from app.security import get_sanitized_id
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = GitRequestV2Schema()
+schema = GitRequestV3Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
@@ -51,7 +51,7 @@ def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/GitRequestV2'
+                      $ref: '#/components/schemas/GitRequestV3'
         404:
           description: Team or team view not found
     """
@@ -92,7 +92,7 @@ def get_git_request(git_request_id: str) -> Tuple[Any, int]:
           description: Get single git request by id
           content:
             application/json:
-              schema: GitRequestV2Schema
+              schema: GitRequestV3Schema
         404:
           description: Git request not found
     """

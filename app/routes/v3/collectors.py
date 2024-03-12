@@ -9,11 +9,11 @@ from app.crud import collectors_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security
-from app.schemas.v2 import CollectorV2Schema
+from app.schemas.v3 import CollectorV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = CollectorV2Schema()
+schema = CollectorV3Schema()
 
 
 def list_collectors() -> Tuple[Any, int]:
@@ -45,7 +45,7 @@ def list_collectors() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CollectorV2'
+                      $ref: '#/components/schemas/CollectorV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(
@@ -79,7 +79,7 @@ def get_collector(collector_id: str) -> Tuple[Any, int]:
           description: Get collector
           content:
             application/json:
-              schema: CollectorV2Schema
+              schema: CollectorV3Schema
         404:
           description: Collector not found
     """
@@ -112,13 +112,13 @@ def update_collector(collector_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: CollectorV2Schema
+            schema: CollectorV3Schema
       responses:
         200:
           description: The collector was successfully updated
           content:
             application/json:
-              schema: CollectorV2Schema
+              schema: CollectorV3Schema
         400:
           description: Failure due to an invalid request
           content:

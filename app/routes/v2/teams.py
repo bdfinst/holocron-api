@@ -229,7 +229,7 @@ def list_team_views() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamV2View'
+                      $ref: '#/components/schemas/ExistingTeamViewV2'
     """
     with generate_session() as session:
         raw_teams = team_views_crud.get_entities(session)

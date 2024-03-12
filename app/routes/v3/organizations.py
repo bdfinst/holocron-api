@@ -10,11 +10,11 @@ from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_org_access, requires_security
-from app.schemas.v2 import OrganizationV2Schema
+from app.schemas.v3 import OrganizationV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = OrganizationV2Schema()
+schema = OrganizationV3Schema()
 
 
 def list_organizations() -> Tuple[Any, int]:
@@ -46,7 +46,7 @@ def list_organizations() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingOrganizationV2'
+                      $ref: '#/components/schemas/ExistingOrganizationV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(
@@ -80,13 +80,13 @@ def create_organization() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationV2Schema
+            schema: NewOrganizationV3Schema
       responses:
         201:
           description: The organization was successfully created
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: ExistingOrganizationV3Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -126,7 +126,7 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
           description: Get organization
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: ExistingOrganizationV3Schema
         404:
           description: Organization not found
     """
@@ -163,13 +163,13 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationV2Schema
+            schema: NewOrganizationV3Schema
       responses:
         200:
           description: The organization was successfully updated
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: ExistingOrganizationV3Schema
         400:
           description: Failure due to an invalid request
           content:

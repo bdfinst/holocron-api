@@ -8,11 +8,11 @@ from app.crud import projects_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v2 import ProjectV2Schema
+from app.schemas.v3 import ProjectV3Schema
 from app.security import get_sanitized_id
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = ProjectV2Schema()
+schema = ProjectV3Schema()
 
 
 def list_projects() -> Tuple[Any, int]:
@@ -44,7 +44,7 @@ def list_projects() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ProjectV2'
+                      $ref: '#/components/schemas/ProjectV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, projects_crud.get_count(session))
@@ -94,7 +94,7 @@ def list_projects_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ProjectV2'
+                      $ref: '#/components/schemas/ProjectV3'
         404:
           description: Team or team view not found
     """
@@ -134,7 +134,7 @@ def get_project(project_id: str) -> Tuple[Any, int]:
           description: Get single project by id
           content:
             application/json:
-              schema: ProjectV2Schema
+              schema: ProjectV3Schema
         404:
           description: Project not found
     """
