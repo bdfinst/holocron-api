@@ -8,11 +8,11 @@ from app.crud import builds_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v2 import BuildV2Schema
+from app.schemas.v3 import BuildV3Schema
 from app.security import get_sanitized_id
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = BuildV2Schema()
+schema = BuildV3Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
@@ -51,7 +51,7 @@ def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/BuildV2'
+                      $ref: '#/components/schemas/BuildV3'
         404:
           description: Team or team view not found
     """
@@ -92,7 +92,7 @@ def get_build(build_id: str) -> Tuple[Any, int]:
           description: Get single build by id
           content:
             application/json:
-              schema: BuildV2Schema
+              schema: BuildV3Schema
         404:
           description: Build not found
     """

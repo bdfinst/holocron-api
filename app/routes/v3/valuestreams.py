@@ -15,11 +15,11 @@ from app.middleware import (
     requires_security,
     requires_vs_access,
 )
-from app.schemas.v2 import ValuestreamV2Schema
+from app.schemas.v3 import ValuestreamV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = ValuestreamV2Schema()
+schema = ValuestreamV3Schema()
 
 
 def list_valuestreams() -> Tuple[Any, int]:
@@ -51,7 +51,7 @@ def list_valuestreams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingValuestreamV2'
+                      $ref: '#/components/schemas/ExistingValuestreamV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(
@@ -83,13 +83,13 @@ def create_valuestream() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamV2Schema
+            schema: NewValuestreamV3Schema
       responses:
         201:
           description: The valuestream was successfully created
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValuestreamV3Schema
         400:
           description: Failure due to invalid request
           content:
@@ -129,7 +129,7 @@ def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
           description: Get valuestream
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValuestreamV3Schema
         404:
           description: Valuestream not found
     """
@@ -168,13 +168,13 @@ def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamV2Schema
+            schema: NewValuestreamV3Schema
       responses:
         200:
           description: The valuestream was successfully updated
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValuestreamV3Schema
         400:
           description: Failure due to an invalid request
           content:

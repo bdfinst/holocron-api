@@ -8,11 +8,11 @@ from app.crud import project_issues_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v2 import ProjectIssueV2Schema
+from app.schemas.v3 import ProjectIssueV3Schema
 from app.security import get_sanitized_id
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = ProjectIssueV2Schema()
+schema = ProjectIssueV3Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
@@ -51,7 +51,7 @@ def list_project_issues_for_team(team_id: str) -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ProjectIssueV2'
+                      $ref: '#/components/schemas/ProjectIssueV3'
         404:
           description: Team or team view not found
     """
@@ -94,7 +94,7 @@ def get_project_issue(project_issue_id: str) -> Tuple[Any, int]:
           description: Get single project_issue by id
           content:
             application/json:
-              schema: ProjectIssueV2Schema
+              schema: ProjectIssueV3Schema
         404:
           description: ProjectIssue not found
     """

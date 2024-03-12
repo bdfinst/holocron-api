@@ -8,12 +8,12 @@ from marshmallow import ValidationError
 from app.crud import pay_rates_crud
 from app.database import generate_session
 from app.middleware import requires_org_leadership, requires_security
-from app.schemas.v2 import MultiplePayRateV2Schema, PayRateV2Schema
+from app.schemas.v3 import MultiplePayRateV3Schema, PayRateV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = PayRateV2Schema()
-many_schema = MultiplePayRateV2Schema()
+schema = PayRateV3Schema()
+many_schema = MultiplePayRateV3Schema()
 
 
 @requires_security([requires_org_leadership])
@@ -46,7 +46,7 @@ def list_pay_rates() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PayRateV2'
+                      $ref: '#/components/schemas/PayRateV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, pay_rates_crud.get_count(session))
@@ -70,7 +70,7 @@ def upsert_pay_rates() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: MultiplePayRateV2Schema
+            schema: MultiplePayRateV3Schema
       responses:
         201:
           description: The pay rates successfuly set.
@@ -81,7 +81,7 @@ def upsert_pay_rates() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PayRateV2'
+                      $ref: '#/components/schemas/PayRateV3'
         400:
           description: Failure due to an invalid request
           content:

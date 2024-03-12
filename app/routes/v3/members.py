@@ -9,13 +9,13 @@ from app.crud import members_crud, teams_crud, teams_members_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas.v2 import MemberV2Schema, TeamMemberV2Schema, TeamV2Schema
+from app.schemas.v3 import MemberV3Schema, TeamMemberV3Schema, TeamV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-member_schema = MemberV2Schema()
-team_member_schema = TeamMemberV2Schema()
-team_schema = TeamV2Schema()
+member_schema = MemberV3Schema()
+team_member_schema = TeamMemberV3Schema()
+team_schema = TeamV3Schema()
 
 
 @requires_security([requires_admin])
@@ -35,7 +35,7 @@ def list_members() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MemberV2'
+                      $ref: '#/components/schemas/MemberV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, members_crud.get_count(session))
@@ -68,7 +68,7 @@ def get_member(member_id: str) -> Tuple[Any, int]:
           description: Get single member by id
           content:
             application/json:
-              schema: MemberV2Schema
+              schema: MemberV3Schema
         404:
           description: Member not found
     """
@@ -104,13 +104,13 @@ def update_team_members(team_id: str) -> Tuple[Any, int]:
                 teamMembers:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TeamMemberV2'
+                    $ref: '#/components/schemas/TeamMemberV3'
       responses:
         200:
           description: Update members of team
           content:
             application/json:
-              schema: ExistingTeamV2
+              schema: ExistingTeamV3
         404:
           description: Team not found
     """

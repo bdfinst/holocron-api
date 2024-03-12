@@ -19,12 +19,12 @@ from app.middleware import (
     requires_valid_team_view_data,
     requires_vs_access,
 )
-from app.schemas.v2 import TeamV2Schema, TeamViewV2Schema
+from app.schemas.v3 import TeamV3Schema, TeamViewV3Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = TeamV2Schema()
-schema_view = TeamViewV2Schema()
+schema = TeamV3Schema()
+schema_view = TeamViewV3Schema()
 
 
 def list_teams() -> Tuple[Any, int]:
@@ -56,7 +56,7 @@ def list_teams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamV2'
+                      $ref: '#/components/schemas/ExistingTeamV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, teams_crud.get_count(session))
@@ -87,13 +87,13 @@ def create_team() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamV2Schema
+            schema: NewTeamV3Schema
       responses:
         201:
           description: The team was successfully created
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: ExistingTeamV3Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -139,7 +139,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
           description: Get team
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: ExistingTeamV3Schema
         404:
           description: Team not found
     """
@@ -175,13 +175,13 @@ def update_team(team_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamV2Schema
+            schema: NewTeamV3Schema
       responses:
         200:
           description: The team was successfully updated
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: ExistingTeamV3Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -266,7 +266,7 @@ def list_team_views() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamV2View'
+                      $ref: '#/components/schemas/ExistingTeamViewV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(
@@ -293,13 +293,13 @@ def create_team_view() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewV2Schema
+            schema: NewTeamViewV3Schema
       responses:
         201:
           description: The team view was successfully created
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: ExistingTeamViewV3Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -340,7 +340,7 @@ def get_team_view(team_view_id: str) -> Tuple[Any, int]:
           description: Get team view
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: ExistingTeamViewV3Schema
         404:
           description: Team not found
     """
@@ -374,13 +374,13 @@ def update_team_view(team_view_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewV2Schema
+            schema: NewTeamViewV3Schema
       responses:
         200:
           description: The team view was successfully updated
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: ExistingTeamViewV3Schema
         400:
           description: Failure due to an invalid request
           content:

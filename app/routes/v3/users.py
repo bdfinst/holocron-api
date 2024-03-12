@@ -8,11 +8,11 @@ from app.crud import users_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security
-from app.schemas.v2 import UserV2Schema
+from app.schemas.v3 import UserV3Schema
 from app.security import get_sanitized_id
 from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = UserV2Schema()
+schema = UserV3Schema()
 
 
 def list_users() -> Tuple[Any, int]:
@@ -44,7 +44,7 @@ def list_users() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/UserV2'
+                      $ref: '#/components/schemas/UserV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, users_crud.get_count(session))
@@ -76,7 +76,7 @@ def get_user(user_id: str) -> Tuple[Any, int]:
           description: Get user
           content:
             application/json:
-              schema: UserV2Schema
+              schema: UserV3Schema
         404:
           description: User not found
     """
