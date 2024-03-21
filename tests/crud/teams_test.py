@@ -19,7 +19,7 @@ json = {
     "team_size": 1,
     "user_ids": [],
     "collector_target_ids": [21],
-    "valuestream_id": 1,
+    "value_stream_id": 1,
 }
 
 
@@ -123,22 +123,22 @@ def test_create_entity(
     assert team.users == []
     assert len(team.collector_targets) == 1
     assert team.collector_targets[0].id == mock_team_feature_board_id
-    assert team.valuestream_id == 1
+    assert team.value_stream_id == 1
     assert result == team
 
 
-def test_create_entity_valuestream_id_error(
+def test_create_entity_value_stream_id_error(
     mock_session,
     mock_team_collector_targets,
     mock_is_workflow_only,
 ):
-    """Test create_entity method with invalid valuestream id."""
+    """Test create_entity method with invalid value stream id."""
 
     def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.ForeignKeyViolation", None, None)
 
     mock_session.add = MagicMock(side_effect=raise_integrity_error)
-    expected = "valuestream_id - not found"
+    expected = "value_stream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
         teams_crud.create_entity(mock_session, json)
@@ -195,7 +195,7 @@ def test_update_entity(
     assert team.users == []
     assert len(team.collector_targets) == 1
     assert team.collector_targets[0].id == expected_feature_board_id
-    assert team.valuestream_id == 1
+    assert team.value_stream_id == 1
     assert first_argument(mock_session.scalars).statement == expected
     assert result == team
 
@@ -215,21 +215,21 @@ def test_update_entity_filter_team_views(
     assert team.users == []
     assert len(team.collector_targets) == 1
     assert team.collector_targets[0].id == expected_feature_board_id
-    assert team.valuestream_id == 1
+    assert team.value_stream_id == 1
     assert first_argument(mock_session.scalars).statement == expected
     assert result == team
 
 
-def test_update_entity_valuestream_id_error(
+def test_update_entity_value_stream_id_error(
     mock_session, mock_team_collector_targets, mock_is_workflow_only
 ):
-    """Test update_entity method with invalid valuestream id."""
+    """Test update_entity method with invalid value stream id."""
 
     def raise_integrity_error(*args, **kwargs):
         raise IntegrityError("psycopg2.errors.ForeignKeyViolation", None, None)
 
     mock_session.add = MagicMock(side_effect=raise_integrity_error)
-    expected = "valuestream_id - not found"
+    expected = "value_stream_id - not found"
 
     with raises(HolocronIntegrityError) as e:
         teams_crud.update_entity(mock_session, json, 1)

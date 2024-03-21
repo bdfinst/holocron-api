@@ -7,14 +7,16 @@ from pytest import fixture
 from app.exceptions import HolocronIntegrityError
 from app.middleware import auth
 from app.routes.v2 import organizations
-from tests.mocks import crud
+from tests.mocks import MockCRUD
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(organizations, "organizations_crud", crud)
     monkeypatch.setattr(auth, "organizations_crud", crud)
+    yield crud
 
 
 @fixture
@@ -71,7 +73,8 @@ def test_get_organization(
     client, mock_crud, mock_request, mock_feature_team_views_false
 ):
     """Test GET /api/v2/organizations/:id endpoint."""
-    expected = {"id": 1}
+    mock_crud.get_entity = MagicMock(return_value={"id": 1, "value_streams": []})
+    expected = {"id": 1, "valuestreams": []}
 
     resp = client.get("/api/v2/organizations/1")
 
@@ -93,18 +96,16 @@ def test_get_organization_404(
 
 def test_get_organization_feature_team_views(
     client,
+    mock_crud,
     mock_request,
     mock_feature_team_views_true,
-    monkeypatch,
 ):
     """Test GET /api/v2/organizations/:id endpoint team views feature."""
-    expected = {"id": 1}
-    get_entity_without_team_views = MagicMock(return_value=expected)
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
+    expected = {"id": 1, "valuestreams": []}
+    get_entity_without_team_views = MagicMock(
+        return_value={"id": 1, "value_streams": []}
     )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v2/organizations/1")
 
@@ -115,20 +116,16 @@ def test_get_organization_feature_team_views(
 
 def test_get_organization_feature_team_views_404(
     client,
+    mock_crud,
     mock_request,
     mock_feature_team_views_true,
-    monkeypatch,
 ):
     """Test GET /api/v2/organizations/:id endpoint team views feature."""
     expected = "Resource not found"
     get_entity_without_team_views = MagicMock(
         side_effect=HolocronIntegrityError("foo", "bar")
     )
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entity_without_team_views",
-        get_entity_without_team_views,
-    )
+    mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
     resp = client.get("/api/v2/organizations/1")
 
@@ -140,7 +137,10 @@ def test_get_organization_feature_team_views_404(
 def test_create_organization(client, mock_crud, mock_admin):
     """Test POST /api/v2/organizations endpoint."""
     json = {"name": "test", "userIds": [1]}
-    expected = {"name": "test"}
+    mock_crud.create_entity = MagicMock(
+        side_effect=lambda _x, y: {**y, "value_streams": []}
+    )
+    expected = {"name": "test", "valuestreams": []}
 
     resp = client.post("/api/v2/organizations", json=json)
 
@@ -176,7 +176,10 @@ def test_create_organization_database_error(client, mock_crud, mock_admin):
 def test_update_organization(client, mock_crud, mock_admin):
     """Test PUT /api/v2/organizations/1 endpoint."""
     json = {"name": "test", "userIds": [1]}
-    expected = {"id": 1, "name": "test"}
+    mock_crud.update_entity = MagicMock(
+        side_effect=lambda _x, y, _z: {**y, "value_streams": []}
+    )
+    expected = {"name": "test", "valuestreams": []}
 
     resp = client.put("/api/v2/organizations/1", json=json)
 

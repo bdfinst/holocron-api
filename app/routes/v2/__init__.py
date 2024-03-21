@@ -22,7 +22,7 @@ from .teams import create_router as create_team_router
 from .ticket_boards import create_router as create_ticket_board_router
 from .tickets import create_router as create_ticket_router
 from .users import create_router as create_user_router
-from .valuestreams import create_router as create_valuestream_router
+from .value_streams import create_router as create_value_stream_router
 
 
 def create_v2_router() -> Blueprint:
@@ -49,5 +49,5 @@ def create_v2_router() -> Blueprint:
     router.register_blueprint(create_ticket_board_router())
     router.register_blueprint(create_ticket_router())
     router.register_blueprint(create_user_router())
-    router.register_blueprint(create_valuestream_router())
+    router.register_blueprint(create_value_stream_router())
     return router

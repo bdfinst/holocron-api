@@ -15,7 +15,7 @@ from app.middleware import (
     requires_admin,
     requires_security,
     requires_team_access,
-    requires_valid_team_data,
+    requires_valid_team_data_v2,
     requires_valid_team_view_data,
     requires_vs_access,
 )
@@ -56,7 +56,7 @@ def list_teams() -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_vs_access])
-@requires_valid_team_data
+@requires_valid_team_data_v2
 def create_team() -> Tuple[Any, int]:
     """Create team route.
 
@@ -135,7 +135,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
-@requires_valid_team_data
+@requires_valid_team_data_v2
 def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
 

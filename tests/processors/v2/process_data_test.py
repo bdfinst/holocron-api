@@ -24,7 +24,7 @@ from tests.testdata import (
     issues,
     mock_organizations,
     mock_teams,
-    mock_valuestreams,
+    mock_value_streams,
 )
 from tests.testdata.teams import mock_team_last_collected
 
@@ -55,7 +55,7 @@ def test_process_organization(monkeypatch):
         process_data, "FEATURE_FLAGS", {"FEATURE_DEPLOY_FREQUENCY": True}
     )
     monkeypatch.setattr(process_data, "datetime", mock_dt)
-    org, vs, team = mock_organizations[0], mock_valuestreams[0], mock_teams[0]
+    org, vs, team = mock_organizations[0], mock_value_streams[0], mock_teams[0]
     expected = [
         TeamMetrics(
             name=team.name,
@@ -195,7 +195,7 @@ def test_process_team_last_collected(monkeypatch):
     monkeypatch.setattr(process_data, "build_historical_data", lambda x, y: None)
 
     test_team = mock_team_last_collected
-    test_org, test_vs = mock_organizations[0], mock_valuestreams[0]
+    test_org, test_vs = mock_organizations[0], mock_value_streams[0]
     result = process_team(test_team, test_vs, test_org)
 
     assert (

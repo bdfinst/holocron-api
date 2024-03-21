@@ -7,7 +7,7 @@ from pytest import fixture
 from app.middleware import auth
 from app.routes.v2 import metrics
 from tests.mocks import cache_v2, crud
-from tests.testdata import create_team, create_valuestream
+from tests.testdata import create_team, create_value_stream
 
 
 @fixture
@@ -58,12 +58,12 @@ def test_get_organization_metrics_202(client, mock_cache, mock_admin):
     assert resp.status_code == 202
 
 
-def test_get_valuestream_metrics(monkeypatch, client, mock_cache, mock_admin):
+def test_get_value_stream_metrics(monkeypatch, client, mock_cache, mock_admin):
     """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     monkeypatch.setattr(
-        metrics.valuestreams_crud,
+        metrics.value_streams_crud,
         "get_entity",
-        MagicMock(return_value=create_valuestream(name="vs_name_test")),
+        MagicMock(return_value=create_value_stream(name="vs_name_test")),
     )
     resp = client.get("/api/v2/metrics/valuestream/1")
 
@@ -71,22 +71,22 @@ def test_get_valuestream_metrics(monkeypatch, client, mock_cache, mock_admin):
     assert resp.status_code == 200
 
 
-def test_get_valuestream_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
+def test_get_value_stream_metrics_404(monkeypatch, client, mock_cache, mock_non_admin):
     """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     expected = "Resource not found"
-    monkeypatch.setattr(auth, "valuestreams_crud", crud)
+    monkeypatch.setattr(auth, "value_streams_crud", crud)
     resp = client.get("/api/v2/metrics/valuestream/-1")
 
     assert resp.text == expected
 
 
-def test_get_valuestream_metrics_202(monkeypatch, client, mock_cache, mock_admin):
+def test_get_value_stream_metrics_202(monkeypatch, client, mock_cache, mock_admin):
     """Test GET /api/v2/metrics/valuestream/:id endpoint."""
     expected = "Processing not completed"
     monkeypatch.setattr(
-        metrics.valuestreams_crud,
+        metrics.value_streams_crud,
         "get_entity",
-        MagicMock(return_value=create_valuestream(organization_id=42)),
+        MagicMock(return_value=create_value_stream(organization_id=42)),
     )
     resp = client.get("/api/v2/metrics/valuestream/1")
     assert resp.text == expected
@@ -101,9 +101,9 @@ def test_get_team_metrics(monkeypatch, client, mock_cache, mock_admin):
         MagicMock(return_value=create_team(name="team_name_test")),
     )
     monkeypatch.setattr(
-        metrics.valuestreams_crud,
+        metrics.value_streams_crud,
         "get_entity",
-        MagicMock(return_value=create_valuestream(name="vs_name_test")),
+        MagicMock(return_value=create_value_stream(name="vs_name_test")),
     )
     resp = client.get("/api/v2/metrics/team/1")
 
@@ -129,9 +129,9 @@ def test_get_team_metrics_202(monkeypatch, client, mock_cache, mock_admin):
         MagicMock(return_value=create_team()),
     )
     monkeypatch.setattr(
-        metrics.valuestreams_crud,
+        metrics.value_streams_crud,
         "get_entity",
-        MagicMock(return_value=create_valuestream(organization_id=42)),
+        MagicMock(return_value=create_value_stream(organization_id=42)),
     )
     resp = client.get("/api/v2/metrics/team/1")
     assert resp.text == expected

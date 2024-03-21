@@ -1,20 +1,24 @@
 """Input validaton test for route schemas."""
 
+from unittest.mock import MagicMock
+
 from pytest import fixture
 
 from app import security
 from app.routes.v2 import organizations
-from tests.mocks import crud
+from tests.mocks import MockCRUD
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(organizations, "organizations_crud", crud)
     monkeypatch.setattr(security, "MAX_INPUT_CHAR_LEN", 50)
+    yield crud
 
 
-def test_input_validators(client, mock_crud, mock_request):
+def test_input_validators(client, mock_crud, mock_request, monkeypatch):
     """Test POST /api/v2/organizations for schema input validation."""
     test_cases = [
         (
@@ -40,9 +44,12 @@ def test_input_validators(client, mock_crud, mock_request):
         (
             """should allow name with spaces and valid characters""",
             "49ers9- _Example",
-            (201, {"name": "49ers9- _Example"}),
+            (201, {"name": "49ers9- _Example", "valuestreams": []}),
         ),
     ]
+    mock_crud.create_entity = MagicMock(
+        side_effect=lambda _x, y: {**y, "value_streams": []}
+    )
     for test_case in test_cases:
         description, organization_name, expected = test_case
         code, resp_json = expected

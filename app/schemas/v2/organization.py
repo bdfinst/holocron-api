@@ -10,7 +10,7 @@ from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .user import UserV2Schema
-from .valuestream import ExistingValuestreamV2Schema
+from .value_stream import ExistingValueStreamV2Schema
 
 
 class ExistingOrganizationV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -22,7 +22,7 @@ class ExistingOrganizationV2Schema(SQLAlchemyAutoSchema, SchemaBase):
         model = Organization
         include_relationships = True
 
-    valuestreams = fields.Nested(ExistingValuestreamV2Schema, many=True)
+    value_streams = fields.Nested(ExistingValueStreamV2Schema, many=True)
     users = fields.Nested(UserV2Schema, many=True)
 
 
@@ -48,7 +48,10 @@ class OrganizationV2Schema:
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""
-        return self.existing_schema.dump(data)
+        result = self.existing_schema.dump(data)
+        result["valuestreams"] = result["valueStreams"]
+        del result["valueStreams"]
+        return result
 
     def load(self, data) -> Dict[str, Any]:
         """Load using the new schema."""

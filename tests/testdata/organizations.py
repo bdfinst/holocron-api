@@ -3,14 +3,14 @@
 from app.models import Organization
 
 from .users import mock_users
-from .valuestreams import mock_valuestreams
+from .value_streams import mock_value_streams
 
 
 def create_organization(
-    id=1, name="test", valuestreams=mock_valuestreams, users=mock_users
+    id=1, name="test", value_streams=mock_value_streams, users=mock_users
 ):
     """Create mock organization object with default values."""
-    organization = Organization(name=name, valuestreams=valuestreams, users=users)
+    organization = Organization(name=name, value_streams=value_streams, users=users)
     organization.id = id
     return organization
 

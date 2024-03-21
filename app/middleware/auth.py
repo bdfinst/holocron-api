@@ -15,14 +15,14 @@ from app.crud import (
     team_views_crud,
     teams_crud,
     users_crud,
-    valuestreams_crud,
+    value_streams_crud,
 )
 from app.crud.organizations import OrganizationsCRUD
 from app.crud.teams import TeamsCRUD
-from app.crud.valuestreams import ValuestreamsCRUD
+from app.crud.value_streams import ValueStreamsCRUD
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
-from app.models import Team, Valuestream
+from app.models import Team, ValueStream
 from app.schemas.v2 import UserV2Schema
 from app.security import get_sanitized_id, log_security_event
 
@@ -81,25 +81,25 @@ def requires_org_leadership(**_) -> Tuple[bool, Optional[str]]:
 
 
 class EntityType(Enum):
-    """Enum for team, valuestream, or organization."""
+    """Enum for team, value stream, or organization."""
 
     TEAM = "team"
-    VALUESTREAM = "valuestream"
+    VALUE_STREAM = "value_stream"
     ORGANIZATION = "organization"
 
 
 def check_entity_access(
     entity_type: EntityType, entity_id: int, session: Session, user_id: int
 ) -> bool:
-    """Check if user has access to a given team, valuestream, or organization.
+    """Check if user has access to a given team, value stream, or organization.
 
-    If not, recursively checks containing valuestream/organization as well.
+    If not, recursively checks containing value stream/organization as well.
     """
-    crud: Union[TeamsCRUD, ValuestreamsCRUD, OrganizationsCRUD]
+    crud: Union[TeamsCRUD, ValueStreamsCRUD, OrganizationsCRUD]
     if entity_type == EntityType.TEAM:
         crud = teams_crud
-    elif entity_type == EntityType.VALUESTREAM:
-        crud = valuestreams_crud
+    elif entity_type == EntityType.VALUE_STREAM:
+        crud = value_streams_crud
     else:
         crud = organizations_crud
 
@@ -111,10 +111,10 @@ def check_entity_access(
     if entity_type == EntityType.TEAM:
         entity = cast(Team, entity)
         return check_entity_access(
-            EntityType.VALUESTREAM, entity.valuestream_id, session, user_id
+            EntityType.VALUE_STREAM, entity.value_stream_id, session, user_id
         )
-    if entity_type == EntityType.VALUESTREAM:
-        entity = cast(Valuestream, entity)
+    if entity_type == EntityType.VALUE_STREAM:
+        entity = cast(ValueStream, entity)
         return check_entity_access(
             EntityType.ORGANIZATION, entity.organization_id, session, user_id
         )
@@ -145,15 +145,15 @@ def requires_vs_access(**kwargs) -> Tuple[bool, Optional[str]]:
     if not kwargs:
         data = request.json
         if data is not None:
-            vs_id = get_sanitized_id(data["valuestreamId"])
+            vs_id = get_sanitized_id(data["valueStreamId"])
         else:
-            return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"
+            return False, "VALUE_STREAM_ADMIN OR ORGANIZATION_ADMIN"
     else:
-        vs_id = get_sanitized_id(kwargs["valuestream_id"])
+        vs_id = get_sanitized_id(kwargs["value_stream_id"])
 
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
-        if check_entity_access(EntityType.VALUESTREAM, vs_id, session, user["id"]):
+        if check_entity_access(EntityType.VALUE_STREAM, vs_id, session, user["id"]):
             return True, None
 
     return False, "VALUESTREAM_ADMIN OR ORGANIZATION_ADMIN"

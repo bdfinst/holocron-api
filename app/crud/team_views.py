@@ -61,7 +61,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError(
-                    "valuestream_id or view_owner_id", "not found"
+                    "value_stream_id or view_owner_id", "not found"
                 ) from err
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err
@@ -79,7 +79,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
         new_team_view = Team(
             name=json["name"],
             view_owner_id=json["view_owner_id"],
-            valuestream_id=owning_team.valuestream_id,
+            value_stream_id=owning_team.value_stream_id,
             team_size=owning_team.team_size,
         )
 
@@ -96,7 +96,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
                 raise HolocronIntegrityError(
-                    "valuestream_id or view_owner_id", "not found"
+                    "value_stream_id or view_owner_id", "not found"
                 ) from err
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err

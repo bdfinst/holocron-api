@@ -10,19 +10,19 @@ from .team import Team
 from .user import User
 
 association_table = Table(
-    "valuestream_users",
+    "value_stream_users",
     MetadataBase.metadata,
     Column(
-        "valuestream_id", Integer, ForeignKey("valuestreams.id", ondelete="CASCADE")
+        "value_stream_id", Integer, ForeignKey("value_streams.id", ondelete="CASCADE")
     ),
     Column("user_id", Integer, ForeignKey(User.id)),
 )
 
 
-class Valuestream(MetadataBase, ModelBase):
+class ValueStream(MetadataBase, ModelBase):
     """Model class."""
 
-    __tablename__ = "valuestreams"
+    __tablename__ = "value_streams"
     __table_args__ = (UniqueConstraint("name", "organization_id"),)
 
     name: Mapped[str]

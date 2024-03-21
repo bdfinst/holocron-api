@@ -24,6 +24,8 @@ def generate_spec(app: Flask, version: str) -> APISpec:
                 continue
             spec.path(view=app.view_functions[rule.endpoint])
 
+    if version == "v2":
+        spec_overrides(spec)
     return spec
 
 
@@ -50,6 +52,14 @@ def serve_spec(app: Flask, spec: APISpec, version: str):
         template=template,
         config=swagger_config,
     )
+
+
+def spec_overrides(spec: APISpec):
+    """Specific overrides."""
+    spec.components.schemas["ExistingOrganizationV2"]["properties"][
+        "valuestreams"
+    ] = spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
+    del spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
 
 
 # HACK - This bit of code should be replaced as soon as possible.

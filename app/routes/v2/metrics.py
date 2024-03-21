@@ -4,7 +4,7 @@ from typing import Any, Tuple
 
 from flask import Blueprint, jsonify
 
-from app.crud import teams_crud, valuestreams_crud
+from app.crud import teams_crud, value_streams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import (
@@ -63,22 +63,22 @@ def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_vs_access])
-def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
+def get_value_stream_metrics(value_stream_id: str) -> Tuple[Any, int]:
     """Get organization metrics by id route.
 
     ---
     get:
-      description: Get valuestream metrics in format for easy chart consumption
+      description: Get value stream metrics in format for easy chart consumption
       parameters:
         - in: path
-          name: valuestream_id
+          name: value_stream_id
           schema:
             type: integer
           required: true
-          description: ID of the valuestream
+          description: ID of the value stream
       responses:
         200:
-          description: Get valuestream metrics
+          description: Get value stream metrics
           content:
             application/json:
               schema:
@@ -88,16 +88,16 @@ def get_valuestream_metrics(valuestream_id: str) -> Tuple[Any, int]:
                     items:
                       $ref: '#/components/schemas/MetricsV2'
         202:
-          description: Valuestreams are still being processed
+          description: Value streams are still being processed
         404:
           description: Resource not found
     """
-    database_id = get_sanitized_id(valuestream_id)
+    database_id = get_sanitized_id(value_stream_id)
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.get_entity(session, database_id)
+            raw_value_stream = value_streams_crud.get_entity(session, database_id)
             organization_data = organizations_cache_v2.get_entity(
-                raw_valuestream.organization_id
+                raw_value_stream.organization_id
             )
         except HolocronIntegrityError:
             return RESOURCE_NOT_FOUND, 404
@@ -143,11 +143,11 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         try:
             raw_team = teams_crud.get_entity(session, database_id)
-            raw_valuestream = valuestreams_crud.get_entity(
-                session, raw_team.valuestream_id
+            raw_value_stream = value_streams_crud.get_entity(
+                session, raw_team.value_stream_id
             )
             organization_data = organizations_cache_v2.get_entity(
-                raw_valuestream.organization_id
+                raw_value_stream.organization_id
             )
         except HolocronIntegrityError:
             return RESOURCE_NOT_FOUND, 404
@@ -164,8 +164,8 @@ def create_router() -> Blueprint:
     """Router factory."""
     router = Blueprint("metrics", __name__, url_prefix="/metrics")
     router.route("/organization/<org_id>", methods=["GET"])(get_organization_metrics)
-    router.route("/valuestream/<valuestream_id>", methods=["GET"])(
-        get_valuestream_metrics
+    router.route("/valuestream/<value_stream_id>", methods=["GET"])(
+        get_value_stream_metrics
     )
     router.route("/team/<team_id>", methods=["GET"])(get_team_metrics)
     return router
