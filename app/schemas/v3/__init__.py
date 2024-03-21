@@ -20,4 +20,4 @@ from .team_view import TeamViewV3Schema
 from .ticket import TicketV3Schema
 from .ticket_board import TicketBoardV3Schema
 from .user import UserV3Schema
-from .valuestream import ValuestreamV3Schema
+from .value_stream import ValueStreamV3Schema

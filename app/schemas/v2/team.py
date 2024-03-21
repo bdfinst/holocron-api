@@ -22,13 +22,19 @@ class ExistingTeamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
 
         model = Team
         include_relationships = True
-        exclude = ("pipelines", "projects", "repositories", "ticket_boards")
+        exclude = (
+            "pipelines",
+            "projects",
+            "repositories",
+            "ticket_boards",
+            "value_stream_id",
+        )
 
     if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
         members = fields.Nested(TeamMemberV2Schema, many=True, exclude=("team",))
     users = fields.Nested(UserV2Schema, many=True)
     collector_targets = auto_field()
-    valuestream_id = auto_field()
+    valuestream_id = auto_field("value_stream_id")
 
 
 class NewTeamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -38,13 +44,13 @@ class NewTeamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
         """Configuration."""
 
         model = Team
-        exclude = ("is_workflow_only",)
+        exclude = ("is_workflow_only", "value_stream_id")
 
     name = fields.Str(required=True, validate=input_name_validator)
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
     collector_target_ids = fields.List(fields.Int())
     team_size = fields.Int(required=True, validate=validate.Range(min=1))
-    valuestream_id = auto_field()
+    valuestream_id = auto_field("value_stream_id")
 
 
 class TeamV2Schema:

@@ -59,7 +59,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         new_team = Team(
             name=json["name"],
             team_size=json["team_size"],
-            valuestream_id=json["valuestream_id"],
+            value_stream_id=json["value_stream_id"],
         )
 
         new_team.users = [
@@ -75,7 +75,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
-                raise HolocronIntegrityError("valuestream_id", "not found") from err
+                raise HolocronIntegrityError("value_stream_id", "not found") from err
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err
             logging.error(str(err))
@@ -90,7 +90,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         team: Team = self.get_entity(session, id_)
         team.name = json["name"]
         team.team_size = json["team_size"]
-        team.valuestream_id = json["valuestream_id"]
+        team.value_stream_id = json["value_stream_id"]
 
         team.users = [
             users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
@@ -105,7 +105,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
-                raise HolocronIntegrityError("valuestream_id", "not found") from err
+                raise HolocronIntegrityError("value_stream_id", "not found") from err
             if "psycopg2.errors.UniqueViolation" in str(err):
                 raise HolocronIntegrityError("name", "already in use") from err
             logging.error(str(err))

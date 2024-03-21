@@ -12,7 +12,7 @@ from app.models import (
     ProjectIssue,
     Team,
     Ticket,
-    Valuestream,
+    ValueStream,
 )
 
 from .code_review_trend import process_code_review_trend
@@ -191,7 +191,7 @@ def build_historical_data(
 
 
 def process_team(
-    team: Team, valuestream: Valuestream, organization: Organization
+    team: Team, value_stream: ValueStream, organization: Organization
 ) -> TeamMetrics:
     """Run processors on one team to build its metrics."""
     # max-locals
@@ -285,8 +285,8 @@ def process_team(
         team_size=team.team_size,
         wip_tickets=wip_load,
         is_view=team.view_owner_id is not None,
-        value_stream_name=valuestream.name,
-        value_stream_id=valuestream.id,
+        value_stream_name=value_stream.name,
+        value_stream_id=value_stream.id,
         organization_name=organization.name,
         organization_id=organization.id,
         stale_backlog_tickets=len(
@@ -349,8 +349,9 @@ def process_team(
 def process_organization(organization: Organization) -> List[TeamMetrics]:
     """Process organization metrics."""
     result: List[TeamMetrics] = []
-    for valuestream in organization.valuestreams:
+    for value_stream in organization.value_streams:
         result.extend(
-            process_team(team, valuestream, organization) for team in valuestream.teams
+            process_team(team, value_stream, organization)
+            for team in value_stream.teams
         )
     return result

@@ -138,7 +138,7 @@ def test_create_team(client, mock_crud, mock_admin, mock_requires_valid_team_dat
     """Test POST /api/v3/teams endpoint."""
     json = {
         "name": "test",
-        "valuestreamId": 1,
+        "valueStreamId": 1,
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
@@ -159,7 +159,7 @@ def test_create_team(client, mock_crud, mock_admin, mock_requires_valid_team_dat
     expected = {
         "id": 1,
         "name": "test",
-        "valuestreamId": 1,
+        "valueStreamId": 1,
         "teamSize": 1,
         "collectorTargets": [],
         "createdAt": None,
@@ -191,7 +191,7 @@ def test_create_team_validation_error(
                 "userIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
-                "valuestreamId": [MISSING_DATA_MSG],
+                "valueStreamId": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -206,7 +206,7 @@ def test_create_team_validation_error(
                 "name": ["String does not match expected pattern."],
                 "userIds": ["Shorter than minimum length 1."],
                 "teamSize": ["Must be greater than or equal to 1."],
-                "valuestreamId": [MISSING_DATA_MSG],
+                "valueStreamId": [MISSING_DATA_MSG],
             },
         ),
     ]
@@ -225,7 +225,7 @@ def test_create_team_database_error(
     """Test POST /api/v3/teams endpoint."""
     json = {
         "name": "error",
-        "valuestreamId": 1,
+        "valueStreamId": 1,
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
@@ -242,7 +242,7 @@ def test_update_team(client, mock_crud, mock_admin, mock_requires_valid_team_dat
     """Test PUT /api/v3/teams/1 endpoint."""
     json = {
         "name": "test2",
-        "valuestreamId": 1,
+        "valueStreamId": 1,
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
@@ -257,7 +257,7 @@ def test_update_team(client, mock_crud, mock_admin, mock_requires_valid_team_dat
         teamHistory=[],
         name="test2",
         teamSize=1,
-        valuestreamId=1,
+        valueStreamId=1,
         members=[],
     )
     mock_crud.get_entity = MagicMock(return_value=create_team(team_size=1))
@@ -295,7 +295,7 @@ def test_update_team_validation_error(
                 "userIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
-                "valuestreamId": [MISSING_DATA_MSG],
+                "valueStreamId": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -310,7 +310,7 @@ def test_update_team_validation_error(
                 "name": ["String does not match expected pattern."],
                 "userIds": ["Shorter than minimum length 1."],
                 "teamSize": ["Must be greater than or equal to 1."],
-                "valuestreamId": [MISSING_DATA_MSG],
+                "valueStreamId": [MISSING_DATA_MSG],
             },
         ),
     ]
@@ -329,7 +329,7 @@ def test_update_team_database_error(
     """Test PUT /api/v3/teams/1 endpoint."""
     json = {
         "name": "error",
-        "valuestreamId": 1,
+        "valueStreamId": 1,
         "teamSize": 1,
         "userIds": [1],
         "collectorTargetIds": [1],
@@ -415,7 +415,7 @@ def test_create_team_view(
             repositories=[],
             ticket_boards=[],
             view_owner_id=1,
-            valuestream_id=1,
+            value_stream_id=1,
         )
     )
 

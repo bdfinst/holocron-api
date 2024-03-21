@@ -15,11 +15,11 @@ DEFAULT_LIMITS = cast(
 # IP addresses to whitelist from rate limiting
 RATE_LIMITING_IP_WHITELIST = config.RATE_LIMITING_IP_WHITELIST.split(",")
 # The max input characters the user can use for naming
-# their items (example valuestream, organization, team name)
+# their items (example value stream, organization, team name)
 # that they create in the database
 MAX_INPUT_CHAR_LEN = 50
 # The regex for all the valid characters the user can use for
-# string user input (example valuestream, organization, team name)
+# string user input (example value stream, organization, team name)
 VALID_NAME_CHARS = "^[a-zA-Z0-9][ a-zA-Z0-9_-]*[a-zA-Z0-9]$"
 
 # All the possible error message for the app related to security

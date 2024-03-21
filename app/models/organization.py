@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
 from .user import User
-from .valuestream import Valuestream
+from .value_stream import ValueStream
 
 association_table = Table(
     "organization_users",
@@ -29,4 +29,4 @@ class Organization(MetadataBase, ModelBase):
     users: Mapped[List["User"]] = relationship(
         secondary=association_table, default_factory=list
     )
-    valuestreams: Mapped[List["Valuestream"]] = relationship(default_factory=list)
+    value_streams: Mapped[List["ValueStream"]] = relationship(default_factory=list)

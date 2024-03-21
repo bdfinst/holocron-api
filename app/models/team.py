@@ -26,12 +26,12 @@ class Team(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "teams"
-    __table_args__ = (UniqueConstraint("name", "valuestream_id", "view_owner_id"),)
+    __table_args__ = (UniqueConstraint("name", "value_stream_id", "view_owner_id"),)
 
     name: Mapped[str]
     team_size: Mapped[int]
 
-    valuestream_id: Mapped[int] = mapped_column(ForeignKey("valuestreams.id"))
+    value_stream_id: Mapped[int] = mapped_column(ForeignKey("value_streams.id"))
     is_workflow_only: Mapped[bool] = mapped_column(default=False)
 
     collector_targets: Mapped[List["CollectorTarget"]] = relationship(

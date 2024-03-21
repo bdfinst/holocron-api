@@ -18,4 +18,4 @@ from .team import Team, TeamHistory
 from .ticket import StatusHistory, Ticket, TicketPriority, TicketStatus, TicketType
 from .ticket_board import TicketBoard
 from .user import User
-from .valuestream import Valuestream
+from .value_stream import ValueStream

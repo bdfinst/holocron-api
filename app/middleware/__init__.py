@@ -11,7 +11,8 @@ from .auth import (
     set_user,
 )
 from .business_logic_teams import (
-    requires_valid_team_data,
+    requires_valid_team_data_v2,
+    requires_valid_team_data_v3,
     requires_valid_team_view_data,
 )
 from .circuit_breaker import circuit_breaker_check, circuit_breaker_validation

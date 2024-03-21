@@ -28,7 +28,7 @@ class ExistingTeamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
         members = fields.Nested(TeamMemberV3Schema, many=True, exclude=("team",))
     users = fields.Nested(UserV3Schema, many=True)
     collector_targets = auto_field()
-    valuestream_id = auto_field()
+    value_stream_id = auto_field()
 
 
 class NewTeamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -44,7 +44,7 @@ class NewTeamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
     collector_target_ids = fields.List(fields.Int())
     team_size = fields.Int(required=True, validate=validate.Range(min=1))
-    valuestream_id = auto_field()
+    value_stream_id = auto_field()
 
 
 class TeamV3Schema:

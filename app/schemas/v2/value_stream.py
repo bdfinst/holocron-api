@@ -1,52 +1,52 @@
-"""Schema for Valuestream model."""
+"""Schema for ValueStream model."""
 
 from typing import Any, Dict
 
 from marshmallow import fields, validate
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
-from app.models import Valuestream
+from app.models import ValueStream
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
-from .team import ExistingTeamV3Schema
-from .user import UserV3Schema
+from .team import ExistingTeamV2Schema
+from .user import UserV2Schema
 
 
-class ExistingValuestreamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Schema for existing valuestream model."""
+class ExistingValueStreamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
+    """Schema for existing value stream model."""
 
     class Meta:
         """Configuration."""
 
-        model = Valuestream
+        model = ValueStream
         include_relationships = True
 
     organization_id = auto_field()
-    teams = fields.Nested(ExistingTeamV3Schema, many=True)
-    users = fields.Nested(UserV3Schema, many=True)
+    teams = fields.Nested(ExistingTeamV2Schema, many=True)
+    users = fields.Nested(UserV2Schema, many=True)
 
 
-class NewValuestreamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Schema for new valuestream model."""
+class NewValueStreamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
+    """Schema for new value stream model."""
 
     class Meta:
         """Configuration."""
 
-        model = Valuestream
+        model = ValueStream
 
     name = fields.Str(required=True, validate=input_name_validator)
     organization_id = fields.Int(required=True)
     user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
 
 
-class ValuestreamV3Schema:
+class ValueStreamV2Schema:
     """Contain both existing and new schemas."""
 
     def __init__(self):
         """Initialize."""
-        self.existing_schema = ExistingValuestreamV3Schema()
-        self.new_schema = NewValuestreamV3Schema()
+        self.existing_schema = ExistingValueStreamV2Schema()
+        self.new_schema = NewValueStreamV2Schema()
 
     def dump(self, data) -> Dict[str, Any]:
         """Dump using the existing schema."""

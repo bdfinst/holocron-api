@@ -451,7 +451,7 @@ def test_create_team_view(
                 repositories=[],
                 ticket_boards=[],
                 view_owner_id=1,
-                valuestream_id=1,
+                value_stream_id=1,
             )
         ),
     )

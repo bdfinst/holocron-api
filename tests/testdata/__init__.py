@@ -18,4 +18,4 @@ from .repositories import (
 )
 from .teams import create_team, create_team_view, mock_teams
 from .ticket_boards import create_ticket_board, mock_ticket_boards, tickets
-from .valuestreams import create_valuestream, mock_valuestreams
+from .value_streams import create_value_stream, mock_value_streams

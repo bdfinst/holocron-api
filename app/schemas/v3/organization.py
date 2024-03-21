@@ -10,7 +10,7 @@ from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .user import UserV3Schema
-from .valuestream import ExistingValuestreamV3Schema
+from .value_stream import ExistingValueStreamV3Schema
 
 
 class ExistingOrganizationV3Schema(SQLAlchemyAutoSchema, SchemaBase):
@@ -22,7 +22,7 @@ class ExistingOrganizationV3Schema(SQLAlchemyAutoSchema, SchemaBase):
         model = Organization
         include_relationships = True
 
-    valuestreams = fields.Nested(ExistingValuestreamV3Schema, many=True)
+    value_streams = fields.Nested(ExistingValueStreamV3Schema, many=True)
     users = fields.Nested(UserV3Schema, many=True)
 
 

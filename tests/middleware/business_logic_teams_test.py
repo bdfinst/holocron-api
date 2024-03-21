@@ -5,27 +5,22 @@ from unittest.mock import MagicMock
 from pytest import fixture
 
 from app import security
-from app.crud import collector_targets_crud, ticket_boards_crud, valuestreams_crud
+from app.crud import collector_targets_crud, ticket_boards_crud, value_streams_crud
 from app.exceptions import HolocronIntegrityError
 from app.middleware import business_logic_teams
 from app.middleware.business_logic_teams import (
-    requires_valid_team_data,
+    requires_valid_team_data_v3,
     requires_valid_team_view_data,
 )
 from tests.mocks import request
-from tests.testdata import (
-    create_repository,
-    create_team,
-    create_ticket_board,
-    create_valuestream,
-)
+from tests.testdata import create_team, create_ticket_board, create_value_stream
 
 team_json = {
     "name": "test",
     "teamSize": 1,
     "userIds": [1],
     "collectorTargetIds": [21],
-    "valuestreamId": 1,
+    "valueStreamId": 1,
 }
 
 team_view_json = {
@@ -65,12 +60,14 @@ def mock_ticket_boards_crud(monkeypatch):
 
 
 @fixture
-def mock_valuestreams_crud(monkeypatch):
-    """Mock valuestreams crud."""
+def mock_value_streams_crud(monkeypatch):
+    """Mock value streams crud."""
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        MagicMock(return_value=create_valuestream(teams=[create_team(name="foo-bar")])),
+        MagicMock(
+            return_value=create_value_stream(teams=[create_team(name="foo-bar")])
+        ),
     )
 
 
@@ -83,17 +80,17 @@ def test_requires_valid_team_data_create(
     mock_request,
     mock_collector_targets_crud,
     mock_ticket_boards_crud,
-    mock_valuestreams_crud,
+    mock_value_streams_crud,
 ):
     """Test requires_valid_team_data function create success."""
     setattr(mock_request, "json", team_json)
-    assert requires_valid_team_data(wrapped_test_func)() == wrapped_test_func()
+    assert requires_valid_team_data_v3(wrapped_test_func)() == wrapped_test_func()
 
 
 def test_requires_valid_team_data_400(mock_request):
     """Test requires_valid_team_data function 400."""
     setattr(mock_request, "json", {})
-    _, status_code = requires_valid_team_data(wrapped_test_func())()
+    _, status_code = requires_valid_team_data_v3(wrapped_test_func())()
     assert status_code == 400
 
 
@@ -103,11 +100,11 @@ def test_requires_valid_team_data_404(
     """Test requires_valid_team_data function 404."""
     setattr(mock_request, "json", team_json)
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
         MagicMock(side_effect=HolocronIntegrityError("biz", "baz")),
     )
-    assert requires_valid_team_data(wrapped_test_func)() == (
+    assert requires_valid_team_data_v3(wrapped_test_func)() == (
         "Resource not found",
         404,
     )
@@ -124,7 +121,9 @@ def test_requires_valid_team_data_create_invalid(mock_request, monkeypatch):
                 MagicMock(return_value=create_ticket_board(id=21, team_id=42)),
                 MagicMock(return_value=create_ticket_board(id=21, team_id=42)),
                 MagicMock(
-                    return_value=create_valuestream(teams=[create_team(name="foo-bar")])
+                    return_value=create_value_stream(
+                        teams=[create_team(name="foo-bar")]
+                    )
                 ),
             ),
             ("collectorTargetIds - already in use", 400),
@@ -135,7 +134,7 @@ def test_requires_valid_team_data_create_invalid(mock_request, monkeypatch):
                 MagicMock(return_value=create_ticket_board()),
                 MagicMock(return_value=create_ticket_board()),
                 MagicMock(
-                    return_value=create_valuestream(
+                    return_value=create_value_stream(
                         teams=[create_team(name=team_json["name"])]
                     )
                 ),
@@ -149,7 +148,7 @@ def test_requires_valid_team_data_create_invalid(mock_request, monkeypatch):
         (
             get_entity_collector_targets_crud_mock,
             get_entity_ticket_boards_crud_mock,
-            get_entity_valuestreams_crud_mock,
+            get_entity_value_streams_crud_mock,
         ) = input_case
         monkeypatch.setattr(
             collector_targets_crud,
@@ -162,24 +161,25 @@ def test_requires_valid_team_data_create_invalid(mock_request, monkeypatch):
             get_entity_ticket_boards_crud_mock,
         )
         monkeypatch.setattr(
-            valuestreams_crud,
+            value_streams_crud,
             "get_entity",
-            get_entity_valuestreams_crud_mock,
+            get_entity_value_streams_crud_mock,
         )
 
-        assert requires_valid_team_data(wrapped_test_func)() == expected, description
+        assert requires_valid_team_data_v3(wrapped_test_func)() == expected, description
 
 
 def test_requires_valid_team_data_update(
     mock_request,
     mock_collector_targets_crud,
     mock_ticket_boards_crud,
-    mock_valuestreams_crud,
+    mock_value_streams_crud,
 ):
     """Test requires_valid_team_data function update success."""
     setattr(mock_request, "json", team_json)
     assert (
-        requires_valid_team_data(wrapped_test_func)(team_id="1") == wrapped_test_func()
+        requires_valid_team_data_v3(wrapped_test_func)(team_id="1")
+        == wrapped_test_func()
     )
 
 
@@ -194,7 +194,9 @@ def test_requires_valid_team_data_update_invalid(mock_request, monkeypatch):
                 MagicMock(return_value=create_ticket_board(id=21, team_id=42)),
                 MagicMock(return_value=create_ticket_board(id=21, team_id=42)),
                 MagicMock(
-                    return_value=create_valuestream(teams=[create_team(name="foo-bar")])
+                    return_value=create_value_stream(
+                        teams=[create_team(name="foo-bar")]
+                    )
                 ),
             ),
             ("collectorTargetIds - already in use", 400),
@@ -205,7 +207,7 @@ def test_requires_valid_team_data_update_invalid(mock_request, monkeypatch):
                 MagicMock(return_value=create_ticket_board()),
                 MagicMock(return_value=create_ticket_board()),
                 MagicMock(
-                    return_value=create_valuestream(
+                    return_value=create_value_stream(
                         teams=[create_team(id=2, name=team_json["name"])]
                     )
                 ),
@@ -219,7 +221,7 @@ def test_requires_valid_team_data_update_invalid(mock_request, monkeypatch):
         (
             get_entity_collector_targets_crud_mock,
             get_entity_ticket_boards_crud_mock,
-            get_entity_valuestreams_crud_mock,
+            get_entity_value_streams_crud_mock,
         ) = input_case
         monkeypatch.setattr(
             collector_targets_crud,
@@ -232,13 +234,13 @@ def test_requires_valid_team_data_update_invalid(mock_request, monkeypatch):
             get_entity_ticket_boards_crud_mock,
         )
         monkeypatch.setattr(
-            valuestreams_crud,
+            value_streams_crud,
             "get_entity",
-            get_entity_valuestreams_crud_mock,
+            get_entity_value_streams_crud_mock,
         )
 
         assert (
-            requires_valid_team_data(wrapped_test_func)(team_id="1") == expected
+            requires_valid_team_data_v3(wrapped_test_func)(team_id="1") == expected
         ), description
 
 

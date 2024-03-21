@@ -6,7 +6,7 @@ from flask import Response
 from pytest import fixture
 
 from app import security
-from app.crud import organizations_crud, team_views_crud, teams_crud, valuestreams_crud
+from app.crud import organizations_crud, team_views_crud, teams_crud, value_streams_crud
 from app.middleware import (
     auth,
     requires_admin,
@@ -23,7 +23,7 @@ from tests.testdata import (
     create_organization,
     create_team,
     create_team_view,
-    create_valuestream,
+    create_value_stream,
 )
 from tests.utils.utils import second_argument
 
@@ -149,20 +149,20 @@ def test_requires_org_leadership_403(mock_request, monkeypatch):
 def test_requires_vs_access_vs_admin(mock_request, monkeypatch):
     """Test requires vs access function with vs admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    valuestream_mock = MagicMock(
-        return_value=create_valuestream(),
+    value_stream_mock = MagicMock(
+        return_value=create_value_stream(),
     )
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        valuestream_mock,
+        value_stream_mock,
     )
 
     result = requires_security([requires_vs_access])(wrapped_test_func)(
-        valuestream_id=1
+        value_stream_id=1
     )
 
-    assert second_argument(valuestream_mock) == 1
+    assert second_argument(value_stream_mock) == 1
     assert result == "success"
 
 
@@ -172,8 +172,8 @@ def test_requires_vs_access_org_admin(mock_request, monkeypatch):
     organization_mock = MagicMock(
         return_value=create_organization(),
     )
-    valuestream_mock = MagicMock(
-        return_value=create_valuestream(users=[]),
+    value_stream_mock = MagicMock(
+        return_value=create_value_stream(users=[]),
     )
     monkeypatch.setattr(
         organizations_crud,
@@ -181,17 +181,17 @@ def test_requires_vs_access_org_admin(mock_request, monkeypatch):
         organization_mock,
     )
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        valuestream_mock,
+        value_stream_mock,
     )
 
     result = requires_security([requires_vs_access])(wrapped_test_func)(
-        valuestream_id=1
+        value_stream_id=1
     )
 
     assert second_argument(organization_mock) == 1
-    assert second_argument(valuestream_mock) == 1
+    assert second_argument(value_stream_mock) == 1
     assert result == "success"
 
 
@@ -202,8 +202,8 @@ def test_requires_vs_access_403(mock_request, monkeypatch):
     organization_mock = MagicMock(
         return_value=create_organization(users=[]),
     )
-    valuestream_mock = MagicMock(
-        return_value=create_valuestream(users=[]),
+    value_stream_mock = MagicMock(
+        return_value=create_value_stream(users=[]),
     )
     monkeypatch.setattr(
         organizations_crud,
@@ -211,37 +211,37 @@ def test_requires_vs_access_403(mock_request, monkeypatch):
         organization_mock,
     )
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        valuestream_mock,
+        value_stream_mock,
     )
 
     result = requires_security([requires_vs_access])(wrapped_test_func)(
-        valuestream_id=1
+        value_stream_id=1
     )
 
     assert second_argument(organization_mock) == 1
-    assert second_argument(valuestream_mock) == 1
+    assert second_argument(value_stream_mock) == 1
     assert result == ("Invalid permissions", 403)
 
 
 def test_requires_vs_access_no_id(mock_request, monkeypatch):
-    """Test requires vs access function with no valuestream id."""
+    """Test requires vs access function with no value stream id."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    mock_request.json = {"valuestreamId": "1"}
+    mock_request.json = {"valueStreamId": "1"}
 
-    valuestream_mock = MagicMock(
-        return_value=create_valuestream(),
+    value_stream_mock = MagicMock(
+        return_value=create_value_stream(),
     )
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        valuestream_mock,
+        value_stream_mock,
     )
 
     result = requires_security([requires_vs_access])(wrapped_test_func)()
 
-    assert second_argument(valuestream_mock) == 1
+    assert second_argument(value_stream_mock) == 1
     assert result == "success"
 
 
@@ -293,14 +293,14 @@ def test_requires_team_access_org_admin(mock_request, monkeypatch):
     """Test requires team access function with org admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     organizations_mock = MagicMock(return_value=create_organization())
-    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    value_streams_mock = MagicMock(return_value=create_value_stream(users=[]))
     teams_mock = MagicMock(return_value=create_team(users=[]))
     monkeypatch.setattr(
         organizations_crud,
         "get_entity",
         organizations_mock,
     )
-    monkeypatch.setattr(valuestreams_crud, "get_entity", valuestreams_mock)
+    monkeypatch.setattr(value_streams_crud, "get_entity", value_streams_mock)
     monkeypatch.setattr(
         teams_crud,
         "get_entity",
@@ -310,20 +310,20 @@ def test_requires_team_access_org_admin(mock_request, monkeypatch):
     result = requires_security([requires_team_access])(wrapped_test_func)(team_id=1)
 
     assert second_argument(organizations_mock) == 1
-    assert second_argument(valuestreams_mock) == 1
+    assert second_argument(value_streams_mock) == 1
     assert second_argument(teams_mock) == 1
     assert result == "success"
 
 
-def test_requires_team_access_valuestream_admin(mock_request, monkeypatch):
-    """Test requires team access function with valuestream admin user."""
+def test_requires_team_access_value_stream_admin(mock_request, monkeypatch):
+    """Test requires team access function with value stream admin user."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    valuestream_mock = MagicMock(return_value=create_valuestream())
+    value_stream_mock = MagicMock(return_value=create_value_stream())
     team_mock = MagicMock(return_value=create_team(users=[]))
     monkeypatch.setattr(
-        valuestreams_crud,
+        value_streams_crud,
         "get_entity",
-        valuestream_mock,
+        value_stream_mock,
     )
     monkeypatch.setattr(
         teams_crud,
@@ -333,7 +333,7 @@ def test_requires_team_access_valuestream_admin(mock_request, monkeypatch):
 
     result = requires_security([requires_team_access])(wrapped_test_func)(team_id=1)
 
-    assert second_argument(valuestream_mock) == 1
+    assert second_argument(value_stream_mock) == 1
     assert second_argument(team_mock) == 1
     assert result == "success"
 
@@ -358,7 +358,7 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
 
     organizations_mock = MagicMock(return_value=create_organization(users=[]))
-    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    value_streams_mock = MagicMock(return_value=create_value_stream(users=[]))
     teams_mock = MagicMock(return_value=create_team(users=[]))
 
     monkeypatch.setattr(
@@ -366,7 +366,7 @@ def test_requires_team_access_403(mock_request, monkeypatch):
         "get_entity",
         organizations_mock,
     )
-    monkeypatch.setattr(valuestreams_crud, "get_entity", valuestreams_mock)
+    monkeypatch.setattr(value_streams_crud, "get_entity", value_streams_mock)
     monkeypatch.setattr(
         teams_crud,
         "get_entity",
@@ -375,7 +375,7 @@ def test_requires_team_access_403(mock_request, monkeypatch):
 
     result = requires_security([requires_team_access])(wrapped_test_func)(team_id=1)
     assert second_argument(organizations_mock) == 1
-    assert second_argument(valuestreams_mock) == 1
+    assert second_argument(value_streams_mock) == 1
     assert second_argument(teams_mock) == 1
     assert result == ("Invalid permissions", 403)
 
@@ -433,7 +433,7 @@ def test_requires_team_access_update_delete_team_view_403(
     mock_request.json = {"viewOwnerId": "1"}
 
     organizations_mock = MagicMock(return_value=create_organization(users=[]))
-    valuestreams_mock = MagicMock(return_value=create_valuestream(users=[]))
+    value_streams_mock = MagicMock(return_value=create_value_stream(users=[]))
     teams_mock = MagicMock(return_value=create_team(users=[]))
     team_view_mock = MagicMock(return_value=create_team_view(users=[]))
 
@@ -442,7 +442,7 @@ def test_requires_team_access_update_delete_team_view_403(
         "get_entity",
         organizations_mock,
     )
-    monkeypatch.setattr(valuestreams_crud, "get_entity", valuestreams_mock)
+    monkeypatch.setattr(value_streams_crud, "get_entity", value_streams_mock)
     monkeypatch.setattr(
         teams_crud,
         "get_entity",

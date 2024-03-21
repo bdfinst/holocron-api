@@ -18,4 +18,4 @@ from .teams import teams_crud
 from .ticket_boards import ticket_boards_crud
 from .tickets import tickets_crud
 from .users import users_crud
-from .valuestreams import valuestreams_crud
+from .value_streams import value_streams_crud

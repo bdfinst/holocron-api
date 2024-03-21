@@ -7,21 +7,21 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
-from app.models import Organization, Valuestream
+from app.models import Organization, ValueStream
 
 from ._base import BaseCRUD
 from .users import users_crud
 
 
-def get_valuestream_without_team_views(valuestream: Valuestream) -> Valuestream:
-    """Get valuestream without team views method."""
-    new_vs = Valuestream(
-        name=valuestream.name,
-        organization_id=valuestream.organization_id,
-        users=valuestream.users,
-        teams=[team for team in valuestream.teams if team.view_owner_id is None],
+def get_value_stream_without_team_views(value_stream: ValueStream) -> ValueStream:
+    """Get value stream without team views method."""
+    new_vs = ValueStream(
+        name=value_stream.name,
+        organization_id=value_stream.organization_id,
+        users=value_stream.users,
+        teams=[team for team in value_stream.teams if team.view_owner_id is None],
     )
-    new_vs.id = valuestream.id
+    new_vs.id = value_stream.id
     return new_vs
 
 
@@ -35,8 +35,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         result = Organization(
             name=org.name,
             users=org.users,
-            valuestreams=[
-                get_valuestream_without_team_views(vs) for vs in org.valuestreams
+            value_streams=[
+                get_value_stream_without_team_views(vs) for vs in org.value_streams
             ],
         )
         result.id = org.id
@@ -52,8 +52,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
             new_org = Organization(
                 name=org.name,
                 users=org.users,
-                valuestreams=[
-                    get_valuestream_without_team_views(vs) for vs in org.valuestreams
+                value_streams=[
+                    get_value_stream_without_team_views(vs) for vs in org.value_streams
                 ],
             )
             new_org.id = org.id
@@ -72,8 +72,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
             new_org = Organization(
                 name=org.name,
                 users=org.users,
-                valuestreams=[
-                    get_valuestream_without_team_views(vs) for vs in org.valuestreams
+                value_streams=[
+                    get_value_stream_without_team_views(vs) for vs in org.value_streams
                 ],
             )
             new_org.id = org.id
@@ -128,9 +128,9 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         org_no_team_views = Organization(
             name=organization.name,
             users=organization.users,
-            valuestreams=[
-                get_valuestream_without_team_views(vs)
-                for vs in organization.valuestreams
+            value_streams=[
+                get_value_stream_without_team_views(vs)
+                for vs in organization.value_streams
             ],
         )
         org_no_team_views.id = organization.id

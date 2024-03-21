@@ -1,4 +1,4 @@
-"""Valuestream routes."""
+"""Value stream routes."""
 
 from typing import Any, Tuple
 
@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
 from app.config import FEATURE_FLAGS
-from app.crud import valuestreams_crud
+from app.crud import value_streams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import (
@@ -15,21 +15,21 @@ from app.middleware import (
     requires_security,
     requires_vs_access,
 )
-from app.schemas.v2 import ValuestreamV2Schema
+from app.schemas.v2 import ValueStreamV2Schema
 from app.security import MALFORMED_REQ_PARAMS_MSG, get_sanitized_id, log_security_event
 
-schema = ValuestreamV2Schema()
+schema = ValueStreamV2Schema()
 
 
-def list_valuestreams() -> Tuple[Any, int]:
-    """List valuestreams route.
+def list_value_streams() -> Tuple[Any, int]:
+    """List value streams route.
 
     ---
     get:
-      description: List valuestreams
+      description: List value streams
       responses:
         200:
-          description: List valuestreams
+          description: List value streams
           content:
             application/json:
               schema:
@@ -37,36 +37,38 @@ def list_valuestreams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingValuestreamV2'
+                      $ref: '#/components/schemas/ExistingValueStreamV2'
     """
     with generate_session() as session:
-        raw_valuestreams = (
-            valuestreams_crud.get_entities_without_team_views(session)
+        raw_value_streams = (
+            value_streams_crud.get_entities_without_team_views(session)
             if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else valuestreams_crud.get_entities(session)
+            else value_streams_crud.get_entities(session)
         )
-        valuestreams = [schema.dump(valuestream) for valuestream in raw_valuestreams]
-    result = {"result": valuestreams}
+        value_streams = [
+            schema.dump(value_stream) for value_stream in raw_value_streams
+        ]
+    result = {"result": value_streams}
     return jsonify(result), 200
 
 
 @requires_security([requires_admin, requires_org_access])
-def create_valuestream() -> Tuple[Any, int]:
-    """Create valuestream route.
+def create_value_stream() -> Tuple[Any, int]:
+    """Create value stream route.
 
     ---
     post:
-      description: Create valuestream
+      description: Create value stream
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamV2Schema
+            schema: NewValueStreamV2Schema
       responses:
         201:
-          description: The valuestream was successfully created
+          description: The value stream was successfully created
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValueStreamV2Schema
         400:
           description: Failure due to invalid request
           content:
@@ -80,76 +82,76 @@ def create_valuestream() -> Tuple[Any, int]:
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.create_entity(session, data)
+            raw_value_stream = value_streams_crud.create_entity(session, data)
         except HolocronIntegrityError as err:
             return err.messages, 400
-        result = schema.dump(raw_valuestream)
+        result = schema.dump(raw_value_stream)
     return jsonify(result), 201
 
 
-def get_valuestream(valuestream_id: str) -> Tuple[Any, int]:
-    """Get valuestream by id route.
+def get_value_stream(value_stream_id: str) -> Tuple[Any, int]:
+    """Get value stream by id route.
 
     ---
     get:
-      description: Get valuestream
+      description: Get value stream
       parameters:
         - in: path
-          name: valuestream_id
+          name: value_stream_id
           schema:
             type: integer
           required: true
-          description: ID of the valuestream
+          description: ID of the value stream
       responses:
         200:
-          description: Get valuestream
+          description: Get value stream
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValueStreamV2Schema
         404:
-          description: Valuestream not found
+          description: Value stream not found
     """
     with generate_session() as session:
         try:
-            raw_valuestream = (
-                valuestreams_crud.get_entity_without_team_views(
-                    session, get_sanitized_id(valuestream_id)
+            raw_value_stream = (
+                value_streams_crud.get_entity_without_team_views(
+                    session, get_sanitized_id(value_stream_id)
                 )
                 if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-                else valuestreams_crud.get_entity(
-                    session, get_sanitized_id(valuestream_id)
+                else value_streams_crud.get_entity(
+                    session, get_sanitized_id(value_stream_id)
                 )
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        result = schema.dump(raw_valuestream)
+        result = schema.dump(raw_value_stream)
     return jsonify(result), 200
 
 
 @requires_security([requires_admin, requires_vs_access])
-def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
-    """Update valuestream route.
+def update_value_stream(value_stream_id: str) -> Tuple[Any, int]:
+    """Update value stream route.
 
     ---
     put:
-      description: Update valuestream
+      description: Update value stream
       parameters:
         - in: path
-          name: valuestream_id
+          name: value_stream_id
           schema:
             type: integer
           required: true
-          description: ID of the valuestream
+          description: ID of the value stream
       requestBody:
         content:
           application/json:
-            schema: NewValuestreamV2Schema
+            schema: NewValueStreamV2Schema
       responses:
         200:
-          description: The valuestream was successfully updated
+          description: The value stream was successfully updated
           content:
             application/json:
-              schema: ExistingValuestreamV2Schema
+              schema: ExistingValueStreamV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -163,45 +165,45 @@ def update_valuestream(valuestream_id: str) -> Tuple[Any, int]:
         return err.messages, 400
     with generate_session() as session:
         try:
-            raw_valuestream = valuestreams_crud.update_entity(
-                session, data, get_sanitized_id(valuestream_id)
+            raw_value_stream = value_streams_crud.update_entity(
+                session, data, get_sanitized_id(value_stream_id)
             )
         except HolocronIntegrityError as err:
             return err.messages, 400
-        result = schema.dump(raw_valuestream)
+        result = schema.dump(raw_value_stream)
     return jsonify(result), 200
 
 
 @requires_security([requires_admin, requires_vs_access])
-def delete_valuestream(valuestream_id: str) -> Tuple[Any, int]:
-    """Delete valuestream route.
+def delete_value_stream(value_stream_id: str) -> Tuple[Any, int]:
+    """Delete value stream route.
 
     ---
     delete:
-      description: Delete valuestream
+      description: Delete value stream
       parameters:
         - in: path
-          name: valuestream_id
+          name: value_stream_id
           schema:
             type: integer
           required: true
-          description: ID of the valuestream
+          description: ID of the value stream
       responses:
         204:
-          description: The valuestream was successfully deleted
+          description: The value stream was successfully deleted
     """
     with generate_session() as session:
-        valuestreams_crud.delete_entity(session, get_sanitized_id(valuestream_id))
+        value_streams_crud.delete_entity(session, get_sanitized_id(value_stream_id))
     return "", 204
 
 
 def create_router() -> Blueprint:
     """Router factory."""
-    valuestream_id_route = "/<valuestream_id>"
+    value_stream_id_route = "/<value_stream_id>"
     router = Blueprint("valuestreams", __name__, url_prefix="/valuestreams")
-    router.route("", methods=["GET"])(list_valuestreams)
-    router.route("", methods=["POST"])(create_valuestream)
-    router.route(valuestream_id_route, methods=["GET"])(get_valuestream)
-    router.route(valuestream_id_route, methods=["PUT"])(update_valuestream)
-    router.route(valuestream_id_route, methods=["DELETE"])(delete_valuestream)
+    router.route("", methods=["GET"])(list_value_streams)
+    router.route("", methods=["POST"])(create_value_stream)
+    router.route(value_stream_id_route, methods=["GET"])(get_value_stream)
+    router.route(value_stream_id_route, methods=["PUT"])(update_value_stream)
+    router.route(value_stream_id_route, methods=["DELETE"])(delete_value_stream)
     return router
