@@ -2,7 +2,7 @@
 
 from typing import List, Optional
 
-from sqlalchemy import Column, ForeignKey, Integer, Table, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Index, Integer, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import MetadataBase, ModelBase
@@ -26,7 +26,6 @@ class Team(MetadataBase, ModelBase):
     """Model class."""
 
     __tablename__ = "teams"
-    __table_args__ = (UniqueConstraint("name", "value_stream_id", "view_owner_id"),)
 
     name: Mapped[str]
     team_size: Mapped[int]
@@ -59,6 +58,24 @@ class Team(MetadataBase, ModelBase):
     view_owner_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("teams.id", ondelete="CASCADE"),
         default=None,
+    )
+
+    __table_args__ = (
+        Index(
+            "uix_name_value_stream_view",
+            "name",
+            "value_stream_id",
+            "view_owner_id",
+            unique=True,
+            postgresql_where=view_owner_id.isnot(None),
+        ),
+        Index(
+            "uix_name_value_stream",
+            "name",
+            "value_stream_id",
+            unique=True,
+            postgresql_where=view_owner_id.is_(None),
+        ),
     )
 
 

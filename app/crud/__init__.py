@@ -13,6 +13,7 @@ from .pipelines import pipelines_crud
 from .project_issues import project_issues_crud
 from .projects import projects_crud
 from .repositories import repositories_crud
+from .team_history import team_history_crud
 from .team_views import team_views_crud
 from .teams import teams_crud
 from .ticket_boards import ticket_boards_crud
