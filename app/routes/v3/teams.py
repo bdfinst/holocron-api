@@ -1,22 +1,24 @@
 """Team routes."""
 
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import Session
 
 from app.config import FEATURE_FLAGS
-from app.crud.team_history import team_history_crud
-from app.crud.team_views import team_views_crud
-from app.crud.teams import teams_crud
+from app.crud import (
+    collector_targets_crud,
+    team_history_crud,
+    team_views_crud,
+    teams_crud,
+)
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import (
     requires_admin,
     requires_security,
     requires_team_access,
-    requires_valid_team_data_v3,
-    requires_valid_team_view_data,
     requires_vs_access,
 )
 from app.schemas.v3 import TeamV3Schema, TeamViewV3Schema
@@ -25,6 +27,18 @@ from app.utils.pagination import get_pagination_info, set_pagination_header
 
 schema = TeamV3Schema()
 schema_view = TeamViewV3Schema()
+
+
+def validate_team_data(
+    session: Session, collector_target_ids: List[int], team_id=-1
+) -> None:
+    """Validate business logic when creating or updating a team."""
+    for ct_id in collector_target_ids:
+        collector_target = collector_targets_crud.get_entity(session, ct_id)
+        if collector_target.team_id not in [None, team_id]:
+            raise HolocronIntegrityError(
+                "Team collectorTargetIds", f"Already in use: {ct_id}"
+            )
 
 
 def list_teams() -> Tuple[Any, int]:
@@ -77,7 +91,6 @@ def list_teams() -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_vs_access])
-@requires_valid_team_data_v3
 def create_team() -> Tuple[Any, int]:
     """Create team route.
 
@@ -107,6 +120,7 @@ def create_team() -> Tuple[Any, int]:
         return err.messages, 400
     with generate_session() as session:
         try:
+            validate_team_data(session, data["collector_target_ids"])
             raw_team = teams_crud.create_entity(session, data)
         except HolocronIntegrityError as err:
             return err.messages, 400
@@ -158,7 +172,6 @@ def get_team(team_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
-@requires_valid_team_data_v3
 def update_team(team_id: str) -> Tuple[Any, int]:
     """Update team route.
 
@@ -197,6 +210,7 @@ def update_team(team_id: str) -> Tuple[Any, int]:
         db_team_id = get_sanitized_id(team_id)
 
         try:
+            validate_team_data(session, data["collector_target_ids"], db_team_id)
             old_team_data = teams_crud.get_entity(session, db_team_id)
             old_team_team_size = old_team_data.team_size
             raw_team = teams_crud.update_entity(session, data, db_team_id)
@@ -283,7 +297,6 @@ def list_team_views() -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
-@requires_valid_team_view_data
 def create_team_view() -> Tuple[Any, int]:
     """Create team view route.
 
@@ -313,6 +326,7 @@ def create_team_view() -> Tuple[Any, int]:
         return err.messages, 400
     with generate_session() as session:
         try:
+            validate_team_data(session, data["collector_target_ids"])
             raw_team_view = team_views_crud.create_entity(session, data)
         except HolocronIntegrityError as err:
             return err.messages, 400
@@ -357,7 +371,6 @@ def get_team_view(team_view_id: str) -> Tuple[Any, int]:
 
 
 @requires_security([requires_admin, requires_team_access])
-@requires_valid_team_view_data
 def update_team_view(team_view_id: str) -> Tuple[Any, int]:
     """Update team route.
 
@@ -395,6 +408,7 @@ def update_team_view(team_view_id: str) -> Tuple[Any, int]:
     with generate_session() as session:
         db_team_view_id = get_sanitized_id(team_view_id)
         try:
+            validate_team_data(session, data["collector_target_ids"], db_team_view_id)
             raw_team_view = team_views_crud.update_entity(
                 session, data, db_team_view_id
             )

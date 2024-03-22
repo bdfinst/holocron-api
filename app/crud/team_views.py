@@ -50,13 +50,14 @@ class TeamViewsCRUD(BaseCRUD[Team]):
 
         team_view.name = json["name"]
 
-        team_view.collector_targets = [
-            collector_targets_crud.get_entity(session, target_id)
-            for target_id in json["collector_target_ids"]
-        ]
-        team_view.is_workflow_only = is_workflow_only(session, team_view)
         try:
+            team_view.collector_targets = [
+                collector_targets_crud.get_entity(session, target_id)
+                for target_id in json["collector_target_ids"]
+            ]
+            team_view.is_workflow_only = is_workflow_only(session, team_view)
             session.add(team_view)
+            session.commit()
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
@@ -68,7 +69,6 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
-        session.commit()
         session.refresh(team_view)
         return team_view
 
@@ -92,6 +92,7 @@ class TeamViewsCRUD(BaseCRUD[Team]):
         new_team_view.is_workflow_only = is_workflow_only(session, new_team_view)
         try:
             session.add(new_team_view)
+            session.commit()
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
@@ -103,7 +104,6 @@ class TeamViewsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
-        session.commit()
         session.refresh(new_team_view)
         return new_team_view
 

@@ -72,6 +72,7 @@ class TeamsCRUD(BaseCRUD[Team]):
         new_team.is_workflow_only = is_workflow_only(session, new_team)
         try:
             session.add(new_team)
+            session.commit()
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
@@ -81,7 +82,6 @@ class TeamsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
-        session.commit()
         session.refresh(new_team)
         return new_team
 
@@ -92,16 +92,17 @@ class TeamsCRUD(BaseCRUD[Team]):
         team.team_size = json["team_size"]
         team.value_stream_id = json["value_stream_id"]
 
-        team.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
-        ]
-        team.collector_targets = [
-            collector_targets_crud.get_entity(session, target_id)
-            for target_id in json["collector_target_ids"]
-        ]
-        team.is_workflow_only = is_workflow_only(session, team)
         try:
+            team.users = [
+                users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            ]
+            team.collector_targets = [
+                collector_targets_crud.get_entity(session, target_id)
+                for target_id in json["collector_target_ids"]
+            ]
+            team.is_workflow_only = is_workflow_only(session, team)
             session.add(team)
+            session.commit()
         except IntegrityError as err:
             session.rollback()
             if "psycopg2.errors.ForeignKeyViolation" in str(err):
@@ -111,7 +112,6 @@ class TeamsCRUD(BaseCRUD[Team]):
             logging.error(str(err))
             raise HolocronIntegrityError("unknown", "unknown, see logs") from err
 
-        session.commit()
         session.refresh(team)
         return team
 

@@ -2,22 +2,25 @@
 
 from unittest.mock import MagicMock
 
-from pytest import fixture
+from pytest import fixture, raises
 
 from app.exceptions import HolocronIntegrityError
-from app.middleware import auth, business_logic_teams
+from app.middleware import auth
 from app.routes.v2 import teams
-from tests.mocks import crud, team_history_crud
-from tests.testdata import create_team, create_team_view
+from tests.mocks import MockCRUD, team_history_crud
+from tests.testdata import create_pipeline, create_team, create_team_view
 
 
 @fixture
 def mock_crud(monkeypatch):
     """Patch CRUD."""
+    crud = MockCRUD()
     monkeypatch.setattr(teams, "teams_crud", crud)
     monkeypatch.setattr(teams, "team_views_crud", crud)
     monkeypatch.setattr(auth, "teams_crud", crud)
     monkeypatch.setattr(teams, "team_history_crud", team_history_crud)
+    monkeypatch.setattr(teams, "collector_targets_crud", crud)
+    yield crud
 
 
 @fixture
@@ -28,33 +31,36 @@ def mock_admin(monkeypatch, mock_request):
 
 
 @fixture
-def mock_requires_valid_team_data(monkeypatch):
-    """Mock requires_valid_team_data decorator."""
-    monkeypatch.setattr(
-        business_logic_teams,
-        "is_valid_team_data_for_create",
-        lambda *_, **__: (True, ""),
-    )
-    monkeypatch.setattr(
-        business_logic_teams,
-        "is_valid_team_data_for_update",
-        lambda *_, **__: (True, ""),
-    )
+def mock_validate_team_data(monkeypatch):
+    """Mock validate_team_data function."""
+    monkeypatch.setattr(teams, "validate_team_data", MagicMock())
 
 
-@fixture
-def mock_requires_valid_team_view_data(monkeypatch):
-    """Mock requires_valid_team_view_data decorator."""
-    monkeypatch.setattr(
-        business_logic_teams,
-        "is_valid_team_view_data_for_create",
-        lambda *_, **__: (True, ""),
+def test_validate_team_data_pass(mock_crud):
+    """Test validate_team_data does not error with no conflict."""
+    cases = [
+        {"team_id": None, "ct_ids": [None]},
+        {"team_id": 1, "ct_ids": [1]},
+    ]
+    mock_crud.get_entity = MagicMock(
+        side_effect=lambda _session, ct_id: create_pipeline(team_id=ct_id)
     )
-    monkeypatch.setattr(
-        business_logic_teams,
-        "is_valid_team_view_data_for_update",
-        lambda *_, **__: (True, ""),
+
+    for case in cases:
+        teams.validate_team_data(None, case["ct_ids"], case["team_id"])
+
+
+def test_validate_team_data_error(mock_crud):
+    """Test validate_team_data function errors on conflict."""
+    cases = [{"team_id": None, "ct_ids": [1]}, {"team_id": None, "ct_ids": [1]}]
+    mock_crud.get_entity = MagicMock(
+        side_effect=lambda _session, _ct_id: create_pipeline(team_id=2)
     )
+
+    for case in cases:
+        with raises(HolocronIntegrityError) as err:
+            teams.validate_team_data(None, case["ct_ids"], case["team_id"])
+            assert "collectorTargetIds" in err.value
 
 
 def test_list_teams(client, mock_request, mock_crud):
@@ -141,7 +147,7 @@ def test_get_team_404_feature_team_views(client, mock_request, monkeypatch):
 
 
 def test_create_team(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, monkeypatch, mock_admin, mock_validate_team_data
 ):
     """Test POST /api/v2/teams endpoint."""
     json = {
@@ -188,7 +194,7 @@ def test_create_team(
 
 
 def test_create_team_validation_error(
-    client, mock_crud, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, mock_admin, mock_validate_team_data
 ):
     """Test POST /api/v2/teams endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
@@ -233,7 +239,7 @@ def test_create_team_validation_error(
 
 
 def test_create_team_database_error(
-    client, mock_crud, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, mock_admin, mock_validate_team_data
 ):
     """Test POST /api/v2/teams endpoint."""
     json = {
@@ -252,7 +258,7 @@ def test_create_team_database_error(
 
 
 def test_update_team(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, monkeypatch, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/1 endpoint."""
     json = {
@@ -303,7 +309,7 @@ def test_update_team(
 
 
 def test_update_team_validation_error(
-    client, mock_crud, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/1 endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
@@ -348,7 +354,7 @@ def test_update_team_validation_error(
 
 
 def test_update_team_database_error(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_data
+    client, mock_crud, monkeypatch, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/1 endpoint."""
     json = {
@@ -432,7 +438,7 @@ def test_create_team_view(
     monkeypatch,
     mock_admin,
     mock_request,
-    mock_requires_valid_team_view_data,
+    mock_validate_team_data,
 ):
     """Test POST /api/v2/teams/views endpoint."""
     json = {"name": "test_view", "collectorTargetIds": [1], "viewOwnerId": 1}
@@ -473,7 +479,7 @@ def test_create_team_view(
 
 
 def test_create_team_view_database_error(
-    client, mock_crud, mock_admin, mock_request, mock_requires_valid_team_view_data
+    client, mock_crud, mock_admin, mock_request, mock_validate_team_data
 ):
     """Test POST /api/v2/teams/views endpoint."""
     json = {
@@ -490,7 +496,7 @@ def test_create_team_view_database_error(
 
 
 def test_update_team_view(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_view_data
+    client, mock_crud, monkeypatch, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/1 endpoint."""
     json = {"name": "test_view2", "collectorTargetIds": [1], "viewOwnerId": 1}
@@ -526,7 +532,7 @@ def test_update_team_view(
 
 
 def test_update_team_view_validation_error(
-    client, mock_crud, mock_admin, mock_requires_valid_team_view_data
+    client, mock_crud, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/views/1 endpoint."""
     MISSING_DATA_MSG = "Missing data for required field."
@@ -566,7 +572,7 @@ def test_update_team_view_validation_error(
 
 
 def test_update_team_view_database_error(
-    client, mock_crud, monkeypatch, mock_admin, mock_requires_valid_team_view_data
+    client, mock_crud, monkeypatch, mock_admin, mock_validate_team_data
 ):
     """Test PUT /api/v2/teams/views/1 endpoint."""
     json = {"name": "error", "collectorTargetIds": [1], "viewOwnerId": 1}
