@@ -44,6 +44,8 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
                 ],
             )
             new_vs.id = value_stream.id
+            new_vs.created_at = value_stream.created_at
+            new_vs.updated_at = value_stream.updated_at
             result.append(new_vs)
         return result
 
@@ -65,6 +67,8 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
                 ],
             )
             new_vs.id = value_stream.id
+            new_vs.created_at = value_stream.created_at
+            new_vs.updated_at = value_stream.updated_at
             result.append(new_vs)
         return result
 
