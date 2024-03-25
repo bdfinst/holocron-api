@@ -56,9 +56,9 @@ def serve_spec(app: Flask, spec: APISpec, version: str):
 
 def spec_overrides(spec: APISpec):
     """Specific overrides."""
-    spec.components.schemas["ExistingOrganizationV2"]["properties"][
-        "valuestreams"
-    ] = spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
+    spec.components.schemas["ExistingOrganizationV2"]["properties"]["valuestreams"] = (
+        spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
+    )
     del spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
 
 

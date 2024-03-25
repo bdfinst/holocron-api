@@ -22,6 +22,8 @@ def get_value_stream_without_team_views(value_stream: ValueStream) -> ValueStrea
         teams=[team for team in value_stream.teams if team.view_owner_id is None],
     )
     new_vs.id = value_stream.id
+    new_vs.created_at = value_stream.created_at
+    new_vs.updated_at = value_stream.updated_at
     return new_vs
 
 
@@ -57,6 +59,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
                 ],
             )
             new_org.id = org.id
+            new_org.created_at = org.created_at
+            new_org.updated_at = org.updated_at
             result.append(new_org)
         return result
 
@@ -77,6 +81,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
                 ],
             )
             new_org.id = org.id
+            new_org.created_at = org.created_at
+            new_org.updated_at = org.updated_at
             result.append(new_org)
         return result
 
