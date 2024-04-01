@@ -59,6 +59,7 @@ logging_conf = {
         "root": {"level": "INFO", "handlers": ["stream"]},
     },
     "root": {"level": "DEBUG", "handlers": ["stream"]},
+    "disable_existing_loggers": False,
 }
 
 logging.config.dictConfig(logging_conf)
