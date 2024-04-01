@@ -1,20 +1,13 @@
 """Schema for User model."""
 
-from typing import Tuple
-
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-
-from app.models import User
+from marshmallow import fields
 
 from ._base import SchemaBase
 
 
-class UserV2Schema(SQLAlchemyAutoSchema, SchemaBase):
+class UserV2Schema(SchemaBase):
     """Schema for User model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = User
-        include_relationships = True
-        exclude: Tuple[str, ...] = ("sso_id",)
+    is_org_leadership = fields.Boolean()
+    is_admin = fields.Boolean()
+    username = fields.String(allow_none=True)

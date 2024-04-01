@@ -1,7 +1,6 @@
 """Base schema class for model base."""
 
 from marshmallow import Schema, fields
-from marshmallow_sqlalchemy import auto_field
 
 
 def camelcase(string: str) -> str:
@@ -17,6 +16,6 @@ class SchemaBase(Schema):
         """Convert field names from snake case to camel case."""
         field_obj.data_key = camelcase(field_obj.data_key or field_name)
 
-    id = auto_field(dump_only=True)
-    created_at = auto_field(dump_only=True)
-    updated_at = auto_field(dump_only=True)
+    id = fields.Integer(dump_only=True)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)

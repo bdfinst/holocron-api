@@ -1,58 +1,22 @@
 """Schema for Organization model."""
 
-from typing import Any, Dict
-
 from marshmallow import fields, validate
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Organization
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .user import UserV2Schema
-from .value_stream import ExistingValueStreamV2Schema
+from .value_stream import ValueStreamV2Schema
 
 
-class ExistingOrganizationV2Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Schema for existing organization model."""
+class OrganizationV2Schema(SchemaBase):
+    """Schema for organization model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Organization
-        include_relationships = True
-
-    value_streams = fields.Nested(ExistingValueStreamV2Schema, many=True)
-    users = fields.Nested(UserV2Schema, many=True)
-
-
-class NewOrganizationV2Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """New organization schema."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Organization
-
-    name = fields.Str(required=True, validate=input_name_validator)
-    user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
-
-
-class OrganizationV2Schema:
-    """Contain both existing and new schemas."""
-
-    def __init__(self):
-        """Initialize."""
-        self.existing_schema = ExistingOrganizationV2Schema()
-        self.new_schema = NewOrganizationV2Schema()
-
-    def dump(self, data) -> Dict[str, Any]:
-        """Dump using the existing schema."""
-        result = self.existing_schema.dump(data)
-        result["valuestreams"] = result["valueStreams"]
-        del result["valueStreams"]
-        return result
-
-    def load(self, data) -> Dict[str, Any]:
-        """Load using the new schema."""
-        return self.new_schema.load(data)
+    value_streams = fields.Nested(
+        ValueStreamV2Schema, many=True, dump_only=True, data_key="valuestreams"
+    )
+    users = fields.Nested(UserV2Schema, many=True, dump_only=True)
+    name = fields.String(required=True, validate=input_name_validator)
+    user_ids = fields.List(
+        fields.Integer(), required=True, validate=validate.Length(min=1), load_only=True
+    )

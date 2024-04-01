@@ -1,55 +1,20 @@
 """Schema for Organization model."""
 
-from typing import Any, Dict
-
 from marshmallow import fields, validate
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Organization
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
 from .user import UserV3Schema
-from .value_stream import ExistingValueStreamV3Schema
+from .value_stream import ValueStreamV3Schema
 
 
-class ExistingOrganizationV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Schema for existing organization model."""
+class OrganizationV3Schema(SchemaBase):
+    """Schema for organization model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Organization
-        include_relationships = True
-
-    value_streams = fields.Nested(ExistingValueStreamV3Schema, many=True)
-    users = fields.Nested(UserV3Schema, many=True)
-
-
-class NewOrganizationV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """New organization schema."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Organization
-
-    name = fields.Str(required=True, validate=input_name_validator)
-    user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
-
-
-class OrganizationV3Schema:
-    """Contain both existing and new schemas."""
-
-    def __init__(self):
-        """Initialize."""
-        self.existing_schema = ExistingOrganizationV3Schema()
-        self.new_schema = NewOrganizationV3Schema()
-
-    def dump(self, data) -> Dict[str, Any]:
-        """Dump using the existing schema."""
-        return self.existing_schema.dump(data)
-
-    def load(self, data) -> Dict[str, Any]:
-        """Load using the new schema."""
-        return self.new_schema.load(data)
+    value_streams = fields.Nested(ValueStreamV3Schema, many=True, dump_only=True)
+    users = fields.Nested(UserV3Schema, many=True, dump_only=True)
+    name = fields.String(required=True, validate=input_name_validator)
+    user_ids = fields.List(
+        fields.Integer(), required=True, validate=validate.Length(min=1), load_only=True
+    )

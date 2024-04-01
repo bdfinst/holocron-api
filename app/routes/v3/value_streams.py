@@ -1,6 +1,6 @@
 """Value stream routes."""
 
-from typing import Any, Tuple
+from typing import Any, Mapping, Tuple, cast
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
@@ -51,7 +51,7 @@ def list_value_streams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingValueStreamV3'
+                      $ref: '#/components/schemas/ValueStreamV3'
     """
     with generate_session() as session:
         page_info = get_pagination_info(
@@ -85,13 +85,13 @@ def create_value_stream() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValueStreamV3Schema
+            schema: ValueStreamV3Schema
       responses:
         201:
           description: The value stream was successfully created
           content:
             application/json:
-              schema: ExistingValueStreamV3Schema
+              schema: ValueStreamV3Schema
         400:
           description: Failure due to invalid request
           content:
@@ -99,7 +99,7 @@ def create_value_stream() -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
@@ -121,7 +121,7 @@ def get_value_stream(value_stream_id: str) -> Tuple[Any, int]:
       description: Get value stream
       parameters:
         - in: path
-          name: value_tream_id
+          name: value_stream_id
           schema:
             type: integer
           required: true
@@ -131,7 +131,7 @@ def get_value_stream(value_stream_id: str) -> Tuple[Any, int]:
           description: Get value stream
           content:
             application/json:
-              schema: ExistingValueStreamV3Schema
+              schema: ValueStreamV3Schema
         404:
           description: Value stream not found
     """
@@ -170,13 +170,13 @@ def update_value_stream(value_stream_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewValueStreamV3Schema
+            schema: ValueStreamV3Schema
       responses:
         200:
           description: The value stream was successfully updated
           content:
             application/json:
-              schema: ExistingValueStreamV3Schema
+              schema: ValueStreamV3Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -184,7 +184,7 @@ def update_value_stream(value_stream_id: str) -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400

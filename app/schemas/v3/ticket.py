@@ -1,33 +1,29 @@
 """Schema for Ticket model."""
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import StatusHistory, Ticket, TicketPriority, TicketStatus, TicketType
+from app.models import TicketPriority, TicketStatus, TicketType
 
 from ._base import SchemaBase
 
 
-class StatusHistoryV3Schema(SQLAlchemyAutoSchema, SchemaBase):
+class StatusHistoryV3Schema(SchemaBase):
     """Schema for Ticket StatusHistory model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = StatusHistory
-
     status = fields.Enum(TicketStatus, by_value=True)
+    date = fields.DateTime()
+    ticket_id = fields.Integer()
 
 
-class TicketV3Schema(SQLAlchemyAutoSchema, SchemaBase):
+class TicketV3Schema(SchemaBase):
     """Schema for Ticket model."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Ticket
 
     status_history = fields.Nested(StatusHistoryV3Schema, many=True)
     ticket_type = fields.Enum(TicketType, by_value=True)
     priority = fields.Enum(TicketPriority, by_value=True)
     status = fields.Enum(TicketStatus, by_value=True)
+    resource_id = fields.String()
+    assignee = fields.String(allow_none=True)
+    collector_target_id = fields.Integer()
+    super_ticket_id = fields.Integer(allow_none=True)
+    sub_tickets = fields.Nested("TicketV3Schema", many=True)

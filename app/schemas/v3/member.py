@@ -1,53 +1,25 @@
 """Schema for Member model."""
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Member, TeamsMembers
+from app import config
 
 from ._base import SchemaBase
 
 
-class TeamMemberV3Schema(SQLAlchemyAutoSchema, SchemaBase):
+class TeamMemberV3Schema(SchemaBase):
     """Team member schema."""
 
-    class Meta:
-        """Configuration."""
-
-        model = TeamsMembers
-        include_relationships = True
-
-    class MemberNoTeamV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-        """Member schema with teams excluded."""
-
-        class Meta:
-            """Configuration."""
-
-            model = Member
-            include_relationships = True
-            exclude = ("teams",)
-
-    member = fields.Nested("MemberNoTeamV2Schema")
-    team = fields.Nested("ExistingTeamV2Schema", exclude=("members",), dump_only=True)
+    start_date = fields.DateTime()
+    end_date = fields.DateTime(allow_none=True)
+    member = fields.Nested("MemberV3Schema", exclude=("teams",))
+    if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+        team = fields.Nested("TeamV3Schema", exclude=("members",), dump_only=True)
 
 
-class MemberV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Existing member schema."""
+class MemberV3Schema(SchemaBase):
+    """Member schema."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Member
-        include_relationships = True
-
-    class TeamMemberNoMemberV3Schema(SQLAlchemyAutoSchema, SchemaBase):
-        """Team member with member excluded."""
-
-        class Meta:
-            """Configuration."""
-
-            model = TeamsMembers
-            include_relationships = True
-            exclude = ("member",)
-
-    teams = fields.Nested("TeamMemberNoMemberV2Schema", many=True)
+    name = fields.String(required=True)
+    username = fields.String(required=True)
+    teams = fields.Nested("TeamMemberV3Schema", many=True, dump_only=True)

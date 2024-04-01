@@ -1,6 +1,6 @@
 """Organization routes."""
 
-from typing import Any, Tuple
+from typing import Any, Mapping, Tuple, cast
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
@@ -32,7 +32,7 @@ def list_organizations() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingOrganizationV2'
+                      $ref: '#/components/schemas/OrganizationV2'
     """
     with generate_session() as session:
         raw_organizations = (
@@ -57,13 +57,13 @@ def create_organization() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationV2Schema
+            schema: OrganizationV2Schema
       responses:
         201:
           description: The organization was successfully created
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: OrganizationV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -71,7 +71,7 @@ def create_organization() -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
@@ -102,7 +102,7 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
           description: Get organization
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: OrganizationV2Schema
         404:
           description: Organization not found
     """
@@ -138,13 +138,13 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewOrganizationV2Schema
+            schema: OrganizationV2Schema
       responses:
         200:
           description: The organization was successfully updated
           content:
             application/json:
-              schema: ExistingOrganizationV2Schema
+              schema: OrganizationV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -152,7 +152,7 @@ def update_organization(org_id: str) -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400

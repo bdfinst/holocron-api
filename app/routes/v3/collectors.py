@@ -1,6 +1,6 @@
 """Collector routes."""
 
-from typing import Any, Tuple
+from typing import Any, Mapping, Tuple, cast
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
@@ -126,7 +126,7 @@ def update_collector(collector_id: str) -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400

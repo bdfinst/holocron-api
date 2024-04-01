@@ -1,16 +1,15 @@
 """Schema for Branch model."""
 
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-
-from app.models import Branch
+from marshmallow import fields
 
 from ._base import SchemaBase
 
 
-class BranchV2Schema(SQLAlchemyAutoSchema, SchemaBase):
+class BranchV2Schema(SchemaBase):
     """Schema for Branch model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Branch
+    last_updated = fields.DateTime()
+    name = fields.String()
+    is_default = fields.Boolean()
+    collector_target_id = fields.Integer()
+    url = fields.String()
