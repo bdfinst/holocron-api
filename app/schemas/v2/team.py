@@ -1,9 +1,8 @@
 """Schema for Team model."""
 
-from typing import Any, Dict
+from typing import List
 
 from marshmallow import fields, validate
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 from app import config
 from app.models import Team
@@ -14,57 +13,32 @@ from .member import TeamMemberV2Schema
 from .user import UserV2Schema
 
 
-class ExistingTeamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """Existing team schema."""
+class TeamHistoryV2Schema(SchemaBase):
+    """Team history schema."""
 
-    class Meta:
-        """Configuration."""
+    team_size = fields.Integer()
+    team_id = fields.Integer()
 
-        model = Team
-        include_relationships = True
-        exclude = (
-            "pipelines",
-            "projects",
-            "repositories",
-            "ticket_boards",
-            "value_stream_id",
-        )
+
+class TeamV2Schema(SchemaBase):
+    """Team schema."""
 
     if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
-        members = fields.Nested(TeamMemberV2Schema, many=True, exclude=("team",))
-    users = fields.Nested(UserV2Schema, many=True)
-    collector_targets = auto_field()
-    valuestream_id = auto_field("value_stream_id")
+        members = fields.Nested(
+            TeamMemberV2Schema, many=True, exclude=("team",), dump_only=True
+        )
+    users = fields.Nested(UserV2Schema, many=True, dump_only=True)
+    collector_targets = fields.Method("get_collector_target_ids", dump_only=True)
+    value_stream_id = fields.Integer(required=True, data_key="valuestreamId")
+    name = fields.String(required=True, validate=input_name_validator)
+    user_ids = fields.List(
+        fields.Integer(), required=True, validate=validate.Length(min=1), load_only=True
+    )
+    team_size = fields.Integer(required=True, validate=validate.Range(min=1))
+    collector_target_ids = fields.List(fields.Integer(), required=True, load_only=True)
+    is_workflow_only = fields.Boolean(dump_only=True)
+    team_history = fields.Nested(TeamHistoryV2Schema, many=True, dump_only=True)
 
-
-class NewTeamV2Schema(SQLAlchemyAutoSchema, SchemaBase):
-    """New team schema."""
-
-    class Meta:
-        """Configuration."""
-
-        model = Team
-        exclude = ("is_workflow_only", "value_stream_id")
-
-    name = fields.Str(required=True, validate=input_name_validator)
-    user_ids = fields.List(fields.Int(), required=True, validate=validate.Length(min=1))
-    collector_target_ids = fields.List(fields.Int())
-    team_size = fields.Int(required=True, validate=validate.Range(min=1))
-    valuestream_id = auto_field("value_stream_id")
-
-
-class TeamV2Schema:
-    """Contain both existing and new schemas."""
-
-    def __init__(self):
-        """Initialize."""
-        self.existing_schema = ExistingTeamV2Schema()
-        self.new_schema = NewTeamV2Schema()
-
-    def dump(self, data) -> Dict[str, Any]:
-        """Dump using the existing schema."""
-        return self.existing_schema.dump(data)
-
-    def load(self, data) -> Dict[str, Any]:
-        """Load using the new schema."""
-        return self.new_schema.load(data)
+    def get_collector_target_ids(self, obj: Team) -> List[int]:
+        """Return collector targets as an array of IDs."""
+        return [target.id for target in getattr(obj, "collector_targets", [])]

@@ -1,19 +1,18 @@
 """Schema for Build model."""
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Build, BuildStatus
+from app.models import BuildStatus
 
 from ._base import SchemaBase
 
 
-class BuildV3Schema(SQLAlchemyAutoSchema, SchemaBase):
+class BuildV3Schema(SchemaBase):
     """Schema for Build model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Build
-
+    is_deployed = fields.Boolean()
     build_status = fields.Enum(BuildStatus, by_value=True)
+    collector_target_id = fields.Integer()
+    build_url = fields.String()
+    start_time = fields.DateTime()
+    end_time = fields.DateTime()

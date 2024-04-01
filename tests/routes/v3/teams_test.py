@@ -90,7 +90,7 @@ def test_list_teams_feature_team_views(client, mock_crud, mock_request):
 
 def test_get_team(client, mock_crud, mock_request, monkeypatch):
     """Test GET /api/v3/teams/:id endpoint."""
-    expected = {"id": 1}
+    expected = {"id": 1, "collectorTargets": []}
     monkeypatch.setattr(teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
 
     resp = client.get("/api/v3/teams/1")
@@ -112,7 +112,7 @@ def test_get_team_404(client, mock_crud, mock_request, monkeypatch):
 
 def test_get_team_feature_team_views(client, mock_crud, mock_request):
     """Test GET /api/v3/teams/:id endpoint."""
-    expected = {"id": 1}
+    expected = {"id": 1, "collectorTargets": []}
     get_entity_no_team_view = MagicMock(return_value=expected)
     mock_crud.get_entity_no_team_view = get_entity_no_team_view
 
@@ -171,7 +171,6 @@ def test_create_team(client, mock_crud, mock_admin, mock_validate_team_data):
         "teamHistory": [],
         "users": [],
         "isWorkflowOnly": False,
-        "members": [],
     }
 
     assert resp.json == expected
@@ -196,6 +195,7 @@ def test_create_team_validation_error(
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valueStreamId": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -262,7 +262,6 @@ def test_update_team(client, mock_crud, mock_admin, mock_validate_team_data):
         name="test2",
         teamSize=1,
         valueStreamId=1,
-        members=[],
     )
     mock_crud.get_entity = MagicMock(return_value=create_team(team_size=1))
     mock_crud.update_entity = MagicMock(
@@ -300,6 +299,7 @@ def test_update_team_validation_error(
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valueStreamId": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -502,6 +502,7 @@ def test_update_team_view_validation_error(
                 "name": [MISSING_DATA_MSG],
                 "viewOwnerId": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (

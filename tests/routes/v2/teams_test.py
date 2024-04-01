@@ -92,7 +92,7 @@ def test_list_teams_feature_team_views(client, mock_request, monkeypatch):
 
 def test_get_team(client, mock_crud, mock_request, monkeypatch):
     """Test GET /api/v2/teams/:id endpoint."""
-    expected = {"id": 1}
+    expected = {"id": 1, "collectorTargets": []}
     monkeypatch.setattr(teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
 
     resp = client.get("/api/v2/teams/1")
@@ -114,7 +114,7 @@ def test_get_team_404(client, mock_crud, mock_request, monkeypatch):
 
 def test_get_team_feature_team_views(client, mock_request, monkeypatch):
     """Test GET /api/v2/teams/:id endpoint."""
-    expected = {"id": 1}
+    expected = {"id": 1, "collectorTargets": []}
     get_entity_no_team_view = MagicMock(return_value=expected)
     monkeypatch.setattr(
         teams.teams_crud,
@@ -186,7 +186,6 @@ def test_create_team(
         "teamHistory": [],
         "users": [],
         "isWorkflowOnly": False,
-        "members": [],
     }
 
     assert resp.json == expected
@@ -211,6 +210,7 @@ def test_create_team_validation_error(
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -279,7 +279,6 @@ def test_update_team(
         name="test2",
         teamSize=1,
         valuestreamId=1,
-        members=[],
     )
 
     monkeypatch.setattr(
@@ -326,6 +325,7 @@ def test_update_team_validation_error(
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valuestreamId": [MISSING_DATA_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (
@@ -547,6 +547,7 @@ def test_update_team_view_validation_error(
                 "name": [MISSING_DATA_MSG],
                 "viewOwnerId": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
+                "collectorTargetIds": [MISSING_DATA_MSG],
             },
         ),
         (

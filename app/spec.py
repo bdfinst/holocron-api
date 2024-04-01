@@ -1,9 +1,40 @@
 """API Spec."""
 
+import re
+from typing import List
+
 from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec.ext.marshmallow.common import resolve_schema_cls
 from apispec_webframeworks.flask import FlaskPlugin
 from flasgger import APISpec, Swagger
 from flask import Flask
+from marshmallow import Schema
+
+from app.config import FEATURE_FLAGS
+
+schema_names: List[str] = []
+
+
+def resolve_schema_name(schema: type[Schema]) -> str:
+    """Append '-num' for conflicting schema names."""
+    schema_name = resolve_schema_cls(schema).__name__  # type: ignore
+    schema_name = schema_name.removesuffix("Schema")
+    while schema_name in schema_names:
+        existing_suffix = re.search(r"-\d+$", schema_name)
+        num = (
+            int(schema_name[existing_suffix.start() + 1 : existing_suffix.end()]) + 1
+            if existing_suffix is not None
+            else 1
+        )
+        suffix = f"-{num}"
+        name_without_suffix = (
+            f"{schema_name[:existing_suffix.start()]}"
+            if existing_suffix is not None
+            else schema_name
+        )
+        schema_name = f"{name_without_suffix}{suffix}"
+    schema_names.append(schema_name)
+    return schema_name
 
 
 def generate_spec(app: Flask, version: str) -> APISpec:
@@ -14,7 +45,7 @@ def generate_spec(app: Flask, version: str) -> APISpec:
         openapi_version=app.config["SWAGGER"]["openapi"],
         plugins=[
             FlaskPlugin(),
-            MarshmallowPlugin(),
+            MarshmallowPlugin(schema_name_resolver=resolve_schema_name),
         ],
     )
 
@@ -24,8 +55,7 @@ def generate_spec(app: Flask, version: str) -> APISpec:
                 continue
             spec.path(view=app.view_functions[rule.endpoint])
 
-    if version == "v2":
-        spec_overrides(spec)
+    spec = overwrite_spec_error(spec, version.upper())
     return spec
 
 
@@ -54,12 +84,28 @@ def serve_spec(app: Flask, spec: APISpec, version: str):
     )
 
 
-def spec_overrides(spec: APISpec):
-    """Specific overrides."""
-    spec.components.schemas["ExistingOrganizationV2"]["properties"]["valuestreams"] = (
-        spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
-    )
-    del spec.components.schemas["ExistingOrganizationV2"]["properties"]["valueStreams"]
+def overwrite_spec_error(spec: APISpec, version: str) -> APISpec:
+    """Overwrite the team's collector_targets field to be an array of integers.
+
+    There is an issue to allow functionality within Marshmallow that will
+    allow openapi to properly read the field type:
+    https://github.com/marshmallow-code/marshmallow/issues/513
+    """
+    print(f"{spec.components.schemas=}")
+    spec.components.schemas[f"Team{version}"]["properties"]["collectorTargets"] = {
+        "readOnly": True,
+        "type": "array",
+        "items": {"type": "integer"},
+    }
+    if FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+        spec.components.schemas[f"Team{version}-1"]["properties"][
+            "collectorTargets"
+        ] = {
+            "readOnly": True,
+            "type": "array",
+            "items": {"type": "integer"},
+        }
+    return spec
 
 
 # HACK - This bit of code should be replaced as soon as possible.

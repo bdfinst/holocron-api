@@ -1,6 +1,6 @@
 """Team routes."""
 
-from typing import Any, List, Tuple
+from typing import Any, List, Mapping, Tuple, cast
 
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
@@ -56,7 +56,7 @@ def list_teams() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamV2'
+                      $ref: '#/components/schemas/TeamV2'
     """
     with generate_session() as session:
         raw_teams = (
@@ -79,13 +79,13 @@ def create_team() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamV2Schema
+            schema: TeamV2Schema
       responses:
         201:
           description: The team was successfully created
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: TeamV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -93,7 +93,7 @@ def create_team() -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
@@ -131,7 +131,7 @@ def get_team(team_id: str) -> Tuple[Any, int]:
           description: Get team
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: TeamV2Schema
         404:
           description: Team not found
     """
@@ -165,13 +165,13 @@ def update_team(team_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamV2Schema
+            schema: TeamV2Schema
       responses:
         200:
           description: The team was successfully updated
           content:
             application/json:
-              schema: ExistingTeamV2Schema
+              schema: TeamV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -179,7 +179,7 @@ def update_team(team_id: str) -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema.load(request.json)
+        data = schema.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
@@ -243,7 +243,7 @@ def list_team_views() -> Tuple[Any, int]:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ExistingTeamViewV2'
+                      $ref: '#/components/schemas/TeamViewV2'
     """
     with generate_session() as session:
         raw_teams = team_views_crud.get_entities(session)
@@ -262,13 +262,13 @@ def create_team_view() -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewV2Schema
+            schema: TeamViewV2Schema
       responses:
         201:
           description: The team view was successfully created
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: TeamViewV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -276,7 +276,7 @@ def create_team_view() -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema_view.load(request.json)
+        data = schema_view.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400
@@ -309,7 +309,7 @@ def get_team_view(team_view_id: str) -> Tuple[Any, int]:
           description: Get team view
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: TeamViewV2Schema
         404:
           description: Team not found
     """
@@ -341,13 +341,13 @@ def update_team_view(team_view_id: str) -> Tuple[Any, int]:
       requestBody:
         content:
           application/json:
-            schema: NewTeamViewV2Schema
+            schema: TeamViewV2Schema
       responses:
         200:
           description: The team view was successfully updated
           content:
             application/json:
-              schema: ExistingTeamViewV2Schema
+              schema: TeamViewV2Schema
         400:
           description: Failure due to an invalid request
           content:
@@ -355,7 +355,7 @@ def update_team_view(team_view_id: str) -> Tuple[Any, int]:
               schema: ValidationErrorV2Schema
     """
     try:
-        data = schema_view.load(request.json)
+        data = schema_view.load(cast(Mapping[str, Any], request.json))
     except ValidationError as err:
         log_security_event(MALFORMED_REQ_PARAMS_MSG)
         return err.messages, 400

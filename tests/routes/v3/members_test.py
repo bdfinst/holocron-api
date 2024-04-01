@@ -65,7 +65,7 @@ def test_update_team_members(client, mock_crud, mock_admin):
             }
         ]
     }
-    expected = {"id": 1}
+    expected = {"id": 1, "collectorTargets": []}
 
     resp = client.put("/api/v3/members/team/1", json=json)
 

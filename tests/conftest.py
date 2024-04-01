@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 import app
-from app import security
+from app import security, spec
 from app.middleware import auth, log, rate_limiter
 from tests.mocks import mock_delete, mock_func, mock_select, request, session
 
@@ -79,6 +79,7 @@ def application(monkeypatch):
             "FEATURE_COLLECTOR_CONFIGURATION": True,
         },
     )
+    monkeypatch.setattr(spec, "schema_names", [])
     application = app.create_app()
     application.config.update({"TESTING": True})
     return application

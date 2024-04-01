@@ -3,20 +3,12 @@
 from typing import Any, Dict, List
 
 from marshmallow import Schema, ValidationError, fields, validate
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-
-from app.models import PayRate
 
 from ._base import SchemaBase
 
 
-class PayRateV3Schema(SQLAlchemyAutoSchema, SchemaBase):
+class PayRateV3Schema(SchemaBase):
     """Schema for PayRate model."""
-
-    class Meta:
-        """Configuration."""
-
-        model = PayRate
 
     email = fields.Email(required=True)
     rate = fields.Float(required=True, validate=validate.Range(min=1))
