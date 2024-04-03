@@ -1,14 +1,12 @@
 """Schema for Team model."""
 
-from typing import List
-
 from marshmallow import fields, validate
 
 from app import config
-from app.models import Team
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
+from .collector_target import CollectorTargetV2Schema
 from .member import TeamMemberV2Schema
 from .user import UserV2Schema
 
@@ -28,7 +26,9 @@ class TeamV2Schema(SchemaBase):
             TeamMemberV2Schema, many=True, exclude=("team",), dump_only=True
         )
     users = fields.Nested(UserV2Schema, many=True, dump_only=True)
-    collector_targets = fields.Method("get_collector_target_ids", dump_only=True)
+    collector_targets = fields.List(
+        fields.Pluck(CollectorTargetV2Schema, "id"), dump_only=True
+    )
     value_stream_id = fields.Integer(required=True, data_key="valuestreamId")
     name = fields.String(required=True, validate=input_name_validator)
     user_ids = fields.List(
@@ -38,7 +38,3 @@ class TeamV2Schema(SchemaBase):
     collector_target_ids = fields.List(fields.Integer(), required=True, load_only=True)
     is_workflow_only = fields.Boolean(dump_only=True)
     team_history = fields.Nested(TeamHistoryV2Schema, many=True, dump_only=True)
-
-    def get_collector_target_ids(self, obj: Team) -> List[int]:
-        """Return collector targets as an array of IDs."""
-        return [target.id for target in getattr(obj, "collector_targets", [])]
