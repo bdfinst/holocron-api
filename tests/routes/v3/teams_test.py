@@ -90,7 +90,7 @@ def test_list_teams_feature_team_views(client, mock_crud, mock_request):
 
 def test_get_team(client, mock_crud, mock_request, monkeypatch):
     """Test GET /api/v3/teams/:id endpoint."""
-    expected = {"id": 1, "collectorTargets": []}
+    expected = {"id": 1}
     monkeypatch.setattr(teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
 
     resp = client.get("/api/v3/teams/1")
@@ -112,7 +112,7 @@ def test_get_team_404(client, mock_crud, mock_request, monkeypatch):
 
 def test_get_team_feature_team_views(client, mock_crud, mock_request):
     """Test GET /api/v3/teams/:id endpoint."""
-    expected = {"id": 1, "collectorTargets": []}
+    expected = {"id": 1}
     get_entity_no_team_view = MagicMock(return_value=expected)
     mock_crud.get_entity_no_team_view = get_entity_no_team_view
 

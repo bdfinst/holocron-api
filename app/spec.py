@@ -10,8 +10,6 @@ from flasgger import APISpec, Swagger
 from flask import Flask
 from marshmallow import Schema
 
-from app.config import FEATURE_FLAGS
-
 schema_names: List[str] = []
 
 
@@ -55,7 +53,6 @@ def generate_spec(app: Flask, version: str) -> APISpec:
                 continue
             spec.path(view=app.view_functions[rule.endpoint])
 
-    spec = overwrite_spec_error(spec, version.upper())
     return spec
 
 
@@ -82,30 +79,6 @@ def serve_spec(app: Flask, spec: APISpec, version: str):
         template=template,
         config=swagger_config,
     )
-
-
-def overwrite_spec_error(spec: APISpec, version: str) -> APISpec:
-    """Overwrite the team's collector_targets field to be an array of integers.
-
-    There is an issue to allow functionality within Marshmallow that will
-    allow openapi to properly read the field type:
-    https://github.com/marshmallow-code/marshmallow/issues/513
-    """
-    print(f"{spec.components.schemas=}")
-    spec.components.schemas[f"Team{version}"]["properties"]["collectorTargets"] = {
-        "readOnly": True,
-        "type": "array",
-        "items": {"type": "integer"},
-    }
-    if FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
-        spec.components.schemas[f"Team{version}-1"]["properties"][
-            "collectorTargets"
-        ] = {
-            "readOnly": True,
-            "type": "array",
-            "items": {"type": "integer"},
-        }
-    return spec
 
 
 # HACK - This bit of code should be replaced as soon as possible.
