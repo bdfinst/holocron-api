@@ -7,6 +7,8 @@ from typing import Dict, Optional, Tuple
 
 from flask import Response, request
 
+from app.config import REQUEST_IP_HEADER
+
 ONE_MINUTE = 60
 
 
@@ -35,7 +37,7 @@ breaker = CircuitBreaker()
 
 def circuit_breaker_check() -> Optional[Tuple[str, int]]:
     """Check if user set circuit breaker."""
-    if breaker.check_break(getattr(request, "remote_addr", "")):
+    if breaker.check_break(request.headers[REQUEST_IP_HEADER]):
         return "Too many requests", 429
     return None
 
@@ -43,5 +45,5 @@ def circuit_breaker_check() -> Optional[Tuple[str, int]]:
 def circuit_breaker_validation(response: Response) -> Response:
     """Set breaker if request caused a server error."""
     if response.status_code >= 500:
-        breaker.set_break(getattr(request, "remote_addr", ""))
+        breaker.set_break(request.headers[REQUEST_IP_HEADER])
     return response

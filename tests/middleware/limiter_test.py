@@ -16,14 +16,6 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(organizations, "organizations_crud", crud)
 
 
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(log, "request", request)
-    monkeypatch.setattr(rate_limiter, "request", request)
-    monkeypatch.setattr(security, "request", request)
-
-
 def test_rate_limiter(client, mock_crud, mock_request):
     """Test rate limiter using /api/v2/organizations as example."""
     max_requests_in_hour = int(DEFAULT_LIMITS[1].split("/")[0])

@@ -25,7 +25,7 @@ def mock_request(monkeypatch):
 
 def test_circuit_breaker_check_good(mock_request):
     """Test circuit_breaker_check function with passing request."""
-    mock_request.remote_addr = "no match"
+    mock_request.headers["X-Forwarded-For"] = "no match"
 
     result = circuit_breaker_check()
 
@@ -34,7 +34,7 @@ def test_circuit_breaker_check_good(mock_request):
 
 def test_circuit_breaker_check_bad(mock_request, monkeypatch):
     """Test circuit_breaker_check function with failing request."""
-    mock_request.remote_addr = "match"
+    mock_request.headers["X-Forwarded-For"] = "match"
     monkeypatch.setattr(
         circuit_breaker.breaker, "break_times", {"match": datetime.now()}
     )
