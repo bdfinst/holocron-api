@@ -6,7 +6,7 @@ from pytest import MonkeyPatch, fixture
 
 import app
 from app import security, spec
-from app.middleware import auth, circuit_breaker, log, rate_limiter
+from app.middleware import auth, circuit_breaker, log, rate_limiter, text_validator
 from tests.mocks import mock_delete, mock_func, mock_select, request, session
 
 
@@ -43,6 +43,7 @@ def mock_request(monkeypatch):
     monkeypatch.setattr(security, "request", request)
     monkeypatch.setattr(rate_limiter, "request", request)
     monkeypatch.setattr(circuit_breaker, "request", request)
+    monkeypatch.setattr(text_validator, "request", request)
     yield request
     request.reset()
 

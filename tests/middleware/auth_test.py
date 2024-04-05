@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 from flask import Response
 from pytest import fixture
 
-from app import security
 from app.crud import organizations_crud, team_views_crud, teams_crud, value_streams_crud
 from app.middleware import (
     auth,
@@ -18,7 +17,7 @@ from app.middleware import (
     return_user,
     set_user,
 )
-from tests.mocks import config, crud, request
+from tests.mocks import config, crud
 from tests.testdata import (
     create_organization,
     create_team,
@@ -26,15 +25,6 @@ from tests.testdata import (
     create_value_stream,
 )
 from tests.utils.utils import second_argument
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(auth, "request", request)
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
 
 
 @fixture

@@ -1,23 +1,12 @@
 """Security Middlewares test."""
 
-from functools import wraps
-from typing import Callable
 from unittest.mock import MagicMock
 
-from pytest import fixture, raises
+from pytest import raises
 
 from app import security
 from app.security import SQL_INJECTION, get_sanitized_id, on_unexpected_http_methods
-from tests.mocks import request
 from tests.utils.utils import first_argument
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock request object."""
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
 
 
 def test_on_unexpected_http_methods(mock_request, monkeypatch):
