@@ -2,12 +2,11 @@
 
 from pytest import fixture
 
-from app import security
-from app.middleware import log, rate_limiter
+from app.middleware import rate_limiter
 from app.middleware.rate_limiter import get_requester
 from app.routes.v2 import organizations
 from app.security import DEFAULT_LIMITS
-from tests.mocks import crud, request
+from tests.mocks import crud
 
 
 @fixture

@@ -1,19 +1,6 @@
 """Test text validation middleware."""
 
-from pytest import fixture
-
-from app import security
-from app.middleware import text_validator, validate_text
-from tests.mocks import request
-
-
-@fixture
-def mock_request(monkeypatch):
-    """Mock flask request object."""
-    monkeypatch.setattr(text_validator, "request", request)
-    monkeypatch.setattr(security, "request", request)
-    yield request
-    request.reset()
+from app.middleware import validate_text
 
 
 def test_validate_text_invalid(mock_request):
