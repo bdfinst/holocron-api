@@ -21,50 +21,50 @@ def mock_crud(monkeypatch):
 
 
 def test_list_ticket_boards(client, mock_crud, mock_request):
-    """Test GET /api/v3/ticketboards endpoint."""
+    """Test GET /api/v3/ticket-boards endpoint."""
     expected = {"result": []}
 
-    resp = client.get("/api/v3/ticketboards")
+    resp = client.get("/api/v3/ticket-boards")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_list_ticket_boards_for_team(client, mock_crud, mock_admin):
-    """Test GET /api/v3/ticketboards/team/:id endpoint."""
+    """Test GET /api/v3/ticket-boards/team/:id endpoint."""
     expected = {"result": []}
 
-    resp = client.get("/api/v3/ticketboards/team/1")
+    resp = client.get("/api/v3/ticket-boards/team/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_list_ticket_boards_for_team_404(client, mock_crud, mock_admin):
-    """Test GET /api/v3/ticketboards/team/:id endpoint."""
+    """Test GET /api/v3/ticket-boards/team/:id endpoint."""
     expected = "Resource not found"
 
-    resp = client.get("/api/v3/ticketboards/team/-1")
+    resp = client.get("/api/v3/ticket-boards/team/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
 
 
 def test_get_ticket_board(client, mock_crud, mock_request):
-    """Test GET /api/v3/ticketboards/:id endpoint."""
+    """Test GET /api/v3/ticket-boards/:id endpoint."""
     expected = {"id": 1}
 
-    resp = client.get("/api/v3/ticketboards/1")
+    resp = client.get("/api/v3/ticket-boards/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_get_ticket_board_404(client, mock_crud, mock_request):
-    """Test GET /api/v3/ticketboards/:id endpoint."""
+    """Test GET /api/v3/ticket-boards/:id endpoint."""
     expected = "Resource not found"
 
-    resp = client.get("/api/v3/ticketboards/-1")
+    resp = client.get("/api/v3/ticket-boards/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
