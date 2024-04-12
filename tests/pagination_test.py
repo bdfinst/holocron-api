@@ -72,7 +72,7 @@ def test_construct_next_page_url():
     for case in cases:
         assert (
             set_pagination_header(response, case["url"], case["page_info"]).headers[
-                "next-page"
+                "x-next-page"
             ]
             == case["output"]
         )

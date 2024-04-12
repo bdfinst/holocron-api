@@ -36,16 +36,16 @@ def set_pagination_header(
 ) -> Response:
     """Construct the next page url."""
     if page_info.offset + page_info.limit >= page_info.count:
-        response.headers["next-page"] = "None"
+        response.headers["x-next-page"] = "None"
         return response
     page_info.page += 1
     expression = re.compile(r"([?&])page=\d+")
     if re.search(expression, url) is not None:
-        response.headers["next-page"] = re.sub(
+        response.headers["x-next-page"] = re.sub(
             expression, f"\\1page={page_info.page}", url
         )
     elif "?" in url:
-        response.headers["next-page"] = f"{url}&page={page_info.page}"
+        response.headers["x-next-page"] = f"{url}&page={page_info.page}"
     else:
-        response.headers["next-page"] = f"{url}?page={page_info.page}"
+        response.headers["x-next-page"] = f"{url}?page={page_info.page}"
     return response
