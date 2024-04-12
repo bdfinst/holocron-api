@@ -154,7 +154,7 @@ def get_ticket_board(board_id: str) -> Tuple[Any, int]:
 
 def create_router() -> Blueprint:
     """Router factory."""
-    router = Blueprint("ticketboards", __name__, url_prefix="/ticketboards")
+    router = Blueprint("ticket-boards", __name__, url_prefix="/ticket-boards")
     router.route("", methods=["GET"])(list_ticket_boards)
     router.route("/team/<team_id>", methods=["GET"])(list_ticket_boards_for_team)
     router.route("/<board_id>", methods=["GET"])(get_ticket_board)
