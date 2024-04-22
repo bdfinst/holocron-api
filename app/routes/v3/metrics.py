@@ -59,7 +59,8 @@ def get_organization_metrics(org_id: str) -> Tuple[Any, int]:
     except SchemaCacheNotReady:
         return PROCCESSING_NOT_COMPLETED, 202
     result = {"result": metrics}
-    return jsonify(result), 200
+    response = jsonify(result)
+    return response, 200
 
 
 @requires_security([requires_admin, requires_vs_access])
@@ -110,7 +111,8 @@ def get_value_stream_metrics(value_stream_id: str) -> Tuple[Any, int]:
             if team_metrics["valueStreamId"] == database_id
         ]
         result = {"result": metrics}
-        return jsonify(result), 200
+        response = jsonify(result)
+        return response, 200
     return RESOURCE_NOT_FOUND, 404
 
 
@@ -156,7 +158,8 @@ def get_team_metrics(team_id: str) -> Tuple[Any, int]:
     if organization_data is not None:
         for team_metrics in organization_data:
             if team_metrics["id"] == database_id:
-                return jsonify(team_metrics), 200
+                response = jsonify(team_metrics)
+                return response, 200
     return RESOURCE_NOT_FOUND, 404
 
 

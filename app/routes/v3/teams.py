@@ -87,7 +87,7 @@ def list_teams() -> Tuple[Any, int]:
     result = {"result": teams}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
-    return jsonify(result), 200
+    return response, 200
 
 
 @requires_security([requires_admin, requires_vs_access])

@@ -57,7 +57,7 @@ def list_ticket_boards() -> Tuple[Any, int]:
     result = {"result": ticket_boards}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
-    return jsonify(result), 200
+    return response, 200
 
 
 @requires_security([requires_admin, requires_team_access])
