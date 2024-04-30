@@ -16,9 +16,9 @@ def test_get_limit_offset_page():
         {"input": {"per_page": 10}, "limit": 10, "offset": 0, "page": 1},
         {"input": {"page": 5}, "limit": 100, "offset": 400, "page": 5},
         {
-            "input": {"per_page": 1000, "page": 5},
-            "limit": 100,
-            "offset": 400,
+            "input": {"per_page": 10000, "page": 5},
+            "limit": 1000,
+            "offset": 4000,
             "page": 5,
         },
         {"input": {"per_page": -5}, "limit": 100, "offset": 0, "page": 1},
