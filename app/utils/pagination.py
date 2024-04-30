@@ -21,7 +21,7 @@ class PaginationInfo:
 
 def get_pagination_info(req_params: Dict[str, str], count: int) -> PaginationInfo:
     """Get the limit, offset, and page from the request parameters."""
-    limit = min(get_sanitized_id(req_params.get("per_page", "100")), 100)
+    limit = min(get_sanitized_id(req_params.get("per_page", "100")), 1000)
     if limit <= 0:
         limit = 100
     page = get_sanitized_id(req_params.get("page", "1"))
