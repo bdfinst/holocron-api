@@ -4,7 +4,7 @@ from typing import Any, Tuple
 
 from flask import Blueprint, jsonify
 
-from app.config import FEATURE_FLAGS
+from app.config import FEATURE_FLAGS, SSO_ENABLED
 
 
 def list_feature_flags() -> Tuple[Any, int]:
@@ -23,7 +23,7 @@ def list_feature_flags() -> Tuple[Any, int]:
                   feature_flag:
                     type: boolean
     """
-    return jsonify(FEATURE_FLAGS), 200
+    return jsonify({**FEATURE_FLAGS, "SSO_ENABLED": SSO_ENABLED}), 200
 
 
 def create_router() -> Blueprint:
