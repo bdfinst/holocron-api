@@ -1,11 +1,13 @@
 """FeatureFlags route tests."""
 
-from app.config import FEATURE_FLAGS
+from app.config import FEATURE_FLAGS, SSO_ENABLED
 
 
 def test_list_feature_flags(client, mock_request):
     """Test GET /api/v2/featureflags."""
-    expected = FEATURE_FLAGS
+    expected = {}
+    expected.update(FEATURE_FLAGS)
+    expected.update({"SSO_ENABLED": SSO_ENABLED})
 
     resp = client.get("/api/v2/featureflags")
 

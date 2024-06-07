@@ -2,7 +2,7 @@
 
 from marshmallow import fields, validate
 
-from app import config
+from app.config import FEATURE_FLAGS, SSO_ENABLED
 from app.utils.input_validation import input_name_validator
 
 from ._base import SchemaBase
@@ -21,7 +21,7 @@ class TeamHistoryV3Schema(SchemaBase):
 class TeamV3Schema(SchemaBase):
     """Team schema."""
 
-    if config.FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
+    if FEATURE_FLAGS["FEATURE_EXTERNAL_CONTRIBUTORS"]:
         members = fields.Nested(
             TeamMemberV3Schema, many=True, exclude=("team",), dump_only=True
         )
@@ -32,7 +32,10 @@ class TeamV3Schema(SchemaBase):
     value_stream_id = fields.Integer(required=True)
     name = fields.String(required=True, validate=input_name_validator)
     user_ids = fields.List(
-        fields.Integer(), required=True, validate=validate.Length(min=1), load_only=True
+        fields.Integer(),
+        required=SSO_ENABLED,
+        validate=validate.Length(min=1),
+        load_only=True,
     )
     team_size = fields.Integer(required=True, validate=validate.Range(min=1))
     collector_target_ids = fields.List(fields.Integer(), required=True, load_only=True)

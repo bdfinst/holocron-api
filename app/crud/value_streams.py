@@ -81,7 +81,8 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
         )
 
         new_value_stream.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
         ]
 
         try:
@@ -108,7 +109,8 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
 
         try:
             value_stream.users = [
-                users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+                users_crud.get_entity(session, user_id)
+                for user_id in json.get("user_ids", [])
             ]
             session.add(value_stream)
             session.commit()

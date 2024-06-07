@@ -63,7 +63,8 @@ class TeamsCRUD(BaseCRUD[Team]):
         )
 
         new_team.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
         ]
         new_team.collector_targets = [
             collector_targets_crud.get_entity(session, target_id)
@@ -94,7 +95,8 @@ class TeamsCRUD(BaseCRUD[Team]):
 
         try:
             team.users = [
-                users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+                users_crud.get_entity(session, user_id)
+                for user_id in json.get("user_ids", [])
             ]
             team.collector_targets = [
                 collector_targets_crud.get_entity(session, target_id)

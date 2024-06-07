@@ -92,7 +92,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         new_organization = Organization(name=json["name"])
 
         new_organization.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
         ]
 
         try:
@@ -116,7 +117,8 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         organization.name = json["name"]
 
         organization.users = [
-            users_crud.get_entity(session, user_id) for user_id in json["user_ids"]
+            users_crud.get_entity(session, user_id)
+            for user_id in json.get("user_ids", [])
         ]
 
         try:

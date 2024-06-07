@@ -191,7 +191,6 @@ def test_create_team_validation_error(
             },
             {
                 "name": [MISSING_DATA_MSG],
-                "userIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valueStreamId": [MISSING_DATA_MSG],
@@ -295,7 +294,6 @@ def test_update_team_validation_error(
             },
             {
                 "name": [MISSING_DATA_MSG],
-                "userIds": [MISSING_DATA_MSG],
                 "teamSize": [MISSING_DATA_MSG],
                 "extra": [UNKNOWN_FIELD_MSG],
                 "valueStreamId": [MISSING_DATA_MSG],
