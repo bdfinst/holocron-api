@@ -39,6 +39,27 @@ def mock_config_feature_team_views(monkeypatch):
     monkeypatch.setattr(auth, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
 
 
+def test_is_protected_path():
+    """Test is_protected_path function."""
+    cases = [
+        ("/api/v2", False),
+        ("/api/v2/", False),
+        ("/api/v3", False),
+        ("/api/v3/", False),
+        ("/api/flasgger_static/swagger-ui-bundle.js", False),
+        ("/api/flasgger_static/swagger-ui-standalone-preset.js", False),
+        ("/api/flasgger_static/lib/jquery.min.js", False),
+        ("/api/flasgger_static/favicon-32x32.png", False),
+        ("/apispec_v3.json", False),
+        ("/api/v3/anything", True),
+        ("/api/v3/anything?/api/v3", True),
+        ("/api/v3/apispec_v3.json", True),
+        ("/api/v3/flasgger_static", True),
+    ]
+    for case in cases:
+        assert auth.is_protected_path(case[0]) == case[1]
+
+
 def test_set_user(mock_request, monkeypatch):
     """Test set_user function."""
     monkeypatch.setattr(auth, "users_crud", crud)
