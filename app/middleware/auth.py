@@ -1,6 +1,7 @@
 """Authentication middleware."""
 
 import json
+import re
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
@@ -33,9 +34,25 @@ INVALID_PERMISSIONS = "Invalid permissions"
 FEATURE_NOT_PERMITTED = "Feature not yet permitted"
 
 
+def is_protected_path(path: str) -> bool:
+    """Check if path does not need authentication.
+
+    Paths that do not require authentication are only the documentation page
+    and the static resources associated with the documentation page.
+    """
+    unprotected_pattern = (
+        r"(^/api/v\d/?$)|(^/api/flasgger_static.*)|(^/apispec_v\d\.json$)"
+    )
+    if re.match(unprotected_pattern, path):
+        return False
+    return True
+
+
 def set_user() -> None:
     """Set current user as property of the request."""
     token = request.headers.get("Authorization", "").split(" ")[-1]
+    if not is_protected_path(request.path):
+        return
     decoded_token = jwt.decode(token, options={"verify_signature": False})
     with generate_session() as session:
         current_user = users_crud.upsert_sso_user(session, decoded_token)
