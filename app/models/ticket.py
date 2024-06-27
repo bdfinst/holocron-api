@@ -73,6 +73,7 @@ class StatusHistory(MetadataBase, ModelBase):
     __table_args__ = (UniqueConstraint("ticket_id", "date"),)
 
     date: Mapped[datetime]
+    assignee: Mapped[Optional[str]]
 
     status: Mapped[TicketStatus] = mapped_column(
         Enum(TicketStatus, create_constraint=True, name="ticketstatus")

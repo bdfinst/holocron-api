@@ -13,15 +13,22 @@ from app.models import (
 
 all_status_history_types = [
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=3), status=TicketStatus.TO_DO
+        ticket_id=1,
+        date=datetime(year=2000, month=1, day=3),
+        status=TicketStatus.TO_DO,
+        assignee="John Doe",
     ),
     StatusHistory(
-        ticket_id=1, date=datetime(year=2000, month=1, day=10), status=TicketStatus.DONE
+        ticket_id=1,
+        date=datetime(year=2000, month=1, day=10),
+        status=TicketStatus.DONE,
+        assignee="John Doe",
     ),
     StatusHistory(
         ticket_id=1,
         date=datetime(year=2000, month=1, day=7),
         status=TicketStatus.IN_PROGRESS,
+        assignee="Jane Doe",
     ),
 ]
 
@@ -30,11 +37,13 @@ in_progress_history_types = [
         ticket_id=2,
         date=datetime(year=2000, month=1, day=7) - timedelta(hours=1),
         status=TicketStatus.TO_DO,
+        assignee=None,
     ),
     StatusHistory(
         ticket_id=2,
         date=datetime(year=2000, month=1, day=7),
         status=TicketStatus.IN_PROGRESS,
+        assignee="Jane Doe",
     ),
 ]
 
