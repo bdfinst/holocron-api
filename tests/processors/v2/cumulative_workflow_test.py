@@ -35,11 +35,13 @@ def test_get_last_activity_date(monkeypatch):
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
                         status=TicketStatus.TO_DO,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
                         status=TicketStatus.IN_PROGRESS,
+                        assignee=None,
                     ),
                 ],
             ),
@@ -60,16 +62,19 @@ def test_get_last_activity_date(monkeypatch):
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
                         status=TicketStatus.TO_DO,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
                         status=TicketStatus.IN_PROGRESS,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=27),
                         status=TicketStatus.DONE,
+                        assignee=None,
                     ),
                 ],
             ),
@@ -91,21 +96,25 @@ def test_get_last_activity_date(monkeypatch):
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=24),
                         status=TicketStatus.TO_DO,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=25),
                         status=TicketStatus.IN_PROGRESS,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=26),
                         status=TicketStatus.DONE,
+                        assignee=None,
                     ),
                     StatusHistory(
                         ticket_id=1,
                         date=datetime(year=2000, month=1, day=26, hour=12),
                         status=TicketStatus.DONE,
+                        assignee=None,
                     ),
                 ],
             ),
@@ -142,11 +151,13 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=24),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # age of 3 business days in wip status
                     ],
                 )
@@ -176,16 +187,19 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=24),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # age of 3 business days for first week
                         # should be computed here (not counting weekends)
                     ],
@@ -215,31 +229,37 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=5),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=7),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # for week 2000-01-03 we should see this in backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=11),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # for week 2000-01-10 we should see this in wip
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # for week 2000-01-17 it should be in backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # age of 5 + 5 + 5 + 3 = 18 should be here
                         # for wip for this week (2000-01-24)
                     ],
@@ -274,32 +294,38 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=5),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=7),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # should be in backlog for week 2000-01-03
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=11),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # should be in wip for week 2000-01-10
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # age of 1 + 5 + 5 = 11 should be here for
                         # backlog for this week week 2000-01-17 backlog
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),  # nothing here, since it is a done status
                     ],
                 )
@@ -333,6 +359,7 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         )  # nothing here, since it is a done status
                     ],
                 )
@@ -359,17 +386,20 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=18),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # week 2000-01-17 should show in wip with
                         # age 1
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),  # should show nothing on week 4.
                     ],
                 ),
@@ -386,11 +416,13 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # backlog in 2000-01-03 and 2000-01-10
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # wip in 2000-01-17
                         # and 18 days of age for week
                         # 2000-01-24
@@ -409,6 +441,7 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # backlog: { 2000-01-24 : 2 } 2 days of age for week 2000-01-24
                     ],
                 ),
@@ -426,21 +459,25 @@ def test_cumulative_flow(monkeypatch):
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=3),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # backlog: { 2000-01-03: -1 }
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),  # wip : { 2000-01-10: -1 }, { 2000-01-17: -1 }
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),  # ignore this
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),  # this should be the age now { 2000-01-24 : 18 }
                     ],
                 ),
@@ -486,16 +523,19 @@ def test_get_hist_stat_at_date():
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),
                     ],
                 ),
@@ -521,16 +561,19 @@ def test_get_hist_stat_at_date():
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),
                     ],
                 ),
@@ -556,16 +599,19 @@ def test_get_hist_stat_at_date():
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.DONE,
+                            assignee=None,
                         ),
                     ],
                 ),
@@ -590,11 +636,13 @@ def test_get_hist_stat_at_date():
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                     ],
                 ),
@@ -619,21 +667,25 @@ def test_get_hist_stat_at_date():
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=1),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=19),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=25),
                             status=TicketStatus.TO_DO,
+                            assignee=None,
                         ),
                         StatusHistory(
                             ticket_id=1,
                             date=datetime(year=2000, month=1, day=27),
                             status=TicketStatus.IN_PROGRESS,
+                            assignee=None,
                         ),
                     ],
                 ),

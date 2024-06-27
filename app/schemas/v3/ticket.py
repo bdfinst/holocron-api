@@ -12,6 +12,7 @@ class StatusHistoryV3Schema(SchemaBase):
 
     status = fields.Enum(TicketStatus, by_value=True)
     date = fields.DateTime()
+    assignee = fields.String(allow_none=True)
     ticket_id = fields.Integer()
 
 
