@@ -21,7 +21,7 @@ APScheduler = "^3.10.0"
 
 [tool.poetry.dev-dependencies]
 black = "^24.0.0"
-mypy = "^1.000"
+mypy = "^1.0"
 isort = "^5.10.1"
 pydocstyle = "^6.1.1"
 pytest = "^8.0.0"
