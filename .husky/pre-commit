@@ -12,25 +12,26 @@ function validate {
 
 function run_linters {
   echo Running black...
-  poetry run black . --check
+  black . --check
   validate
   echo Running isort...
-  poetry run isort . --check
+  isort . --check
   validate
   echo Running pydocstyle...
-  poetry run pydocstyle .
+  pydocstyle .
   validate
   echo Running mypy...
-  poetry run mypy .
+  mypy .
   validate
   echo Running pylint...
-  poetry run pylint --reports=y --recursive=y --persistent=n --verbose .
+  pylint --reports=y --recursive=y --persistent=n --verbose .
   validate
 }
 
 function run_tests {
+  poetry shell
 	echo Running tests...
-	poetry run pytest --cov .
+	pytest --cov .
 	validate
 }
 
