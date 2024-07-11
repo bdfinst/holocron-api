@@ -1,14 +1,14 @@
 """FeatureFlags route tests."""
 
-from setuptools_scm import get_version
-
 from app.config import FEATURE_FLAGS, SSO_ENABLED
+from app.routes.v3 import system_config
 
 
-def test_get_system_config(client, mock_request):
+def test_get_system_config(client, mock_request, monkeypatch):
     """Test GET /api/v3/system-config."""
+    monkeypatch.setattr(system_config, "VERSION", "test")
     expected = {
-        "version": get_version(),
+        "version": "test",
         "featureFlags": FEATURE_FLAGS,
         "ssoEnabled": SSO_ENABLED,
     }
