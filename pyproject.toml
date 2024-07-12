@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "app"
-version = "0.1.0"
+version = "3.4.0"
 description = ""
 authors = ["Mark Howard <mark.howard.7@us.af.mil>", "Abhaya Shrestha <abhaya.shrestha@us.kbr.com>"]
 
@@ -64,10 +64,6 @@ disable = ["R0903", "R0801", "W1203"]
 max-line-length = 88
 good-names = ["id"]
 
-[tool.poetry-dynamic-versioning]
-enable = true
-pattern = "default-unprefixed"
-
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
