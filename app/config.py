@@ -2,12 +2,11 @@
 
 import logging
 import os
-
-from setuptools_scm import get_version
+from importlib.metadata import PackageNotFoundError, version
 
 try:
-    VERSION = get_version()
-except LookupError as err:
+    VERSION = version("app")
+except PackageNotFoundError as err:
     logging.error(str(err))
     VERSION = "0.0.0"
 
