@@ -7,13 +7,13 @@
     "test": "tests"
   },
   "scripts": {
-    "test:e2e-ci": "cypress run --browser chrome --config-file cypress/config/config.json",
+    "test:e2e-ci": "cypress run --browser chrome --config-file cypress/config/config.config.js",
     "prepare": "husky install",
-    "cypress:open": "cypress open --browser chrome --config-file cypress/config/config.json --config baseUrl=http://localhost",
-    "cypress:run": "cypress run --browser chrome --config-file cypress/config/config.json --config baseUrl=http://localhost"
+    "cypress:open": "cypress open --browser chrome --config-file cypress/config/config.config.js --config baseUrl=http://localhost",
+    "cypress:run": "cypress run --browser chrome --config-file cypress/config/config.config.js --config baseUrl=http://localhost"
   },
   "devDependencies": {
-    "cypress": "^9.7.0",
+    "cypress": "^13.13.1",
     "husky": "^8.0.1"
   },
   "repository": {
