@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "cypress": "^13.13.1",
-    "husky": "^8.0.1"
+    "husky": "^9.0.0"
   },
   "repository": {
     "type": "git",
