@@ -83,7 +83,7 @@ def list_teams() -> Tuple[Any, int]:
                 session, limit=page_info.limit, offset=page_info.offset
             )
         )
-        teams = [schema.dump(team) for team in raw_teams]
+        teams = schema.dump(raw_teams, many=True)
     result = {"result": teams}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -289,7 +289,7 @@ def list_team_views() -> Tuple[Any, int]:
         raw_teams = team_views_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )
-        teams = [schema_view.dump(team) for team in raw_teams]
+        teams = schema_view.dump(raw_teams, many=True)
     result = {"result": teams}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

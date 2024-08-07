@@ -61,9 +61,7 @@ def list_organizations() -> Tuple[Any, int]:
                 session, offset=page_info.offset, limit=page_info.limit
             )
         )
-        organizations = [
-            schema.dump(organization) for organization in raw_organizations
-        ]
+        organizations = schema.dump(raw_organizations, many=True)
     result = {"result": organizations}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

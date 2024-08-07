@@ -66,9 +66,7 @@ def list_value_streams() -> Tuple[Any, int]:
                 session, limit=page_info.limit, offset=page_info.offset
             )
         )
-        value_streams = [
-            schema.dump(value_stream) for value_stream in raw_value_streams
-        ]
+        value_streams = schema.dump(raw_value_streams, many=True)
     result = {"result": value_streams}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

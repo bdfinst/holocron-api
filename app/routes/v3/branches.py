@@ -66,7 +66,7 @@ def list_branches_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        branches = [schema.dump(branch) for branch in raw_branches]
+        branches = schema.dump(raw_branches, many=True)
     result = {"result": branches}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

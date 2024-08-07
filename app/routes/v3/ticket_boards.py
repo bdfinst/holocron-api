@@ -53,7 +53,7 @@ def list_ticket_boards() -> Tuple[Any, int]:
         raw_ticket_boards = ticket_boards_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )  # type: ignore
-        ticket_boards = [schema.dump(board) for board in raw_ticket_boards]
+        ticket_boards = schema.dump(raw_ticket_boards, many=True)
     result = {"result": ticket_boards}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -111,7 +111,7 @@ def list_ticket_boards_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        ticket_boards = [schema.dump(board) for board in raw_ticket_boards]
+        ticket_boards = schema.dump(raw_ticket_boards, many=True)
     result = {"result": ticket_boards}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

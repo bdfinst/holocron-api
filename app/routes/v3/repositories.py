@@ -53,7 +53,7 @@ def list_repositories() -> Tuple[Any, int]:
         raw_repositories = repositories_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )
-        repositories = [schema.dump(repository) for repository in raw_repositories]
+        repositories = schema.dump(raw_repositories, many=True)
     result = {"result": repositories}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -111,7 +111,7 @@ def list_repositories_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        repositories = [schema.dump(repository) for repository in raw_repositories]
+        repositories = schema.dump(raw_repositories, many=True)
     result = {"result": repositories}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

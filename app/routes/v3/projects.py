@@ -51,7 +51,7 @@ def list_projects() -> Tuple[Any, int]:
         raw_projects = projects_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )
-        projects = [schema.dump(project) for project in raw_projects]
+        projects = schema.dump(raw_projects, many=True)
     result = {"result": projects}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -109,7 +109,7 @@ def list_projects_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        projects = [schema.dump(project) for project in raw_projects]
+        projects = schema.dump(raw_projects, many=True)
     result = {"result": projects}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

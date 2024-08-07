@@ -54,7 +54,7 @@ def list_collectors() -> Tuple[Any, int]:
         raw_collectors = collectors_crud.get_entities_paginated(
             session, offset=page_info.offset, limit=page_info.limit
         )
-        collector_models = [schema.dump(collector) for collector in raw_collectors]
+        collector_models = schema.dump(raw_collectors, many=True)
     result = {"result": collector_models}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
