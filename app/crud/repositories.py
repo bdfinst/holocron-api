@@ -15,7 +15,7 @@ from .teams import teams_crud
 class RepositoriesCRUD(BaseCRUD[Repository]):
     """Base CRUD extension for Repository model."""
 
-    def get_count(self, session) -> int:
+    def get_count(self, session: Session) -> int:
         """Override get_count to only count repositories."""
         query = (
             # pylint: disable-next=E1102; false positive
@@ -40,7 +40,7 @@ class RepositoriesCRUD(BaseCRUD[Repository]):
 
         return query.scalar()
 
-    def get_entity(self, session, id_: int) -> Repository:
+    def get_entity(self, session: Session, id_: int) -> Repository:
         """Override get_entity to return only repository."""
         result = session.scalars(
             select(Repository)

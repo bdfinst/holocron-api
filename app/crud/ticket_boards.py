@@ -15,7 +15,7 @@ from .teams import teams_crud
 class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
     """Base CRUD extension for TicketBoard model."""
 
-    def get_count(self, session) -> int:
+    def get_count(self, session: Session) -> int:
         """Override get_count to only count ticket boards."""
         query = (
             # pylint: disable-next=E1102; false positive
@@ -40,7 +40,7 @@ class TicketBoardsCRUD(BaseCRUD[TicketBoard]):
 
         return query.scalar()
 
-    def get_entity(self, session, id_: int) -> TicketBoard:
+    def get_entity(self, session: Session, id_: int) -> TicketBoard:
         """Override get_entity to return only ticket board."""
         result = session.scalars(
             select(TicketBoard)
