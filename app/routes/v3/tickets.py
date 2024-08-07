@@ -66,7 +66,7 @@ def list_tickets_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        tickets = [schema.dump(ticket) for ticket in raw_tickets]
+        tickets = schema.dump(raw_tickets, many=True)
     result = {"result": tickets}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

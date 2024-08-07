@@ -66,7 +66,7 @@ def list_git_requests_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        git_requests = [schema.dump(commit) for commit in raw_git_requests]
+        git_requests = schema.dump(raw_git_requests, many=True)
     result = {"result": git_requests}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

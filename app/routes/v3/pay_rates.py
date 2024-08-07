@@ -53,7 +53,7 @@ def list_pay_rates() -> Tuple[Any, int]:
         raw_pay_rates = pay_rates_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )
-        pay_rates = [schema.dump(pay_rate) for pay_rate in raw_pay_rates]
+        pay_rates = schema.dump(raw_pay_rates, many=True)
     result = {"result": pay_rates}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -98,7 +98,7 @@ def upsert_pay_rates() -> Tuple[Any, int]:
         upserted_rates = iter(
             pay_rates_crud.upsert_entity(session, rate) for rate in rates
         )
-        result = {"result": [schema.dump(rate) for rate in upserted_rates]}
+        result = {"result": schema.dump(upserted_rates, many=True)}
     response = jsonify(result)
     return response, 201
 

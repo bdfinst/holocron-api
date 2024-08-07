@@ -66,7 +66,7 @@ def list_commits_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        commits = [schema.dump(commit) for commit in raw_commits]
+        commits = schema.dump(raw_commits, many=True)
     result = {"result": commits}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

@@ -51,7 +51,7 @@ def list_pipelines() -> Tuple[Any, int]:
         raw_pipelines = pipelines_crud.get_entities_paginated(
             session, offset=page_info.offset, limit=page_info.limit
         )
-        pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
+        pipelines = schema.dump(raw_pipelines, many=True)
     result = {"result": pipelines}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
@@ -109,7 +109,7 @@ def list_pipelines_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        pipelines = [schema.dump(pipeline) for pipeline in raw_pipelines]
+        pipelines = schema.dump(raw_pipelines, many=True)
     result = {"result": pipelines}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

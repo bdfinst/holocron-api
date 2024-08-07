@@ -42,7 +42,7 @@ def list_members() -> Tuple[Any, int]:
         raw_members = members_crud.get_entities_paginated(
             session, offset=page_info.offset, limit=page_info.limit
         )
-        members = [member_schema.dump(member) for member in raw_members]
+        members = member_schema.dump(raw_members, many=True)
     result = {"result": members}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

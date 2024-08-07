@@ -51,7 +51,7 @@ def list_users() -> Tuple[Any, int]:
         raw_users = users_crud.get_entities_paginated(
             session, limit=page_info.limit, offset=page_info.offset
         )
-        users = [schema.dump(user) for user in raw_users]
+        users = schema.dump(raw_users, many=True)
     result = {"result": users}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)

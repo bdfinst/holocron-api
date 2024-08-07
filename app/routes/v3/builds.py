@@ -66,7 +66,7 @@ def list_builds_for_team(team_id: str) -> Tuple[Any, int]:
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        build_models = [schema.dump(build) for build in raw_builds]
+        build_models = schema.dump(raw_builds, many=True)
     result = {"result": build_models}
     response = jsonify(result)
     response = set_pagination_header(response, request.url, page_info)
