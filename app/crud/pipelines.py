@@ -15,7 +15,7 @@ from .teams import teams_crud
 class PipelinesCRUD(BaseCRUD[Pipeline]):
     """Base CRUD extension for Pipeline model."""
 
-    def get_count(self, session) -> int:
+    def get_count(self, session: Session) -> int:
         """Override get_count to only count pipelines."""
         query = (
             # pylint: disable-next=E1102; false positive
@@ -40,7 +40,7 @@ class PipelinesCRUD(BaseCRUD[Pipeline]):
 
         return query.scalar()
 
-    def get_entity(self, session, id_: int) -> Pipeline:
+    def get_entity(self, session: Session, id_: int) -> Pipeline:
         """Override get_entity to return only pipeline."""
         result = session.scalars(
             select(Pipeline)

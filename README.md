@@ -40,7 +40,7 @@ In addition to the fields below, all models have the following fields.
 |team_size|integer|The number of members on the team, non-nullable.|
 |valuestream_id|integer|Foreign key to `valuestreams.id`, non-nullable.*|
 |is_workflow_only|boolean|Team only has workflow data.|
-|view_owner_id|integer|Self-referential foreign key. If not null, this team is a view and the reference is to the owning team.
+|view_owner_id|integer|Self-referential foreign key. If not null, this team is a view and the reference is to the owning team.*|
 
 \*Combined unique constraint.
 
@@ -68,6 +68,10 @@ In addition to the fields below, all models have the following fields.
 |-----|----|-----------|
 |name|string|Collector name, unique and non-nullable.|
 |target|string|The URL of the resource to collect from.|
+|collector_interval_seconds|integer|Optional field to set the corresponding collector configuration item.|
+|look_back_days|integer|Optional field to set the corresponding collector configuration item.|
+|collector_targets_intrvl_secs|integer|Optional field to set the corresponding collector configuration item.|
+|max_requests_per_minute|integer|Optional field to set the corresponding collector configuration item.|
 
 
 **collector_targets** - The top level objects that the collectors collect. Currently this includes repositories, pipelines, and ticket boards.
@@ -127,6 +131,7 @@ In addition to the fields below, all models have the following fields.
 |merged_at|datetime|When the request was merged.|
 |last_updated|datetime|When the request was last updated.|
 |url|string|The URL of the request, unique and non-nullable.|
+|author_username|string|The username of the individual who created the git request.|
 
 **builds** - Each run of a pipeline collected from a pipeline collector target.
 
@@ -159,7 +164,8 @@ In addition to the fields below, all models have the following fields.
 |-----|----|-----------|
 |ticket_id|integer|Foreign key to `tickets.id`, non-nullable.*|
 |date|datetime|When the status was changed.*|
-|status|enum|What the status was changed to. Possible values: `TO_DO`, `IN_PROGRESS`, `DONE`.|
+|status|enum|The current status, non-nullable. Possible values: `TO_DO`, `IN_PROGRESS`, `DONE`.|
+|assignee|string|The current assignee.|
 
 \*Combined unique constraint.
 
@@ -196,7 +202,7 @@ If using VS Code, you can set linting with the following (after doing the poetry
 - Enter interpreter path...
 - Paste in the value from earlier
 
-When running this project using the dev-environment repository, you can find the api at [localhost/api/v1](http://localhost/api/v1).
+When running this project using the dev-environment repository, you can find the api at [localhost/api/v2](http://localhost/api/v2).
 
 ### Using poetry
 
@@ -204,9 +210,9 @@ Poetry is a package manager that automatically creates a [python virtual environ
 
 For pipeline compatibility, we need to export our dependencies to a requirements.txt file. After any update to the dependencies in pyproject.toml and poetry.lock, run the following command `poetry export -o requirements.txt --without-hashes --with dev`.
 
-To add a dependency `poetry add <package_name>` or `poetry add -D <package_name>` for dev dependencies.
+To add a dependency `poetry add <package_name>` or `poetry add --group=dev <package_name>` for dev dependencies.
 
-To remove a dependency `poetry remove <package_name>` or `poetry remove -D <package_name>` for dev dependencies.
+To remove a dependency `poetry remove <package_name>` or `poetry remove --group=dev <package_name>` for dev dependencies.
 
 To update dependencies `poetry update`.
 
@@ -253,13 +259,12 @@ from .thread import Thread
 class Forum(CollectorTarget):
     """Model class."""
 
-    resource_id: Mapped[str]
     description: Mapped[Optional[str]]
 
     threads: Mapped[List["Thread"]] = relationship(default_factory=list)
 ```
 
-The `CollectorTarget` parent class applies several common fields that all these top level models utilize including inheriting the already discussed `MetadataBase` and `ModelBase`. We also establish the other side of the relationship established in `thread.py`.
+The `CollectorTarget` parent class applies several common fields that all these top level models utilize including inheriting the already discussed `MetadataBase` and `ModelBase`. We can add new fields if desired, like `description`. We also establish the other side of the relationship established in `thread.py`.
 
 
 Next we need to update the `Team` model in `team.py` to include a relationship to `Forum`.
@@ -310,71 +315,43 @@ Next, we need to create the schemas. Schemas are found under `app/schemas`. We w
 
 ```python
 """Schema for Thread model."""
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from app.models import Thread
+from marshmallow import fields
 
 from ._base import SchemaBase
 
 
-class ThreadSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ThreadSV3chema(SchemaBase):
     """Schema for Thread model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Thread
+    resource_id = fields.String()
 ```
 
-The `SchemaBase` parent class will set a few rules for the primary key and timestamp fields as well as convert snake_case to and from camelCase for proper naming conventions. The `SQLAlchemyAutoSchema` automatically applies the rest of the model fields to the schema.
+The `SchemaBase` parent class will set a few rules for the primary key and timestamp fields as well as convert snake_case to and from camelCase for proper naming conventions. Any other fields that should be included in the schema can be declared with `fields`. There are many examples in the application.
 
 Now we need a schema for `forum` so create `forum.py`.
 
 ```python
 """Schema for Forum model."""
-from typing import Tuple
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
-from app.models import Forum
-
-from ._base import SchemaBase
-from .collector_target_config import ConfigItemSchema
+from .collector_target import CollectorTargetV3Schema
 
 
-class ForumSchema(SQLAlchemyAutoSchema, SchemaBase):
+class ForumV3Schema(CollectorTargetV3Schema):
     """Schema for Forum model."""
 
-    class Meta:
-        """Configuration."""
-
-        model = Forum
-        include_relationships = True
-        exclude: Tuple[str, ...] = ("threads",)
-
-    team_id = auto_field()
-    config = fields.Nested(ConfigItemSchema)
+    description = fields.String(allow_none=True)
 ```
 
-Here we create two different schemas for our model. This is so we can have a version that doesn't also fetch all of the threads to allow for a simpler response. Our second schema will inherit from the first and use `fields.Nested` to define how our `threads` should use the `ThreadSchema`.
-
-And then a couple of small updates to `ExistingTeamSchema` in `team.py`.
-
-```python
-    class ExistingTeamSchema(TeamSchemaBase):
-        """Existing team schema."""
-
-    ...
-
-    exclude = (..., "forums")
-```
+This schema isn't much different, we just utilize the `CollectorTargetV3Schema` for the common fields.
 
 Now just add the new schemas to `__init__.py` for easy imports.
 
 ```python
-from .forum import ForumSchema
-from .thread import ThreadSchema
+from .forum import ForumV3Schema
+from .thread import ThreadV3Schema
 ```
 
 ### CRUD functions
@@ -385,7 +362,7 @@ Now that we have a schema, we can make our CRUD logic. The CRUD files are found 
 """BaseCRUD extension and instance for Forum model."""
 from typing import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.exceptions import HolocronIntegrityError
@@ -397,7 +374,32 @@ from .teams import teams_crud
 class ForumsCRUD(BaseCRUD[Forum]):
     """Base CRUD extension for Forum model."""
 
-    def get_entity(self, session, id_: int) -> Forum:
+    def get_count(self, session: Session) -> int:
+        """Override get_count to only count forums."""
+        query = (
+            # pylint: disable-next=E1102; false positive
+            session.query(func.count())
+            .select_from(Forum)
+            .where(Forum.type == CollectorTargetType.DISCUSSION)
+        )
+        return query.scalar()
+
+    def get_count_for_team(self, session: Session, team_id: int) -> int:
+        """Override get_count_for_team to only count forums."""
+        team = teams_crud.get_entity(session, team_id)
+        query = (
+            session.query(
+                # pylint: disable-next=E1102; false positive
+                func.count()
+            )
+            .select_from(Forum)
+            .where(Forum.team_id == team.id)
+            .where(Forum.type == CollectorTargetType.DISCUSSION)
+        )
+
+        return query.scalar()
+
+    def get_entity(self, session: Session, id_: int) -> Forum:
         """Override get_entity to return only forum."""
         result = session.scalars(
             select(Forum)
@@ -410,27 +412,36 @@ class ForumsCRUD(BaseCRUD[Forum]):
             )
         return result
 
-    def get_entities(self, session: Session) -> Sequence[Forum]:
+    def get_entities(
+        self, session: Session, offset=0, limit=100
+    ) -> Sequence[Forum]:
         """Override get_entities to return only forums."""
         return session.scalars(
-            select(Forum).where(Forum.type == CollectorTargetType.DISCUSSION)
+            select(Forum)
+            .where(Forum.type == CollectorTargetType.DISCUSSION)
+            .offset(offset)
+            .limit(limit)
         ).all()
     
     @staticmethod
-    def get_entities_for_team(session: Session, team_id: int) -> Sequence[Forum]:
+    def get_entities_for_team(
+        session: Session, team_id: int, offset=0, limit=100
+    ) -> Sequence[Forum]:
         """Get all forums for a given team."""
         team = teams_crud.get_entity(team_id)
         return session.scalars(
             select(Forum)
             .where(Forum.team_id == team.id)
             .where(Forum.type == CollectorTargetType.DISCUSSION)
+            .offset(offset)
+            .limit(limit)
         ).all()
 
 
 forums_crud = ForumsCRUD(Forum)
 ```
 
-The `BaseCRUD` parent class defines several basic CRUD methods for our model. Here we override `get_entity` and `get_entities` because otherwise it can't differentiate between the different types of collector targets, so we tell it to only grab those with the proper type. We also define a similar method for getting all entities for a given `team_id`. Finally, we instantiate our class.
+The `BaseCRUD` parent class defines several basic CRUD methods for our model. Here we override a few methods because otherwise it can't differentiate between the different types of collector targets, so we tell it to only grab those with the proper type. We also define a similar method for getting all entities for a given `team_id`. Finally, we instantiate our class.
 
 Next, let's make `threads.py`.
 
@@ -467,38 +478,53 @@ Let's create `forums.py`.
 """Forum routes."""
 from typing import Any, Tuple
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from app.crud import forums_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas import ForumSchema
+from app.schemas.v3 import ForumV3Schema
 from app.security import get_sanitized_id
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = ForumSchema()
+schema = ForumV3Schema()
 
 
 def list_forums() -> Tuple[Any, int]:
     """Get forums."""
     with generate_session() as session:
-        raw_forums = forums_crud.get_entities(session)
-        forums = [schema.dump(forum) for forum in raw_forums]
+        page_info = get_pagination_info(
+            request.args, forums_crud.get_count(session)
+        )
+        raw_forums = forums_crud.get_entities(
+            session, limit=page_info.limit, offset=page_info.offset
+        )
+        forums = schema.dump(raw_forums, many=True)
     result = {"result": forums}
-    return jsonify(result), 200
+    response = jsonify(result)
+    response = set_pagination_header(response, request.url, page_info)
+    return response, 200
 
 
 @requires_security([requires_admin, requires_team_access])
 def list_forums_for_team(team_id: str) -> Tuple[Any, int]:
     """Get forums for a given team id."""
+    db_id = get_sanitized_id(team_id)
     with generate_session() as session:
         try:
-            raw_forums = forums_crud.get_entities_for_team(session,\
-                get_sanitized_id(team_id))
+            page_info = get_pagination_info(
+                request.args, forums_crud.get_count_for_team(session, db_id)
+            )
+            raw_forums = forums_crud.get_entities_for_team(
+                session, db_id, limit=page_info.limit, offset=page_info.offset
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        forums = [schema.dump(forum) for forum in raw_forums]
+        forums = schema.dump(raw_forums, many=True)
     result = {"result": forums}
+    response = jsonify(result)
+    response = set_pagination_header(response, request.url, page_info)
     return jsonify(result), 200
 
 
@@ -506,8 +532,9 @@ def get_forum(forum_id: str) -> Tuple[Any, int]:
     """Get forum by id."""
     with generate_session() as session:
         try:
-            raw_forum = forums_crud.get_entity(session,\
-                get_sanitized_id(repo_id))
+            raw_forum = forums_crud.get_entity(
+                session, get_sanitized_id(repo_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_forum)
@@ -519,41 +546,49 @@ def create_router() -> Blueprint:
     router = Blueprint("forums", __name__, url_prefix="/forums")
     router.route("", methods=["GET"])(list_forums)
     router.route("/team/<team_id>", methods=["GET"])(list_forums_for_team)
-    router.route("/<forum_id>", methods=["GET"])(get_project)
+    router.route("/<forum_id>", methods=["GET"])(get_forum)
     return router
 ```
 
-Here we created our a router and instantiated our schema class before defining our endpoints as functions. In each endpoint we connect to the database and run the corresponding CRUD operation as well as the schema dump. We include some error handling to return 404s when appropriate, otherwise we return with a 200 code.
+Here we created our a router and instantiated our schema class before defining our endpoints as functions. In each endpoint we connect to the database and run the corresponding CRUD operation as well as the schema dump and some utility functions to handle pagination information. We include some error handling to return 404s when appropriate, otherwise we return with a 200 code.
 
 Now we can make the endpoints for the `thread` model with `threads.py`.
 
 ```python
 from typing import Any, Tuple
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from app.crud import threads_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
 from app.middleware import requires_admin, requires_security, requires_team_access
-from app.schemas import ThreadSchema
+from app.schemas import ThreadV3Schema
 from app.security import get_sanitized_id
+from app.utils.pagination import get_pagination_info, set_pagination_header
 
-schema = ThreadSchema()
+schema = ThreadV3Schema()
 
 
 @requires_security([requires_admin, requires_team_access])
 def list_threads_for_team(team_id: str):
     """Get threads for a given team id."""
+    db_id = get_sanitized_id(team_id)
     with generate_session() as session:
         try:
-            raw_threads = threads_crud.get_entities_for_team(session,\
-                get_sanitized_id(team_id))
+            page_info = get_pagination_info(
+                request.args, threads_crud.get_count_for_team(session, db_id)
+            )
+            raw_threads = threads_crud.get_entities_for_team(
+                session, db_id, offset=page_info.offset, limit=page_info.limit
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
-        threads = [schema.dump(thread) for thread in raw_threads]
+        threads = schema.dump(raw_threads, many=True)
     result = {"result": threads}
-    return jsonify(result), 200
+    response = jsonify(result)
+    response = set_pagination_header(response, request.url, page_info)
+    return response, 200
 
 
 @requires_security([requires_admin])
@@ -561,8 +596,9 @@ def get_thread(thread_id: str):
     """Get thread by id."""
     with generate_session() as session:
         try:
-            raw_thread = threads_crud.get_entity(session,\
-                get_sanitized_id(thread_id))
+            raw_thread = threads_crud.get_entity(
+                session, get_sanitized_id(thread_id)
+            )
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_thread)
@@ -602,6 +638,19 @@ def list_forums():
     ---
     get:
       description: Get forums
+      parameters:
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of items to return
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: The page of the data set to retrieve
       responses:
         200:
           description: Get forums
@@ -612,7 +661,7 @@ def list_forums():
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Forum'
+                      $ref: '#/components/schemas/ForumV3'
     """
     ...
 
@@ -630,6 +679,18 @@ def list_forums_for_team(team_id: str):
             type: integer
           required: true
           description: ID of the team to get forums for
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of items to return
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: The page of the data set to retrieve
       responses:
         200:
           description: Get forums belonging to a team
@@ -640,9 +701,9 @@ def list_forums_for_team(team_id: str):
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Forum'
+                      $ref: '#/components/schemas/ForumV3'
         404:
-          description: Team not found
+          description: Team or team view not found
     """
     ...
 
@@ -665,7 +726,7 @@ def get_forum(forum_id: str):
           description: Get single forum by id
           content:
             application/json:
-              schema: ForumSchema
+              schema: ForumV3Schema
         404:
           description: Forum not found
     """
@@ -684,23 +745,74 @@ So we will start with creating tests for our CRUD operations. We only need tests
 
 ```python
 """Forums CRUD tests."""
-from pytest import fixture
+from unittest.mock import MagicMock
+
+from pytest import fixture, raises
 
 from app.crud import forums, forums_crud
-from tests.mocks import mock_select
+from app.exceptions import HolocronIntegrityError
+from tests.mocks import mock_func, mock_select
 
 
 @fixture
 def mock_sqlalchemy(monkeypatch):
     """Patch sqlalchemy."""
     monkeypatch.setattr(forums, "select", mock_select)
+    monkeypatch.setattr(forums, "func", mock_func)
+
+
+def test_get_count(mock_sqlalchemy, mock_session):
+    """Test get_count method."""
+    expected = (
+        "SELECT COUNT(*) FROM collector_targets "
+        + "WHERE collector_targets.type = :type_1"
+    )
+    result = forums_crud.get_count(mock_session)
+
+    assert result.statement == expected
+
+
+def test_get_count_for_team(mock_sqlalchemy, mock_session):
+    """Test get_count_for_team method."""
+    expected = (
+        "SELECT COUNT(*) FROM collector_targets "
+        + "WHERE collector_targets.team_id = :team_id_1 "
+        + "WHERE collector_targets.type = :type_1"
+    )
+    result = forums_crud.get_count_for_team(mock_session, 1)
+
+    assert result.statement == expected
+
+
+def test_get_entity(mock_sqlalchemy, mock_session):
+    """Test get_entity method."""
+    expected = (
+        "SELECT * FROM collector_targets "
+        + "WHERE collector_targets.type = :type_1 "
+        + "WHERE collector_targets.id = :id_1"
+    )
+    result = forums_crud.get_entity(mock_session, 1)
+
+    assert result.statement == expected
+
+
+def test_get_entity_invalid_repository(mock_session):
+    """Test get_entity method 404."""
+    mock_session.scalars = MagicMock(
+        return_value=MagicMock(first=lambda *_, **__: None)
+    )
+
+    with raises(HolocronIntegrityError) as e:
+        forums_crud.get_entity(mock_session, 1)
+    assert "Invalid id" in str(e.value)
 
 
 def test_get_entities(mock_sqlalchemy, mock_session):
     """Test get_entities method."""
     expected = (
         "SELECT * FROM collector_targets "
-        + "WHERE collector_targets.type = :type_1"
+        + "WHERE collector_targets.type = :type_1 "
+        + "OFFSET 0 LIMIT 100"
     )
 
     result = forums_crud.get_entities(mock_session)
@@ -713,7 +825,8 @@ def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     expected = (
       "SELECT * FROM collector_targets "
       + "WHERE collector_targets.team_id = :team_id_1 "
-      + "WHERE collector_targets.type = :type_1"
+      + "WHERE collector_targets.type = :type_1 "
+      + "OFFSET 0 LIMIT 100"
     )
 
     result = forums_crud.get_entities_for_team(mock_session, 1)
@@ -721,7 +834,7 @@ def test_get_entities_for_team(mock_sqlalchemy, mock_session):
     assert result[0].statement == expected
 ```
 
-Here we use [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html). We define a new fixture to mock our sqlalchemy `select` function using a mock defined under `tests/mocks/database.py`. The mock is set using a built-in fixture called `monkeypatch`. Our later test functions then call this new fixture as well as custom fixture defined in `tests/conftest.py`. Using these, we can test that the generated SQL statement for the method is what we would expect.
+Here we use [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html). We define a new fixture to mock our sqlalchemy `select` and `func` functions using mocks defined under `tests/mocks/database.py`. These mocks are set using a built-in fixture called `monkeypatch`. Our later test functions then call this new fixture as well as custom fixture defined in `tests/conftest.py`. Using these, we can test that the generated SQL statement for the method is what we would expect.
 
 Next we need to test our endpoints. Let's create `tests/routes/forums.py`.
 
@@ -729,6 +842,7 @@ Next we need to test our endpoints. Let's create `tests/routes/forums.py`.
 """Forum route tests."""
 from pytest import fixture
 
+from app.middleware import auth
 from app.routes import forums
 from tests.mocks import crud
 
@@ -739,57 +853,64 @@ def mock_crud(monkeypatch):
     monkeypatch.setattr(forums, "forums_crud", crud)
 
 
+@fixture
+def mock_admin(monkeypatch, mock_request):
+    """Mock an admin user."""
+    monkeypatch.setattr(auth, "SSO_ENABLED", True)
+    setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
+
+
 def test_list_forums(client, mock_crud):
-    """Test GET /api/v1/forums endpoint."""
+    """Test GET /api/v3/forums endpoint."""
     expected = {"result": []}
 
-    resp = client.get("/api/v1/forums")
+    resp = client.get("/api/v3/forums")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_list_forums_for_team(client, mock_crud):
-    """Test GET /api/v1/forums/team/:id endpoint."""
+    """Test GET /api/v3/forums/team/:id endpoint."""
     expected = {"result": []}
 
-    resp = client.get("/api/v1/forums/team/1")
+    resp = client.get("/api/v3/forums/team/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_list_forums_for_team_404(client, mock_crud):
-    """Test GET /api/v1/forums/team/:id endpoint."""
+    """Test GET /api/v3/forums/team/:id endpoint."""
     expected = "Resource not found"
 
-    resp = client.get("/api/v1/forums/team/-1")
+    resp = client.get("/api/v3/forums/team/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
 
 
 def test_get_forum(client, mock_crud):
-    """Test GET /api/v1/forums/:id endpoint."""
+    """Test GET /api/v3/forums/:id endpoint."""
     expected = {"id": 1}
 
-    resp = client.get("/api/v1/forums/1")
+    resp = client.get("/api/v3/forums/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
 
 
 def test_get_forum_404(client, mock_crud):
-    """Test GET /api/v1/forums/:id endpoint."""
+    """Test GET /api/v3/forums/:id endpoint."""
     expected = "Resource not found"
 
-    resp = client.get("/api/v1/forums/-1")
+    resp = client.get("/api/v3/forums/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
 ```
 
-Here we define another fixture to mock our crud object and use another custom fixture from `tests/conftest.py` to supply our test client object.
+Here we define another fixture to mock our crud object, another to mock our user, and use another custom fixture from `tests/conftest.py` to supply our test client object.
 
 For brevity, the tests for `threads.py` routes won't be included, but of course they should also be created.
 
