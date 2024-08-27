@@ -58,3 +58,5 @@ FEATURE_FLAGS = {
         "FEATURE_API_V3",
     )
 }
+
+FEATURE_FLAGS["FEATURE_API_V3"] = True
