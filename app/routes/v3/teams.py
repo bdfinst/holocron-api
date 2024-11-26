@@ -6,7 +6,6 @@ from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import Session
 
-from app.config import FEATURE_FLAGS
 from app.crud import (
     collector_targets_crud,
     team_history_crud,
@@ -74,14 +73,8 @@ def list_teams() -> Tuple[Any, int]:
     """
     with generate_session() as session:
         page_info = get_pagination_info(request.args, teams_crud.get_count(session))
-        raw_teams = (
-            teams_crud.get_entities_without_team_views_paginated(
-                session, limit=page_info.limit, offset=page_info.offset
-            )
-            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else teams_crud.get_entities_paginated(
-                session, limit=page_info.limit, offset=page_info.offset
-            )
+        raw_teams = teams_crud.get_entities_without_team_views_paginated(
+            session, limit=page_info.limit, offset=page_info.offset
         )
         teams = schema.dump(raw_teams, many=True)
     result = {"result": teams}
@@ -159,10 +152,8 @@ def get_team(team_id: str) -> Tuple[Any, int]:
     """
     with generate_session() as session:
         try:
-            raw_team = (
-                teams_crud.get_entity_no_team_view(session, get_sanitized_id(team_id))
-                if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-                else teams_crud.get_entity(session, get_sanitized_id(team_id))
+            raw_team = teams_crud.get_entity_no_team_view(
+                session, get_sanitized_id(team_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404
@@ -446,17 +437,16 @@ def create_router() -> Blueprint:
     """Router factory."""
     team_id_route = "/<team_id>"
     router = Blueprint("teams", __name__, url_prefix="/teams")
+    team_view_id_route = "/views/<team_view_id>"
     router.route("", methods=["GET"])(list_teams)
     router.route("", methods=["POST"])(create_team)
     router.route(team_id_route, methods=["GET"])(get_team)
     router.route(team_id_route, methods=["PUT"])(update_team)
     router.route(team_id_route, methods=["DELETE"])(delete_team)
 
-    if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]:
-        team_view_id_route = "/views/<team_view_id>"
-        router.route("/views", methods=["GET"])(list_team_views)
-        router.route("/views", methods=["POST"])(create_team_view)
-        router.route(team_view_id_route, methods=["GET"])(get_team_view)
-        router.route(team_view_id_route, methods=["PUT"])(update_team_view)
-        router.route(team_view_id_route, methods=["DELETE"])(delete_team_view)
+    router.route("/views", methods=["GET"])(list_team_views)
+    router.route("/views", methods=["POST"])(create_team_view)
+    router.route(team_view_id_route, methods=["GET"])(get_team_view)
+    router.route(team_view_id_route, methods=["PUT"])(update_team_view)
+    router.route(team_view_id_route, methods=["DELETE"])(delete_team_view)
     return router

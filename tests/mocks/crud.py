@@ -49,6 +49,12 @@ class MockCRUD:
             raise HolocronIntegrityError("err", "err")
         return {"id": id}
 
+    def get_entity_no_team_view(self, session, id):
+        """Mock get_entity_no_team_view method."""
+        if id == -1:
+            raise HolocronIntegrityError("err", "err")
+        return {"id": id}
+
     def create_entity(self, session, json):
         """Mock create_entity method."""
         if (err := json.get("name")) == "error":

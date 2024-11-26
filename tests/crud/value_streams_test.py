@@ -19,55 +19,43 @@ def mock_value_streams_crud(monkeypatch):
     monkeypatch.setattr(
         value_streams_crud,
         "get_entity",
-        MagicMock(
-            return_value=create_value_stream(teams=[create_team(), create_team_view()])
-        ),
+        MagicMock(return_value=create_value_stream(teams=[create_team()])),
     )
     monkeypatch.setattr(
         value_streams_crud,
         "get_entities",
-        MagicMock(
-            return_value=[
-                create_value_stream(teams=[create_team(), create_team_view()])
-            ]
-        ),
+        MagicMock(return_value=[create_value_stream(teams=[create_team()])]),
     )
     monkeypatch.setattr(
         value_streams_crud,
         "get_entities_paginated",
-        MagicMock(
-            return_value=[
-                create_value_stream(teams=[create_team(), create_team_view()])
-            ]
-        ),
+        MagicMock(return_value=[create_value_stream(teams=[create_team()])]),
     )
 
 
-def test_get_entity_without_team_views(mock_session, mock_value_streams_crud):
-    """Test get_entity_without_team_views method."""
+def test_get_entity(mock_session, mock_value_streams_crud):
+    """Test get_entity method where view_owner_id is set to None."""
     expected = create_value_stream(teams=[create_team()])
 
-    result = value_streams_crud.get_entity_without_team_views(mock_session, 1)
+    result = value_streams_crud.get_entity(mock_session, 1)
 
     assert result == expected
 
 
-def test_get_entities_without_team_views(mock_session, mock_value_streams_crud):
-    """Test get_entities_without_team_views method."""
+def test_get_entities(mock_session, mock_value_streams_crud):
+    """Test get_entities method where view_owner_id is set to None."""
     expected = [create_value_stream(teams=[create_team()])]
 
-    result = value_streams_crud.get_entities_without_team_views(mock_session)
+    result = value_streams_crud.get_entities(mock_session)
 
     assert expected == result
 
 
-def test_get_entities_without_team_views_paginated(
-    mock_session, mock_value_streams_crud
-):
-    """Test get_entities_without_team_views_paginated method."""
+def test_get_entities_paginated(mock_session, mock_value_streams_crud):
+    """Test get_entities_paginated method where view_owner_id is set to None."""
     expected = [create_value_stream(teams=[create_team()])]
 
-    result = value_streams_crud.get_entities_without_team_views_paginated(mock_session)
+    result = value_streams_crud.get_entities_paginated(mock_session)
 
     assert expected == result
 
@@ -133,7 +121,7 @@ def test_update_entity(mock_session, mock_value_streams_crud):
         name=json["name"],
         organization_id=json["organization_id"],
         users=[],
-        teams=[create_team(), create_team_view()],
+        teams=[create_team()],
     )
     expected_return = create_value_stream(
         name=json["name"],

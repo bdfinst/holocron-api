@@ -33,12 +33,6 @@ def mock_config(monkeypatch):
     monkeypatch.setattr(auth, "config", config)
 
 
-@fixture
-def mock_config_feature_team_views(monkeypatch):
-    """Mock configuration feature flag FEATURE_TEAM_VIEWS."""
-    monkeypatch.setattr(auth, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
-
-
 def test_is_protected_path():
     """Test is_protected_path function."""
     cases = [
@@ -391,26 +385,7 @@ def test_requires_team_access_403(mock_request, monkeypatch):
     assert result == ("Invalid permissions", 403)
 
 
-def test_requires_team_access_update_delete_team_feature_team_views(
-    mock_request, mock_config_feature_team_views, monkeypatch
-):
-    """Test requires team access with update/delete team with feature flag on."""
-    setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
-    team_mock = MagicMock(return_value=create_team())
-    monkeypatch.setattr(
-        teams_crud,
-        "get_entity",
-        team_mock,
-    )
-    result = requires_security([requires_team_access])(wrapped_test_func)(team_id=1)
-
-    assert second_argument(team_mock) == 1
-    assert result == "success"
-
-
-def test_requires_team_access_update_or_delete_team_view(
-    mock_request, mock_config_feature_team_views, monkeypatch
-):
+def test_requires_team_access_update_or_delete_team_view(mock_request, monkeypatch):
     """Test requires team access with update/delete team view."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
 
@@ -424,9 +399,7 @@ def test_requires_team_access_update_or_delete_team_view(
     assert result == "success"
 
 
-def test_requires_team_access_create_team_view(
-    mock_request, mock_config_feature_team_views, monkeypatch
-):
+def test_requires_team_access_create_team_view(mock_request, monkeypatch):
     """Test requires team access with create team view."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     mock_request.json = {"viewOwnerId": "1"}
@@ -436,9 +409,7 @@ def test_requires_team_access_create_team_view(
     assert result == "success"
 
 
-def test_requires_team_access_update_delete_team_view_403(
-    mock_request, mock_config_feature_team_views, monkeypatch
-):
+def test_requires_team_access_update_delete_team_view_403(mock_request, monkeypatch):
     """Test requires team access update/delete team view 403."""
     setattr(mock_request, "user", {"isAdmin": False, "id": 1, "username": "t"})
     mock_request.json = {"viewOwnerId": "1"}

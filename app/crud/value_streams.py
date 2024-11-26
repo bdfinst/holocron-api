@@ -16,9 +16,9 @@ from .users import users_crud
 class ValueStreamsCRUD(BaseCRUD[ValueStream]):
     """Base CRUD extension for ValueStream model."""
 
-    def get_entity_without_team_views(self, session: Session, id_: int) -> ValueStream:
+    def get_entity(self, session: Session, id_: int) -> ValueStream:
         """Get value stream by id without team views."""
-        value_stream: ValueStream = self.get_entity(session, id_)
+        value_stream: ValueStream = super().get_entity(session, id_)
         result = ValueStream(
             name=value_stream.name,
             organization_id=value_stream.organization_id,
@@ -28,11 +28,9 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
         result.id = value_stream.id
         return result
 
-    def get_entities_without_team_views(
-        self, session: Session
-    ) -> Sequence[ValueStream]:
+    def get_entities(self, session: Session) -> Sequence[ValueStream]:
         """Get all value streams without team views."""
-        value_streams: Sequence[ValueStream] = self.get_entities(session)
+        value_streams: Sequence[ValueStream] = super().get_entities(session)
         result = []
         for value_stream in value_streams:
             new_vs = ValueStream(
@@ -49,11 +47,11 @@ class ValueStreamsCRUD(BaseCRUD[ValueStream]):
             result.append(new_vs)
         return result
 
-    def get_entities_without_team_views_paginated(
+    def get_entities_paginated(
         self, session: Session, offset=0, limit=100
     ) -> Sequence[ValueStream]:
         """Get paginated value streams without team views."""
-        value_streams: Sequence[ValueStream] = self.get_entities_paginated(
+        value_streams: Sequence[ValueStream] = super().get_entities_paginated(
             session, offset=offset, limit=limit
         )
         result = []
