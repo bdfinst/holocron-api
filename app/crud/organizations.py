@@ -30,9 +30,9 @@ def get_value_stream_without_team_views(value_stream: ValueStream) -> ValueStrea
 class OrganizationsCRUD(BaseCRUD[Organization]):
     """Base CRUD extension for Organization model."""
 
-    def get_entity_without_team_views(self, session: Session, id_: int) -> Organization:
+    def get_entity(self, session: Session, id_: int) -> Organization:
         """Get organization by id without team views."""
-        org: Organization = self.get_entity(session, id_)
+        org: Organization = super().get_entity(session, id_)
 
         result = Organization(
             name=org.name,
@@ -44,11 +44,9 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
         result.id = org.id
         return result
 
-    def get_entities_without_team_views(
-        self, session: Session
-    ) -> Sequence[Organization]:
+    def get_entities(self, session: Session) -> Sequence[Organization]:
         """Get all organizations without team views."""
-        organizations: Sequence[Organization] = self.get_entities(session)
+        organizations: Sequence[Organization] = super().get_entities(session)
         result = []
         for org in organizations:
             new_org = Organization(
@@ -64,11 +62,11 @@ class OrganizationsCRUD(BaseCRUD[Organization]):
             result.append(new_org)
         return result
 
-    def get_entities_without_team_views_paginated(
+    def get_entities_paginated(
         self, session: Session, offset=0, limit=100
     ) -> Sequence[Organization]:
         """Get paginated organizations without team views."""
-        organizations: Sequence[Organization] = self.get_entities_paginated(
+        organizations: Sequence[Organization] = super().get_entities_paginated(
             session, offset=offset, limit=limit
         )
         result = []

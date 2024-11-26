@@ -5,7 +5,6 @@ from typing import Any, Mapping, Tuple, cast
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.config import FEATURE_FLAGS
 from app.crud import value_streams_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
@@ -57,14 +56,8 @@ def list_value_streams() -> Tuple[Any, int]:
         page_info = get_pagination_info(
             request.args, value_streams_crud.get_count(session)
         )
-        raw_value_streams = (
-            value_streams_crud.get_entities_without_team_views_paginated(
-                session, limit=page_info.limit, offset=page_info.offset
-            )
-            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else value_streams_crud.get_entities_paginated(
-                session, limit=page_info.limit, offset=page_info.offset
-            )
+        raw_value_streams = value_streams_crud.get_entities_paginated(
+            session, limit=page_info.limit, offset=page_info.offset
         )
         value_streams = schema.dump(raw_value_streams, many=True)
     result = {"result": value_streams}
@@ -135,14 +128,8 @@ def get_value_stream(value_stream_id: str) -> Tuple[Any, int]:
     """
     with generate_session() as session:
         try:
-            raw_value_stream = (
-                value_streams_crud.get_entity_without_team_views(
-                    session, get_sanitized_id(value_stream_id)
-                )
-                if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-                else value_streams_crud.get_entity(
-                    session, get_sanitized_id(value_stream_id)
-                )
+            raw_value_stream = value_streams_crud.get_entity(
+                session, get_sanitized_id(value_stream_id)
             )
         except HolocronIntegrityError:
             return "Resource not found", 404

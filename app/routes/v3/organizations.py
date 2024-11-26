@@ -5,7 +5,6 @@ from typing import Any, Mapping, Tuple, cast
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.config import FEATURE_FLAGS
 from app.crud import organizations_crud
 from app.database import generate_session
 from app.exceptions import HolocronIntegrityError
@@ -52,14 +51,8 @@ def list_organizations() -> Tuple[Any, int]:
         page_info = get_pagination_info(
             request.args, organizations_crud.get_count(session)
         )
-        raw_organizations = (
-            organizations_crud.get_entities_without_team_views_paginated(
-                session, offset=page_info.offset, limit=page_info.limit
-            )
-            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else organizations_crud.get_entities_paginated(
-                session, offset=page_info.offset, limit=page_info.limit
-            )
+        raw_organizations = organizations_crud.get_entities_paginated(
+            session, offset=page_info.offset, limit=page_info.limit
         )
         organizations = schema.dump(raw_organizations, many=True)
     result = {"result": organizations}
@@ -130,13 +123,7 @@ def get_organization(org_id: str) -> Tuple[Any, int]:
     """
     with generate_session() as session:
         try:
-            raw_org = (
-                organizations_crud.get_entity_without_team_views(
-                    session, get_sanitized_id(org_id)
-                )
-                if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-                else organizations_crud.get_entity(session, get_sanitized_id(org_id))
-            )
+            raw_org = organizations_crud.get_entity(session, get_sanitized_id(org_id))
         except HolocronIntegrityError:
             return "Resource not found", 404
         result = schema.dump(raw_org)

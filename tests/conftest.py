@@ -58,12 +58,6 @@ def application(monkeypatch):
     monkeypatch.setattr(app.app, "BackgroundScheduler", MagicMock())
     monkeypatch.setattr(app.app.config, "FEATURE_FLAGS", {"FEATURE_API_V3": True})
     monkeypatch.setattr(
-        app.routes.v2.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
-    )
-    monkeypatch.setattr(
-        app.routes.v3.teams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True}
-    )
-    monkeypatch.setattr(
         app.routes.v2,
         "FEATURE_FLAGS",
         {

@@ -20,15 +20,13 @@ json = {"name": "test", "user_ids": []}
 
 @fixture
 def mock_organizations_crud(monkeypatch):
-    """Mock value streams crud."""
+    """Mock organizations crud."""
     monkeypatch.setattr(
         organizations_crud,
         "get_entity",
         MagicMock(
             return_value=create_organization(
-                value_streams=[
-                    create_value_stream(teams=[create_team(), create_team_view()])
-                ]
+                value_streams=[create_value_stream(teams=[create_team()])]
             )
         ),
     )
@@ -38,9 +36,7 @@ def mock_organizations_crud(monkeypatch):
         MagicMock(
             return_value=[
                 create_organization(
-                    value_streams=[
-                        create_value_stream(teams=[create_team(), create_team_view()])
-                    ]
+                    value_streams=[create_value_stream(teams=[create_team()])]
                 )
             ]
         ),
@@ -51,45 +47,37 @@ def mock_organizations_crud(monkeypatch):
         MagicMock(
             return_value=[
                 create_organization(
-                    value_streams=[
-                        create_value_stream(teams=[create_team(), create_team_view()])
-                    ]
+                    value_streams=[create_value_stream(teams=[create_team()])]
                 )
             ]
         ),
     )
 
 
-def test_get_entity_without_team_views(mock_session, mock_organizations_crud):
-    """Test get_entity_without_team_views method."""
+def test_get_entity(mock_session, mock_organizations_crud):
+    """Test get_entity method where view_owner_id is set to None."""
     expected = create_organization(
         value_streams=[create_value_stream(teams=[create_team()])]
     )
-    result = organizations_crud.get_entity_without_team_views(mock_session, 1)
+    result = organizations_crud.get_entity(mock_session, 1)
     assert expected == result
 
 
-def test_get_entities_without_team_views(mock_session, mock_organizations_crud):
-    """Test get_entities_without_team_views method."""
+def test_get_entities(mock_session, mock_organizations_crud):
+    """Test get_entities method where view_owner_id is set to None."""
     expected = [
         create_organization(value_streams=[create_value_stream(teams=[create_team()])])
     ]
-
-    result = organizations_crud.get_entities_without_team_views(mock_session)
-
+    result = organizations_crud.get_entities(mock_session)
     assert expected == result
 
 
-def test_get_entities_without_team_views_paginated(
-    mock_session, mock_organizations_crud
-):
-    """Test get_entities_without_team_views_paginated method."""
+def test_get_entities_paginated(mock_session, mock_organizations_crud):
+    """Test get_entities_paginated method where view_owner_id is set to None."""
     expected = [
         create_organization(value_streams=[create_value_stream(teams=[create_team()])])
     ]
-
-    result = organizations_crud.get_entities_without_team_views_paginated(mock_session)
-
+    result = organizations_crud.get_entities_paginated(mock_session)
     assert expected == result
 
 
@@ -137,7 +125,7 @@ def test_update_entity(mock_session, mock_organizations_crud):
     expected_add = create_organization(
         name=json["name"],
         users=[],
-        value_streams=[create_value_stream(teams=[create_team(), create_team_view()])],
+        value_streams=[create_value_stream(teams=[create_team()])],
     )
     expected_return = create_organization(
         name=json["name"],

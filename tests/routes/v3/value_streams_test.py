@@ -26,21 +26,7 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-@fixture
-def mock_feature_team_views_true(monkeypatch):
-    """Mock FEATURE_TEAM_VIEWS as true."""
-    monkeypatch.setattr(value_streams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
-
-
-@fixture
-def mock_feature_team_views_false(monkeypatch):
-    """Mock FEATURE_TEAM_VIEWS as false."""
-    monkeypatch.setattr(value_streams, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
-
-
-def test_list_value_streams(
-    client, mock_crud, mock_request, mock_feature_team_views_false
-):
+def test_list_value_streams(client, mock_crud, mock_request):
     """Test GET /api/v3/value-streams endpoint."""
     expected = {"result": []}
 
@@ -50,26 +36,20 @@ def test_list_value_streams(
     assert resp.status_code == 200
 
 
-def test_list_value_streams_team_views(
-    client, mock_request, mock_crud, mock_feature_team_views_true
-):
+def test_list_value_streams_team_views(client, mock_request, mock_crud):
     """Test GET /api/v3/value-streams endpoint team view feature."""
     expected = {"result": []}
-    get_entities_without_team_views = MagicMock(return_value=[])
-    mock_crud.get_entities_without_team_views_paginated = (
-        get_entities_without_team_views
-    )
+    get_entities_paginated = MagicMock(return_value=[])
+    mock_crud.get_entities_paginated = get_entities_paginated
 
     resp = client.get("/api/v3/value-streams")
 
     assert resp.json == expected
     assert resp.status_code == 200
-    get_entities_without_team_views.assert_called_once()
+    get_entities_paginated.assert_called_once()
 
 
-def test_get_value_stream(
-    client, mock_crud, mock_request, mock_feature_team_views_false
-):
+def test_get_value_stream(client, mock_crud, mock_request):
     """Test GET /api/v3/value-streams/:id endpoint."""
     expected = {"id": 1}
 
@@ -79,9 +59,7 @@ def test_get_value_stream(
     assert resp.status_code == 200
 
 
-def test_get_value_stream_404(
-    client, mock_crud, mock_request, mock_feature_team_views_false
-):
+def test_get_value_stream_404(client, mock_crud, mock_request):
     """Test GET /api/v3/value-streams/:id endpoint."""
     expected = "Resource not found"
 
@@ -91,36 +69,30 @@ def test_get_value_stream_404(
     assert resp.status_code == 404
 
 
-def test_get_value_stream_feature_team_views(
-    client, mock_request, mock_crud, mock_feature_team_views_true
-):
+def test_get_value_stream_feature_team_views(client, mock_request, mock_crud):
     """Test GET /api/v3/value-streams/:id endpoint feature team views."""
     expected = {"id": 1}
-    get_entity_without_team_views = MagicMock(return_value=expected)
-    mock_crud.get_entity_without_team_views = get_entity_without_team_views
+    get_entity = MagicMock(return_value=expected)
+    mock_crud.get_entity = get_entity
 
     resp = client.get("/api/v3/value-streams/1")
 
     assert resp.json == expected
     assert resp.status_code == 200
-    get_entity_without_team_views.assert_called_once()
+    get_entity.assert_called_once()
 
 
-def test_get_value_stream_404_feature_team_views(
-    client, mock_request, mock_crud, mock_feature_team_views_true
-):
+def test_get_value_stream_404_feature_team_views(client, mock_request, mock_crud):
     """Test GET /api/v3/value-streams/:id endpoint feature team views."""
     expected = "Resource not found"
-    get_entity_without_team_views = MagicMock(
-        side_effect=HolocronIntegrityError("foo", "bar")
-    )
-    mock_crud.get_entity_without_team_views = get_entity_without_team_views
+    get_entity = MagicMock(side_effect=HolocronIntegrityError("foo", "bar"))
+    mock_crud.get_entity = get_entity
 
     resp = client.get("/api/v3/value-streams/-1")
 
     assert resp.text == expected
     assert resp.status_code == 404
-    get_entity_without_team_views.assert_called_once()
+    get_entity.assert_called_once()
 
 
 def test_create_value_stream(client, mock_crud, mock_admin):

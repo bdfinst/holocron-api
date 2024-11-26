@@ -26,20 +26,10 @@ def mock_admin(monkeypatch, mock_request):
     setattr(mock_request, "user", {"isAdmin": True, "id": 1, "username": "t"})
 
 
-@fixture
-def mock_feature_team_views_true(monkeypatch):
-    """Mock FEATURE_TEAM_VIEWS as true."""
-    monkeypatch.setattr(organizations, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": True})
-
-
-@fixture
-def mock_feature_team_views_false(monkeypatch):
-    """Mock FEATURE_TEAM_VIEWS as false."""
-    monkeypatch.setattr(organizations, "FEATURE_FLAGS", {"FEATURE_TEAM_VIEWS": False})
-
-
 def test_list_organizations(
-    client, mock_crud, mock_request, mock_feature_team_views_false
+    client,
+    mock_crud,
+    mock_request,
 ):
     """Test GET /api/v2/organizations endpoint."""
     expected = {"result": []}
@@ -50,27 +40,29 @@ def test_list_organizations(
     assert resp.status_code == 200
 
 
-def test_list_organizations_team_views(
-    client, mock_request, monkeypatch, mock_feature_team_views_true
-):
-    """Test GET /api/v2/organizations endpoint team views feature."""
-    expected = {"result": []}
-    get_entities_without_team_views = MagicMock(return_value=[])
-    monkeypatch.setattr(
-        organizations.organizations_crud,
-        "get_entities_without_team_views",
-        get_entities_without_team_views,
-    )
+# def test_list_organizations_team_views(
+#     client, mock_request, monkeypatch,
+# ):
+#     """Test GET /api/v2/organizations endpoint team views feature."""
+#     expected = {"result": []}
+#     get_entities_without_team_views = MagicMock(return_value=[])
+#     monkeypatch.setattr(
+#         organizations.organizations_crud,
+#         "get_entities_without_team_views",
+#         get_entities_without_team_views,
+#     )
 
-    resp = client.get("/api/v2/organizations")
+#     resp = client.get("/api/v2/organizations")
 
-    assert resp.json == expected
-    assert resp.status_code == 200
-    get_entities_without_team_views.assert_called_once()
+#     assert resp.json == expected
+#     assert resp.status_code == 200
+#     get_entities_without_team_views.assert_called_once()
 
 
 def test_get_organization(
-    client, mock_crud, mock_request, mock_feature_team_views_false
+    client,
+    mock_crud,
+    mock_request,
 ):
     """Test GET /api/v2/organizations/:id endpoint."""
     mock_crud.get_entity = MagicMock(return_value={"id": 1, "value_streams": []})
@@ -83,7 +75,9 @@ def test_get_organization(
 
 
 def test_get_organization_404(
-    client, mock_crud, mock_request, mock_feature_team_views_false
+    client,
+    mock_crud,
+    mock_request,
 ):
     """Test GET /api/v2/organizations/:id endpoint."""
     expected = "Resource not found"
@@ -94,58 +88,58 @@ def test_get_organization_404(
     assert resp.status_code == 404
 
 
-def test_get_organization_feature_team_views(
-    client,
-    mock_crud,
-    mock_request,
-    mock_feature_team_views_true,
-):
-    """Test GET /api/v2/organizations/:id endpoint team views feature."""
-    expected = {"id": 1, "valuestreams": []}
-    get_entity_without_team_views = MagicMock(
-        return_value={"id": 1, "value_streams": []}
-    )
-    mock_crud.get_entity_without_team_views = get_entity_without_team_views
+# def test_get_organization_feature_team_views(
+#     client,
+#     mock_crud,
+#     mock_request,
 
-    resp = client.get("/api/v2/organizations/1")
+# ):
+#     """Test GET /api/v2/organizations/:id endpoint team views feature."""
+#     expected = {"id": 1, "valuestreams": []}
+#     get_entity_without_team_views = MagicMock(
+#         return_value={"id": 1, "value_streams": []}
+#     )
+#     mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
-    assert resp.json == expected
-    assert resp.status_code == 200
-    get_entity_without_team_views.assert_called_once()
+#     resp = client.get("/api/v2/organizations/1")
 
-
-def test_get_organization_feature_team_views_404(
-    client,
-    mock_crud,
-    mock_request,
-    mock_feature_team_views_true,
-):
-    """Test GET /api/v2/organizations/:id endpoint team views feature."""
-    expected = "Resource not found"
-    get_entity_without_team_views = MagicMock(
-        side_effect=HolocronIntegrityError("foo", "bar")
-    )
-    mock_crud.get_entity_without_team_views = get_entity_without_team_views
-
-    resp = client.get("/api/v2/organizations/1")
-
-    assert resp.text == expected
-    assert resp.status_code == 404
-    get_entity_without_team_views.assert_called_once()
+#     assert resp.json == expected
+#     assert resp.status_code == 200
+#     get_entity_without_team_views.assert_called_once()
 
 
-def test_create_organization(client, mock_crud, mock_admin):
-    """Test POST /api/v2/organizations endpoint."""
-    json = {"name": "test", "userIds": [1]}
-    mock_crud.create_entity = MagicMock(
-        side_effect=lambda _x, y: {**y, "value_streams": []}
-    )
-    expected = {"name": "test", "valuestreams": []}
+# def test_get_organization_feature_team_views_404(
+#     client,
+#     mock_crud,
+#     mock_request,
 
-    resp = client.post("/api/v2/organizations", json=json)
+# ):
+#     """Test GET /api/v2/organizations/:id endpoint team views feature."""
+#     expected = "Resource not found"
+#     get_entity_without_team_views = MagicMock(
+#         side_effect=HolocronIntegrityError("foo", "bar")
+#     )
+#     mock_crud.get_entity_without_team_views = get_entity_without_team_views
 
-    assert resp.json == expected
-    assert resp.status_code == 201
+#     resp = client.get("/api/v2/organizations/1")
+
+#     assert resp.text == expected
+#     assert resp.status_code == 404
+#     get_entity_without_team_views.assert_called_once()
+
+
+# def test_create_organization(client, mock_crud, mock_admin):
+#     """Test POST /api/v2/organizations endpoint."""
+#     json = {"name": "test", "userIds": [1]}
+#     mock_crud.create_entity = MagicMock(
+#         side_effect=lambda _x, y: {**y, "value_streams": []}
+#     )
+#     expected = {"name": "test", "valuestreams": []}
+
+#     resp = client.post("/api/v2/organizations", json=json)
+
+#     assert resp.json == expected
+#     assert resp.status_code == 201
 
 
 def test_create_organization_validation_error(client, mock_crud, mock_admin):

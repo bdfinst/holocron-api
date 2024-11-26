@@ -10,7 +10,7 @@ import jwt
 from flask import Response, request
 from sqlalchemy.orm import Session
 
-from app.config import FEATURE_FLAGS, SSO_ENABLED
+from app.config import SSO_ENABLED
 from app.crud import (
     organizations_crud,
     team_views_crud,
@@ -195,11 +195,8 @@ def requires_team_access(**kwargs) -> Tuple[bool, Optional[str]]:
     """Restrict access for endpoint to users with team access."""
     user = getattr(request, "user", {"id": 0})
     with generate_session() as session:
-        team_id = (
-            get_team_id_for_team_access_feature_team_views(session, **kwargs)
-            if FEATURE_FLAGS["FEATURE_TEAM_VIEWS"]
-            else get_sanitized_id(kwargs["team_id"])
-        )
+        team_id = get_team_id_for_team_access_feature_team_views(session, **kwargs)
+
         if check_entity_access(EntityType.TEAM, team_id, session, user["id"]):
             return True, None
 
